@@ -1,0 +1,241 @@
+ 
+
+//js below
+<script src="moment.js"></script>-->
+<script type="text/javascript">
+				var allScheduleData;
+        var days;
+        var selectedUrl;
+</script>
+
+<script src="https://momentjs.com/downloads/moment.js"></script> 
+<!--<script src="https://momentjs.com/downloads/moment-timezone.min.js"></script>-->
+<script src="moment.js"></script>
+			
+			
+<script src="https://momentjs.com/downloads/moment-timezone-with-data-10-year-range.js" type="text/javascript"></script>
+
+<link rel="stylesheet" type="text/css" href="schedule.css">
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+			<script   src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"   integrity="sha256-xI/qyl9vpwWFOXz7+x/9WkG5j/SVnSw21viy8fWwbeE="   crossorigin="anonymous"></script>
+
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<script   src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"   integrity="sha256-xI/qyl9vpwWFOXz7+x/9WkG5j/SVnSw21viy8fWwbeE="   crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+
+ $(document).ready(function() {              
+              var data = [];
+           
+                var allSchedules = $.ajax({
+                  type: 'GET',
+                  url: 'http://ultrastreaming.tv/wp-json/schedules/all'
+                });
+                allSchedules.complete(function(jqXHR){
+                  if(jqXHR.readyState === 4) {
+                    allScheduleData = JSON.parse(jqXHR["responseText"]);
+                    showSelectedData(moment().format("YYYY-MM-DD HH:mm:ss"));
+                    console.log("the data", allScheduleData);          
+                  }
+                });
+            });
+
+
+function getButtonStatus(channelId, team1, team2, startTime, scheduleId){
+              var now = moment(new Date());
+              var start = moment(new Date(startTime));
+              var duration = moment.duration(start.diff(now));
+              var minutes = Math.floor(duration.asMinutes());
+                if(channelId){
+                    if(minutes > 30){
+                    return  `<a class="btn btn-primary" href="http://ultrastreaming.tv/live/streams/channel/?c_id=${channelId}&s_id=${scheduleId}&s_t=${startTime}" role="button" > Before 30 minutes </a>`
+                  }
+                  else{
+                    return  `<a class="btn btn-danger live-loading-buttons" style = "background-color: transparent; color: red; border: 0px;position: relative;bottom: 10px;font-size: 18px;" href="http://ultrastreaming.tv/live/streams/channel/?c_id=${channelId}&s_id=${scheduleId}&s_t=${startTime}" role="button"> Live Link  </a><div class="spinner-grow text-danger" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>`
+                  }  
+                }
+                return '';
+            }
+
+ function getMatchDay(date){
+              var newDate = new Date(date);
+              var dayName = days[newDate.getDay()];
+              var day = newDate.getDay();
+
+              return dayName + ', ' + moment(date).format('DD') + ' ' + moment(date).format('MMM'); 
+            }
+
+           
+            function changeSportSchedule(sport){
+              jQuery('#select-sports-schedule').val(sport).change()
+            }
+
+
+
+ function showSelectedData(selectedDate){
+              console.log("selectedDate", selectedDate)
+              var sports_category = jQuery('#select-sports-schedule').val();
+			  var Schedule = allScheduleData.filter(i => { return sports_category === i.sports_type  })
+            //  var Schedule = allScheduleData.filter(i => { return sports_category === i.sports_type &&  moment(i.start_time[0]).add(180, "minutes").toDate().getTime()  >= new Date(selectedDate).getTime() })
+             console.log("the schedules", Schedule)
+              $("#table-body").html('');
+              
+              if(["ufc-league-schedule", "soccer-league-schedule", "nfl-league-schedule"].includes(sports_category)){
+                for(let i of Schedule){
+                  var url = i.live_stream_url[0];
+                  var matchDescription = i.team1 + "vs" + i.team2 ;
+                  var currentUserTimeZone = moment.tz.guess();
+                  
+                //   let currentUserTimeZone = "America/New_York"
+                  
+                //   var specificZoneDate = moment.tz(i.start_time[0] ,currentUserTimeZone).toLocaleString()
+                //  debugger
+                //   var utcStart = new moment(new Date(specificZoneDate), "YYYY-MM-DD HH:mm:ss").utc(specificZoneDate);
+                //   debugger
+                var specificZoneDate = moment(i.start_time[0]).tz(currentUserTimeZone).format('YYYY/MM/DD HH:mm:ss')
+                //   specificZoneDate =  utcStart.format('YYYY/MM/DD HH:mm:ss')
+                //   specificZoneDate = moment(specificZoneDate).utc(specificZoneDate).format("YYYY/MM/DD HH:mm:ss")
+                   
+                    
+                //   const specificZoneDate = i.start_time[0];
+                  $("#table-body").append(`<tr >
+                                            <th class = "table-elements" style = "text-align: center;" scope="row"><span><img class = "timeline-images" src = ${i.sports_logo} ></span></th>
+                                            <td class = "table-elements" style = "text-align: center;" >${ i.team1+ ' ' + "vs" + ' ' + i.team2 }</td>
+                                            <td class = "table-elements" style = "text-align: center;" >${getMatchDay(specificZoneDate)}</td>
+                                            <td class = "table-elements" style = "text-align: center;" >${moment(specificZoneDate).format("HH:mm:ss")}</td>
+                                            <td class = "table-elements" style = "text-align: center;" >
+                                              ${ getButtonStatus(i.channel1_id, i.team1, i.team2, specificZoneDate, i.id)}
+                                            </td>
+                                            <td class = "table-elements" style = "text-align: center;" >
+                                              ${ getButtonStatus(i.channel2_id, i.team1, i.team2, specificZoneDate, i.id)}
+                                            </td>
+                                            <td class = "table-elements" style = "text-align: center;" >
+                                              ${ getButtonStatus(i.channel3_id, i.team1, i.team2, specificZoneDate, i.id)}
+                                            </td>
+                                          </tr>`)
+                
+                }
+              }         
+              else if(sports_category === "motogp-league-schedule"){
+                for(let i of Schedule){
+                  html = html +  `<div class="cd-timeline-block">
+																	<div class="cd-timeline-img cd-movie">
+																	</div>
+																	<div class="cd-timeline-content">
+																			<div class = "row">
+																				<div class = "col-6">
+                                          <span><img class = "timeline-images" src = ${i.sports_logo} ></span>
+                                          <span> ${i.league}</span>
+																				</div>
+																				<div class = "offset-2 col-4">
+                                          <a class="btn btn-link"
+                                             onclick = "watchLiveStream('${i.live_stream_url[0]}', '${ i.team1 + ' ' + "vs" +' '+ i.team2 }', '${specificZoneDate}')" 
+                                             style = "color: red" role="button"
+                                          >
+                                            Watch Live
+                                          </a>
+																				</div>
+																			</div>
+
+																			<span class= ${getSpecificClass(count)} >${getMatchDay(specificZoneDate)}</span>
+																			<div class="container-fluid">
+																				<div class = "row">
+																					<div class = "col-6 offset-3" style = "text-align: center;">
+																						<p style = "font-size: 14px;">${i.match_description}</p>
+																					</div>
+																				</div>
+																				<div class = row>
+																					<div class = "col-12" style = "padding-top: 10px; text-align: center;" >
+																						<img class = "img-responsive character-images" style = "height: 100px; width: 150px;" src  = ${i.opponentA_logo} />
+																						<p style = "text-align: center;">${i.opponentA}</p>
+																					</div>
+																				</div>	 
+																			</div>
+																		</div>
+																</div>`                  
+                }
+              }
+            }	
+
+
+
+
+</script>
+
+
+
+
+ // html below
+
+<section>
+                                <div class = "container-fluid" style = "width: 92%" id="schedule">
+                                    <div class = "row">
+																			<div class = "col-6 offset-3">
+																				<div class = "middle-panel-section">
+                                          <p> Schedule</p>
+																				</div>
+																			</div>
+																		
+                                    </div>                                  
+                                    <div class = "row">
+                                      <div class="col-lg-2 offset-lg-8 col-6 offset-3" style = "padding-top: 8px;">
+																				<select class="custom-select" id="select-sports-schedule" style = "width: 90%;">
+                                          <option value ="ufc-league-schedule">UFC</option>
+                                          <option  value="soccer-league-schedule">Soccer</option>
+                                          <option selected value="nfl-league-schedule">NFL</option>
+                                          <option value="motogp-league-schedule">MotoGp</option>
+																				</select>
+																			</div>  
+                                    </div>
+                                    <!-- <div class = "row">
+																			<div class = "col-lg-2 offset-lg-8 col-6 offset-3" style = "padding-top: 8px;">
+																				<div id="wrapper">
+																					<input  type="text" name="date" class="date datepicker" readonly placeholder="DD/MM/YYYY"/>
+																				</div>
+    																	</div>	
+                                    </div> -->
+                                </div>            
+                              </section>
+
+                              <section style="text-align: center;">
+                                 <div class="spinner-border d-none" style="width: 3rem; height: 3rem;" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                 </div>
+                              </section>
+
+                              <section class="cd-container ufc-league-schedule" style = "background-color: #101010; margin-top: 50px; padding:0">
+                                <table class="table table-bordered table-dark">
+                                  <thead>
+                                    <tr>
+                                      <th class = "table-elements" style = "text-align: center;" scope="col">Sports</th>
+                                      <th class = "table-elements" style = "text-align: center;" scope="col">Match</th>
+                                      <th class = "table-elements" style = "text-align: center;" scope="col">Date</th>
+                                      <th class = "table-elements" style = "text-align: center;" scope="col">Time</th>
+                                      <th class = "table-elements" style = "text-align: center;" scope="col">Link1</th>
+                                      <th class = "table-elements" style = "text-align: center;" scope="col">Link2</th>
+                                      <th class = "table-elements" style = "text-align: center;" scope="col">Link3</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody id = "table-body">
+                                    <!-- <tr >
+                                      <th scope="row">1</th>
+                                      <td>Mark</td>
+                                      <td>Otto</td>
+                                      <td>@mdo</td>
+                                    </tr> -->
+                                    <!-- <tr>
+                                      
+                                      <td>Jacob</td>
+                                      <td>Thornton</td>
+                                      <td>@fat</td>
+                                    </tr>
+                                    <tr>
+                                      
+                                      <td colspan="2">Larry the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr> -->
+                                  </tbody>
+                                </table>
+                              </section>  

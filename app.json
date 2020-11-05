@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Bar Peak",
+    "slug": "Bar peak",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png",
+    "splash": {
+      "image": "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png",
+      "backgroundColor": "#1e2c31"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "ultrastream"
+    },
+    "android": {
+      "package": "com.ultrastream.ultrastream"
+    },
+    "web": {
+      "favicon": "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png"
+    },
+    "description": "",
+    "sdkVersion": "38.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "entryPoint": "node_modules/expo/AppEntry.js"
+  }
+}
