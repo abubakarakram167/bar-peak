@@ -7,11 +7,6 @@ import FaceBookComponent from '../components/facebookComponent';
 import {storeUserData} from '../components/localStorage';
 import axios from '../api/axios';
 
-
-
-
-
-
  class LoginScreen extends React.Component {
   constructor(props){
     super(props)
@@ -56,7 +51,7 @@ import axios from '../api/axios';
         console.log("before calling store")
         storeUserData(res.data.data.login).then(() => {
           this.setState({ spinner: false });
-          navigation.navigate('NestedScreen', { name:  "welcome abubakar" });
+          navigation.navigate('HomeApp', { name:  "welcome abubakar" });
         })
       }
     }).catch(err => {

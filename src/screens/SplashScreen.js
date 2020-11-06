@@ -32,12 +32,12 @@ import { graphql } from 'graphql';
   async performAPICalls() {
     const { navigation } = this.props;
     const { token, userId } =  await getUserData();
-    console.log("the token", token)
+    console.log("in splash token", token)
     if(token && userId)
       navigation.navigate('HomeApp')
     else{
-      navigation.navigate('HomeApp')
-      // navigation.navigate('LoginScreen')
+      // navigation.navigate('HomeApp')
+       navigation.navigate('LoginScreen')
     }
       
   }

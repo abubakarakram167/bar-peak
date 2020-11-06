@@ -10,7 +10,8 @@ import {
     ScrollView,
     Image,
     Dimensions,
-    Animated
+    Animated,
+    FlatList
 } from "react-native";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -19,12 +20,15 @@ import Category from '../../screens/components/Category'
 import Home from '../../screens/components/Home'
 import Tag from '../../screens/components/Tag'
 import {getAllBusiness} from '../../redux/actions/Business';
+import {getfilteredBusiness} from '../../redux/actions/Business';
+import { removeStorageItem } from '../components/localStorage'; 
+
 const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
 
-  
-  componentDidMount(){
-    this.props.getAllBusiness()
+  async componentDidMount(){
+    const getData = await this.props.getAllBusiness();
+    this.props.getfilteredBusiness(getData)
   }
     
   componentWillMount() {
@@ -61,7 +65,7 @@ class HomeScreen extends Component {
   }
 
     render() {
-      // console.log("the state", this.props.business);
+      const { filterBusinesses } = this.props.business.business;
         return (
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={{ flex: 1 }}>
@@ -77,10 +81,10 @@ class HomeScreen extends Component {
                         }}>
                             <Icon name="ios-search" size={20} style={{ marginRight: 10 }} />
                             <TextInput
-                                underlineColorAndroid="transparent"
-                                placeholder="Try New Delhi"
-                                placeholderTextColor="grey"
-                                style={{ flex: 1, fontWeight: '700', backgroundColor: 'white' }}
+                              underlineColorAndroid="transparent"
+                              placeholder="Try New Delhi"
+                              placeholderTextColor="grey"
+                              style={{ flex: 1, fontWeight: '700', backgroundColor: 'white' }}
                             />
                         </View>
                         <Animated.View
@@ -92,78 +96,75 @@ class HomeScreen extends Component {
                         </Animated.View>
                     </Animated.View>
                     <ScrollView
-                        scrollEventThrottle={16}
-                        onScroll={Animated.event(
-                            [
-                                { nativeEvent: { contentOffset: { y: this.scrollY } } }
-                            ]
-                        )}
-                    >
-                        <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 20 }}>
-                            <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                                What can we help you find, Varun?
-                            </Text>
-
-                            <View style={{ height: 130, marginTop: 20 }}>
-                                <ScrollView
-                                    horizontal={true}
-                                    showsHorizontalScrollIndicator={false}
-                                >
-                                    <Category imageUri={require('../../assets/home.jpg')}
-                                        name="Home"
-                                    />
-                                    <Category imageUri={require('../../assets/experiences.jpg')}
-                                        name="Experiences"
-                                    />
-                                    <Category imageUri={require('../../assets/restaurant.jpg')}
-                                        name="Resturant"
-                                    />
-                                </ScrollView>
-                            </View>
-                            <View style={{ marginTop: 40, paddingHorizontal: 20 }}>
-                                <Text style={{ fontSize: 24, fontWeight: '700' }}>
-                                    Introducing Airbnb Plus
-                                </Text>
-                                <Text style={{ fontWeight: '100', marginTop: 10 }}>
-                                    A new selection of homes verified for quality & comfort
-
-                                </Text>
-                                <View style={{ width: width - 40, height: 200, marginTop: 20 }}>
-                                    <Image
-                                        style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 5, borderWidth: 1, borderColor: '#dddddd' }}
-                                        source={require('../../assets/home.jpg')}
-                                    />
-
-                                </View>
-                            </View>
+                      scrollEventThrottle={16}
+                      onScroll={Animated.event(
+                          [
+                              { nativeEvent: { contentOffset: { y: this.scrollY } } }
+                          ]
+                      )}
+                    > 
+                      <Animated.View
+                        style={{  marginHorizontal: 0, position: 'relative', top: this.animatedTagTop, opacity: this.animatedOpacity }}
+                      >   
+                        <View style={{ marginTop: 0, paddingHorizontal: 0 }}>
+                          {/* <Text style={{ fontSize: 24, fontWeight: '700' }}>
+                              Introducing Airbnb Plus
+                          </Text>
+                          <Text style={{ fontWeight: '100', marginTop: 10 }}>
+                              A new selection of homes verified for quality & comfort
+                          </Text> */}
+                          <View style={{ width: width , height: height * 0.4, marginTop: 20 }}>
+                            <Image
+                              style={styles.homeLogo}
+                              source={require('../../assets/home.jpg')}
+                            />
+                          </View>
                         </View>
-                        <View style={{ marginTop: 40 }}>
-                            <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                                Homes around the world
-                            </Text>
-                            <View style={{ paddingHorizontal: 20, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                                <Home width={width}
-                                    name="The Cozy Place"
-                                    type="PRIVATE ROOM - 2 BEDS"
-                                    price={82}
-                                    rating={4}
-                                />
-                                <Home width={width}
-                                    name="The Cozy Place"
-                                    type="PRIVATE ROOM - 2 BEDS"
-                                    price={82}
-                                    rating={4}
-                                />
-                                <Home width={width}
-                                    name="The Cozy Place"
-                                    type="PRIVATE ROOM - 2 BEDS"
-                                    price={82}
-                                    rating={4}
-                                />
-
-
-                            </View>
+                      </Animated.View>
+                      <View style={{ marginTop: 40 }}>
+                        <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
+                          Your Vibe's
+                        </Text>
+                        <View style={{ paddingHorizontal: 20, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                        <FlatList
+                          data={filterBusinesses}
+                          renderItem={({item}) => {
+                            console.log("the render item", item);
+                            return(
+                              <Home 
+                                width={width}
+                                height= {height}
+                                item = {item}
+                              />
+                            );
+                          }}
+                          horizontal = {true}
+                          keyExtractor={item => item.place_id}
+                        />  
                         </View>
+                      </View> 
+                      <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 20 }}>
+                        <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
+                            What can we help you find, Varun?
+                        </Text>
+
+                        <View style={{ height: 130, marginTop: 20 }}>
+                            <ScrollView
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                <Category imageUri={require('../../assets/home.jpg')}
+                                    name="Home"
+                                />
+                                <Category imageUri={require('../../assets/experiences.jpg')}
+                                    name="Experiences"
+                                />
+                                <Category imageUri={require('../../assets/restaurant.jpg')}
+                                    name="Resturant"
+                                />
+                            </ScrollView>
+                        </View>
+                      </View>
                     </ScrollView>
 
                 </View>
@@ -178,6 +179,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
     getAllBusiness,
+    getfilteredBusiness
   }, dispatch)
 );
 
@@ -188,5 +190,16 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    homeLogo: { flex: 1,
+      height: null, 
+      width: '100%',
+      resizeMode: 'cover',
+      borderBottomLeftRadius:0,
+      borderBottomRightRadius:0 ,
+      borderRadius: 15,
+      borderBottomWidth: 0,
+      borderWidth: 1, 
+      borderColor: '#dddddd' 
     }
 });

@@ -26,7 +26,7 @@ export const getUserData = async () => {
   const token = await AsyncStorage.getItem('Token')
   return {
     userId,
-    token
+    token:  token && token.replace(/^"(.+(?="$))"$/, '$1')
   }
 };
 
