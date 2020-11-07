@@ -8,10 +8,17 @@ import {
 import StarRating from 'react-native-star-rating'
 class Home extends Component { 
   
-  
+  renderDollar = (priceLevel) => {
+    let dollar = '';
+    for(let i=0 ; i< priceLevel; i++){
+      dollar = dollar + '$'; 
+    }
+    return dollar;
+  }
+
   render() {
     const { item } = this.props
-    console.log("photorefernece", item.photo_reference)
+    console.log("the item", item)
     return (
       <View style={[styles.businessItem, {  width: this.props.width * 0.65, height: this.props.height * 0.4 }]}>
         <View style={{ flex: 1 }}>
@@ -26,10 +33,11 @@ class Home extends Component {
             maxStars={5}
             rating={item.rating}
             starSize={10}
+            starStyle = {{ color:'#ffbf00' }}
           />
           <Text style={[{ fontSize: 20, color: '#b63838' }, styles.textInfo]}>{item.types[0]}</Text>
           <Text style={[{ fontSize: 16, fontWeight: 'bold' }, styles.textInfo]}>{item.name}</Text>
-          <Text style={[{ fontSize: 10 }, styles.textInfo]}>{this.props.price}$</Text>
+          <Text style={[{ fontSize: 12 }, styles.textInfo]}>{item.price_level>0 ?  this.renderDollar(item.price_level) : "Price not available" }</Text>
         </View>
       </View>
     );
@@ -52,13 +60,12 @@ const styles = StyleSheet.create({
     borderWidth:1 
   },
   textInfo: {
-    marginTop: 5,
-    marginBottom: 5
+    marginTop: 3,
+    marginBottom: 3
   }
   ,
   businessItem: { 
     marginLeft: 10, 
-    borderWidth: 0.5, 
     borderColor: '#dddddd',
   }
 });

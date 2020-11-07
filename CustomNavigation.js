@@ -1,20 +1,17 @@
 import React from "react";
-
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from "./src/screens/HomeScreen";
 import SignUpScreen from './src/screens/SignUpScreen';
-import ExploreScreen from './screens/Explore';
+import MapScreen from './src/screens/MapScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import MyVibeScreen from './src/screens/MyVibe';
-import Screen1 from "./screens/Screen1";
 import Screen2 from "./screens/Screen2";
-import Screen3 from "./screens/Screen3";
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
-import Icon from 'react-native-vector-icons/FontAwesome';
+// import Icon from 'react-native-vector-icons/FontAwesome';
+import { Icon } from 'react-native-elements'
 import { Image } from 'react-native'
 const Tab = createBottomTabNavigator();
-
 
 
 const Stack = createStackNavigator();  // creates object for Stack Navigator
@@ -60,7 +57,12 @@ function HomeApp() {
           tabBarVisible: true,
           tabBarLabel: 'Home',
           tabBarIcon: ({ tintColor }) => (
-            <Icon name="list-alt" size={30} color= {tintColor} />
+            <Icon
+             name='ios-home'
+             type = 'ionicon'
+             color = {tintColor}  
+            />
+            // <Icon name="heart"  color = {tintColor} size = {24} ></Icon>
           )
         }      
       }}
@@ -73,7 +75,11 @@ function HomeApp() {
         {
           tabBarLabel: 'SAVED',
           tabBarIcon: ({ tintColor }) => (
-            <Icon name="heart"  color = {tintColor} size = {24} ></Icon>
+            <Icon 
+              name="ios-heart"
+              type = 'ionicon'  
+              color = {tintColor} 
+            />
           )
         }
       }
@@ -86,7 +92,11 @@ function HomeApp() {
         {
           tabBarLabel: 'My Vibe',
           tabBarIcon: ({ tintColor }) => (
-            <Icon name="cog"  color = {tintColor} size = {24} ></Icon>
+            <Icon 
+              name="ios-settings"
+              type = 'ionicon'  
+              color = {tintColor} 
+            />
           )
         }
       }
@@ -99,7 +109,11 @@ function HomeApp() {
         {
           tabBarLabel: 'Profile',
           tabBarIcon: ({ tintColor }) => (
-            <Icon name="user"  color = {tintColor} size = {24} ></Icon>
+            <Icon 
+              name="ios-person"
+              type = 'ionicon'  
+              color = {tintColor} 
+            />
           )
         }
       }
@@ -161,18 +175,13 @@ const HomeTabScreen = () => {
   return (
     <Stack.Navigator initialRouteName = "HomeScreen" >
       <Stack.Screen
-        name="ExploreScreen"
-        component={ExploreScreen}
-        options = { ()=> {return screenOptions} }
-      />
-      <Stack.Screen
         name="HomeScreen"
         component={HomeScreen}
         options = { ()=> {return screenOptions} }
       />
       <Stack.Screen
-        name="something"
-        component={Screen2}
+        name="MapScreen"
+        component={MapScreen}
         options = { ()=> {return screenOptions} }
       />
     </Stack.Navigator>

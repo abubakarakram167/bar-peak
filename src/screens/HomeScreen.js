@@ -11,7 +11,8 @@ import {
     Image,
     Dimensions,
     Animated,
-    FlatList
+    FlatList,
+    TouchableOpacity
 } from "react-native";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -27,6 +28,7 @@ const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
 
   async componentDidMount(){
+    console.log("calling component did mount")
     const getData = await this.props.getAllBusiness();
     this.props.getfilteredBusiness(getData)
   }
@@ -49,7 +51,7 @@ class HomeScreen extends Component {
 
     this.animatedOpacity = this.animatedHeaderHeight.interpolate({
         inputRange: [this.endHeaderHeight, this.startHeaderHeight],
-        outputRange: [0, 1],
+        outputRange: [0, 10],
         extrapolate: 'clamp'
     })
     this.animatedTagTop = this.animatedHeaderHeight.interpolate({
@@ -65,27 +67,35 @@ class HomeScreen extends Component {
   }
 
     render() {
+      const { navigation } = this.props;
       const { filterBusinesses } = this.props.business.business;
         return (
-            <SafeAreaView style={{ flex: 1 }}>
+              <SafeAreaView style = {{ flex: 1 }} >
                 <View style={{ flex: 1 }}>
                     <Animated.View style={{ height: this.animatedHeaderHeight, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#dddddd' }}>
                         <View style={{
-                            flexDirection: 'row', padding: 10,
-                            backgroundColor: 'white', marginHorizontal: 20,
-                            shadowOffset: { width: 0, height: 0 },
-                            shadowColor: 'black',
-                            shadowOpacity: 0.2,
-                            elevation: 1,
-                            marginTop: Platform.OS == 'android' ? 30 : null
+                          flexDirection: 'row', 
+                          padding: 10,
+                          backgroundColor: 'white',
+                          marginHorizontal: '10%',
+                          shadowOffset: { width: 0, height: 0 },
+                          shadowColor: 'black',
+                          shadowOpacity: 0.2,
+                          elevation: 1,
+                          marginTop: Platform.OS == 'android' ? 30 : 0,
+                          justifyContent: 'center',
+                          width: '80%',
+                          borderRadius: 20,
+                          borderWidth: 1
+
                         }}>
-                            <Icon name="ios-search" size={20} style={{ marginRight: 10 }} />
-                            <TextInput
-                              underlineColorAndroid="transparent"
-                              placeholder="Try New Delhi"
-                              placeholderTextColor="grey"
-                              style={{ flex: 1, fontWeight: '700', backgroundColor: 'white' }}
-                            />
+                          <Icon name="ios-search" size={20} style={{ color: 'red',flex: 2, textAlign: 'right', marginRight: 10 }} />
+                          <TextInput
+                            underlineColorAndroid="transparent"
+                            placeholder="Where you want to go?"
+                            placeholderTextColor="grey"
+                            style={{ flex: 6, fontWeight: '700', backgroundColor: 'white', textAlign: 'left' }}
+                          />
                         </View>
                         <Animated.View
                             style={{ flexDirection: 'row', marginHorizontal: 20, position: 'relative', top: this.animatedTagTop, opacity: this.animatedOpacity }}
@@ -97,6 +107,7 @@ class HomeScreen extends Component {
                     </Animated.View>
                     <ScrollView
                       scrollEventThrottle={16}
+                      style = {{flex: 1}}
                       onScroll={Animated.event(
                           [
                               { nativeEvent: { contentOffset: { y: this.scrollY } } }
@@ -113,19 +124,47 @@ class HomeScreen extends Component {
                           <Text style={{ fontWeight: '100', marginTop: 10 }}>
                               A new selection of homes verified for quality & comfort
                           </Text> */}
-                          <View style={{ width: width , height: height * 0.4, marginTop: 20 }}>
+                          <View style={{ position: 'relative', width: width , height: height * 0.4, marginTop: 20 }}>
                             <Image
                               style={styles.homeLogo}
-                              source={require('../../assets/home.jpg')}
+                              source={{ uri: "https://media-cdn.tripadvisor.com/media/photo-s/1a/cc/fb/33/downtown-room-a-la-carte.jpg"  }}
                             />
+                            <View style = {styles.ImageButton} >
+                              <Text
+                                style = {{ fontSize:50,fontWeight: '700' ,color: 'white' }}
+                              >
+                                Go {'\n'}
+                                Near 
+                              </Text>
+                              <View style  = {{ borderRadius:10, borderWidth:1 , backgroundColor: 'white'}} >
+                                <TouchableOpacity > 
+                                  <Text
+                                    style = {{ textAlign: 'center' ,paddingLeft: 18, paddingRight: 18 ,paddingTop:8, paddingBottom:8, fontSize:14, fontWeight: '600'}} 
+                                  >
+                                    Explore Nearby
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                            </View>
                           </View>
                         </View>
                       </Animated.View>
                       <View style={{ marginTop: 40 }}>
-                        <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                          Your Vibe's
-                        </Text>
-                        <View style={{ paddingHorizontal: 20, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                        <View style = {{ flex: 1, flexDirection: 'row' }} >
+                          <View style = {{flex: 4}} >
+                            <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
+                              Your Vibe's
+                            </Text>
+                          </View>
+                          <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
+                            <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen')} >
+                              <Text >
+                                View on Maps
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                        <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
                         <FlatList
                           data={filterBusinesses}
                           renderItem={({item}) => {
@@ -138,37 +177,48 @@ class HomeScreen extends Component {
                               />
                             );
                           }}
+                          showsHorizontalScrollIndicator = {false}
                           horizontal = {true}
                           keyExtractor={item => item.place_id}
                         />  
                         </View>
                       </View> 
-                      <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 20 }}>
+                      <View style={{ flex: 1, paddingTop: 20 }}>
                         <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                            What can we help you find, Varun?
+                          What can we help you find, John?
                         </Text>
-
-                        <View style={{ height: 130, marginTop: 20 }}>
-                            <ScrollView
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                            >
-                                <Category imageUri={require('../../assets/home.jpg')}
-                                    name="Home"
-                                />
-                                <Category imageUri={require('../../assets/experiences.jpg')}
-                                    name="Experiences"
-                                />
-                                <Category imageUri={require('../../assets/restaurant.jpg')}
-                                    name="Resturant"
-                                />
-                            </ScrollView>
+                        <View style={{ marginTop: 15 }}>    
+                          <ScrollView
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                            style = {{ marginLeft:20 }}
+                          >
+                            <Category 
+                              imageUri={"https://ewscripps.brightspotcdn.com/dims4/default/a300d3c/2147483647/strip/true/crop/800x450+67+0/resize/1280x720!/quality/90/?url=http%3A%2F%2Fewscripps-brightspot.s3.amazonaws.com%2Fd1%2F6c%2F45cf0abe4b9a98e1ed52f20e3913%2Ftop-of-the-market-san-diego-view.jpg"}
+                              name="Restaurants"
+                              width={width}
+                              height= {height}
+                            />
+                            <Category 
+                              imageUri={"https://blog.sandiego.org/wp-content/uploads/2018/06/101-proof-oceanside-speakeasy-1024x512.jpg"}
+                              name="Bar"
+                              width={width}
+                              height= {height}
+                            />
+                            <Category 
+                              imageUri={ "https://nunustavern.com/wp-content/uploads/Nunus-Tavern-Inside-Bar-1366x768.jpg" }
+                              name="Night Life"
+                              width={width}
+                              height= {height}
+                            />
+                          </ScrollView>
                         </View>
                       </View>
                     </ScrollView>
 
                 </View>
-            </SafeAreaView>
+              </SafeAreaView> 
+           
         );
     }
 }
@@ -201,5 +251,11 @@ const styles = StyleSheet.create({
       borderBottomWidth: 0,
       borderWidth: 1, 
       borderColor: '#dddddd' 
+    },
+    ImageButton: {
+      position: 'absolute',
+      top: '25%',
+      left: '5%'
+
     }
 });
