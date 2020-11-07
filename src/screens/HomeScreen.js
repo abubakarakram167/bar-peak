@@ -157,7 +157,9 @@ class HomeScreen extends Component {
                             </Text>
                           </View>
                           <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
-                            <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen')} >
+                            <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen',{
+                              businessData: filterBusinesses
+                            })} >
                               <Text >
                                 View on Maps
                               </Text>
@@ -168,7 +170,7 @@ class HomeScreen extends Component {
                         <FlatList
                           data={filterBusinesses}
                           renderItem={({item}) => {
-                            console.log("the render item", item);
+                            // console.log("the render item", item);
                             return(
                               <Home 
                                 width={width}

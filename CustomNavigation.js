@@ -173,16 +173,16 @@ const SecondScreenNavigator = () => {
 
 const HomeTabScreen = () => {
   return (
-    <Stack.Navigator initialRouteName = "HomeScreen" >
+    <Stack.Navigator initialRouteName = "Home" >
       <Stack.Screen
-        name="HomeScreen"
+        name="Home"
         component={HomeScreen}
         options = { ()=> {return screenOptions} }
       />
       <Stack.Screen
         name="MapScreen"
         component={MapScreen}
-        options = { ()=> {return screenOptions} }
+        
       />
     </Stack.Navigator>
   );
