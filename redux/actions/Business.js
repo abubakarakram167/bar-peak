@@ -32,9 +32,8 @@ export const getAllBusiness = () => async (dispatch, getState) => {
 };
 
 export const getfilteredBusiness = (data) => async (dispatch, getState) => {
-  try{  
+  try{ 
     const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=15000&type=restaurant&keyword=cruise&fields=photos,formatted_address,name,rating,types,price_level&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
-    
     let specificPlaces = data.map(business => business.placeId);
     const filteredBusiness = res.data.results.filter((business)=>{
       return(specificPlaces.includes(business.place_id))

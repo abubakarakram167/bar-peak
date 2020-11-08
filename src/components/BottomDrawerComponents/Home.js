@@ -19,7 +19,7 @@ class Home extends Component {
   render() {
     const { item } = this.props
     return (
-      <View style={[styles.businessItem, {  width: this.props.width * 0.65, height: this.props.height * 0.4 }]}>
+      <View style={[styles.businessItem, {  width: this.props.width * 0.5, height: this.props.height * 0.3 }]}>
         <View style={{ flex: 1 }}>
           <Image
             style={styles.businessImage}
@@ -34,8 +34,8 @@ class Home extends Component {
             starSize={10}
             starStyle = {{ color:'#ffbf00' }}
           />
-          <Text style={[{ fontSize: 20, color: '#b63838' }, styles.textInfo]}>{item.types[0]}</Text>
-          <Text style={[{ fontSize: 16, fontWeight: 'bold' }, styles.textInfo]}>{item.name}</Text>
+          <Text style={[{ fontSize: 18, color: '#b63838' }, styles.textInfo]}>{item.types[0]}</Text>
+          <Text style={[{ fontSize: 12, fontWeight: 'bold' }, styles.textInfo]}>{item.name}</Text>
           <Text style={[{ fontSize: 12 }, styles.textInfo]}>{item.price_level>0 ?  this.renderDollar(item.price_level) : "Price not available" }</Text>
         </View>
       </View>

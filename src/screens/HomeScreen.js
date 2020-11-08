@@ -28,7 +28,6 @@ const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
 
   async componentDidMount(){
-    console.log("calling component did mount")
     const getData = await this.props.getAllBusiness();
     this.props.getfilteredBusiness(getData)
   }
@@ -170,7 +169,7 @@ class HomeScreen extends Component {
                         <FlatList
                           data={filterBusinesses}
                           renderItem={({item}) => {
-                            // console.log("the render item", item);
+                          //  console.log("the render item", item);
                             return(
                               <Home 
                                 width={width}

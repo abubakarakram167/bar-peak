@@ -16,7 +16,10 @@
       "**/*"
     ],
     "ios": {
-      "bundleIdentifier": "ultrastream"
+      "bundleIdentifier": "com.BarPeak",
+      "config": {
+        "googleMapsApiKey": "AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM"
+      }
     },
     "android": {
       "package": "com.ultrastream.ultrastream"
