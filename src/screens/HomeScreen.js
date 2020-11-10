@@ -22,14 +22,16 @@ import Home from '../../screens/components/Home'
 import Tag from '../../screens/components/Tag'
 import {getAllBusiness} from '../../redux/actions/Business';
 import {getfilteredBusiness} from '../../redux/actions/Business';
+import {getVibe} from '../../redux/actions/Vibe';
 import { removeStorageItem } from '../components/localStorage'; 
 
 const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
-
   async componentDidMount(){
-    const getData = await this.props.getAllBusiness();
-    this.props.getfilteredBusiness(getData)
+    console.log("in component")
+    const getBusiness =  await this.props.getAllBusiness();
+    const getVibe = await this.props.getVibe();
+    const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness);
   }
     
   componentWillMount() {
@@ -68,169 +70,216 @@ class HomeScreen extends Component {
     render() {
       const { navigation } = this.props;
       const { filterBusinesses } = this.props.business.business;
+      const { crowded, unCrowded } = filterBusinesses;
+      const { vibe } = this.props.vibe.vibe;
+      const arrayToMap = vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
+      const nonVibe = !vibe.crowdedPlace ? filterBusinesses.unCrowded : filterBusinesses.crowded;  
+      
+      console.log("the vibe", vibe);   
+      console.log("the filter business", filterBusinesses.unCrowded);
+        
         return (
-              <SafeAreaView style = {{ flex: 1 }} >
-                <View style={{ flex: 1 }}>
-                    <Animated.View style={{ height: this.animatedHeaderHeight, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#dddddd' }}>
-                        <View style={{
-                          flexDirection: 'row', 
-                          padding: 10,
-                          backgroundColor: 'white',
-                          marginHorizontal: '10%',
-                          shadowOffset: { width: 0, height: 0 },
-                          shadowColor: 'black',
-                          shadowOpacity: 0.2,
-                          elevation: 1,
-                          marginTop: Platform.OS == 'android' ? 30 : 0,
-                          justifyContent: 'center',
-                          width: '80%',
-                          borderRadius: 20,
-                          borderWidth: 1
+          <SafeAreaView style = {{ flex: 1 }} >
+            <View style={{ flex: 1 }}>
+                <Animated.View style={{ height: this.animatedHeaderHeight, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#dddddd' }}>
+                    <View style={{
+                      flexDirection: 'row', 
+                      padding: 10,
+                      backgroundColor: 'white',
+                      marginHorizontal: '10%',
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowColor: 'black',
+                      shadowOpacity: 0.2,
+                      elevation: 1,
+                      marginTop: Platform.OS == 'android' ? 30 : 0,
+                      justifyContent: 'center',
+                      width: '80%',
+                      borderRadius: 20,
+                      borderWidth: 1
 
-                        }}>
-                          <Icon name="ios-search" size={20} style={{ color: 'red',flex: 2, textAlign: 'right', marginRight: 10 }} />
-                          <TextInput
-                            underlineColorAndroid="transparent"
-                            placeholder="Where you want to go?"
-                            placeholderTextColor="grey"
-                            style={{ flex: 6, fontWeight: '700', backgroundColor: 'white', textAlign: 'left' }}
-                          />
-                        </View>
-                        <Animated.View
-                            style={{ flexDirection: 'row', marginHorizontal: 20, position: 'relative', top: this.animatedTagTop, opacity: this.animatedOpacity }}
-                        >
-                            <Tag name="Guests" />
-                            <Tag name="Dates" />
+                    }}>
+                      <Icon name="ios-search" size={20} style={{ color: 'red',flex: 2, textAlign: 'right', marginRight: 10 }} />
+                      <TextInput
+                        underlineColorAndroid="transparent"
+                        placeholder="Where you want to go?"
+                        placeholderTextColor="grey"
+                        style={{ flex: 6, fontWeight: '700', backgroundColor: 'white', textAlign: 'left' }}
+                      />
+                    </View>
+                    <Animated.View
+                        style={{ flexDirection: 'row', marginHorizontal: 20, position: 'relative', top: this.animatedTagTop, opacity: this.animatedOpacity }}
+                    >
+                        <Tag name="Guests" />
+                        <Tag name="Dates" />
 
-                        </Animated.View>
                     </Animated.View>
-                    <ScrollView
-                      scrollEventThrottle={16}
-                      style = {{flex: 1}}
-                      onScroll={Animated.event(
-                          [
-                              { nativeEvent: { contentOffset: { y: this.scrollY } } }
-                          ]
-                      )}
-                    > 
-                      <Animated.View
-                        style={{  marginHorizontal: 0, position: 'relative', top: this.animatedTagTop, opacity: this.animatedOpacity }}
-                      >   
-                        <View style={{ marginTop: 0, paddingHorizontal: 0 }}>
-                          {/* <Text style={{ fontSize: 24, fontWeight: '700' }}>
-                              Introducing Airbnb Plus
+                </Animated.View>
+                <ScrollView
+                  scrollEventThrottle={16}
+                  style = {{flex: 1}}
+                  onScroll={Animated.event(
+                      [
+                          { nativeEvent: { contentOffset: { y: this.scrollY } } }
+                      ]
+                  )}
+                > 
+                  <Animated.View
+                    style={{  marginHorizontal: 0, position: 'relative', top: this.animatedTagTop, opacity: this.animatedOpacity }}
+                  >   
+                    <View style={{ marginTop: 0, paddingHorizontal: 0 }}>
+                      {/* <Text style={{ fontSize: 24, fontWeight: '700' }}>
+                          Introducing Airbnb Plus
+                      </Text>
+                      <Text style={{ fontWeight: '100', marginTop: 10 }}>
+                          A new selection of homes verified for quality & comfort
+                      </Text> */}
+                      <View style={{ position: 'relative', width: width , height: height * 0.4, marginTop: 20 }}>
+                        <Image
+                          style={styles.homeLogo}
+                          source={{ uri: "https://media-cdn.tripadvisor.com/media/photo-s/1a/cc/fb/33/downtown-room-a-la-carte.jpg"  }}
+                        />
+                        <View style = {styles.ImageButton} >
+                          <Text
+                            style = {{ fontSize:50,fontWeight: '700' ,color: 'white' }}
+                          >
+                            Go {'\n'}
+                            Near 
                           </Text>
-                          <Text style={{ fontWeight: '100', marginTop: 10 }}>
-                              A new selection of homes verified for quality & comfort
-                          </Text> */}
-                          <View style={{ position: 'relative', width: width , height: height * 0.4, marginTop: 20 }}>
-                            <Image
-                              style={styles.homeLogo}
-                              source={{ uri: "https://media-cdn.tripadvisor.com/media/photo-s/1a/cc/fb/33/downtown-room-a-la-carte.jpg"  }}
-                            />
-                            <View style = {styles.ImageButton} >
+                          <View style  = {{ borderRadius:10, borderWidth:1 , backgroundColor: 'white'}} >
+                            <TouchableOpacity > 
                               <Text
-                                style = {{ fontSize:50,fontWeight: '700' ,color: 'white' }}
+                                style = {{ textAlign: 'center' ,paddingLeft: 18, paddingRight: 18 ,paddingTop:8, paddingBottom:8, fontSize:14, fontWeight: '600'}} 
                               >
-                                Go {'\n'}
-                                Near 
-                              </Text>
-                              <View style  = {{ borderRadius:10, borderWidth:1 , backgroundColor: 'white'}} >
-                                <TouchableOpacity > 
-                                  <Text
-                                    style = {{ textAlign: 'center' ,paddingLeft: 18, paddingRight: 18 ,paddingTop:8, paddingBottom:8, fontSize:14, fontWeight: '600'}} 
-                                  >
-                                    Explore Nearby
-                                  </Text>
-                                </TouchableOpacity>
-                              </View>
-                            </View>
-                          </View>
-                        </View>
-                      </Animated.View>
-                      <View style={{ marginTop: 40 }}>
-                        <View style = {{ flex: 1, flexDirection: 'row' }} >
-                          <View style = {{flex: 4}} >
-                            <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                              Your Vibe's
-                            </Text>
-                          </View>
-                          <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
-                            <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen',{
-                              businessData: filterBusinesses
-                            })} >
-                              <Text >
-                                View on Maps
+                                Explore Nearby
                               </Text>
                             </TouchableOpacity>
                           </View>
                         </View>
-                        <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                        <FlatList
-                          data={filterBusinesses}
-                          renderItem={({item}) => {
-                          //  console.log("the render item", item);
-                            return(
-                              <Home 
-                                width={width}
-                                height= {height}
-                                item = {item}
-                              />
-                            );
-                          }}
-                          showsHorizontalScrollIndicator = {false}
-                          horizontal = {true}
-                          keyExtractor={item => item.place_id}
-                        />  
-                        </View>
-                      </View> 
-                      <View style={{ flex: 1, paddingTop: 20 }}>
-                        <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                          What can we help you find, John?
-                        </Text>
-                        <View style={{ marginTop: 15 }}>    
-                          <ScrollView
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                            style = {{ marginLeft:20 }}
-                          >
-                            <Category 
-                              imageUri={"https://ewscripps.brightspotcdn.com/dims4/default/a300d3c/2147483647/strip/true/crop/800x450+67+0/resize/1280x720!/quality/90/?url=http%3A%2F%2Fewscripps-brightspot.s3.amazonaws.com%2Fd1%2F6c%2F45cf0abe4b9a98e1ed52f20e3913%2Ftop-of-the-market-san-diego-view.jpg"}
-                              name="Restaurants"
-                              width={width}
-                              height= {height}
-                            />
-                            <Category 
-                              imageUri={"https://blog.sandiego.org/wp-content/uploads/2018/06/101-proof-oceanside-speakeasy-1024x512.jpg"}
-                              name="Bar"
-                              width={width}
-                              height= {height}
-                            />
-                            <Category 
-                              imageUri={ "https://nunustavern.com/wp-content/uploads/Nunus-Tavern-Inside-Bar-1366x768.jpg" }
-                              name="Night Life"
-                              width={width}
-                              height= {height}
-                            />
-                          </ScrollView>
-                        </View>
                       </View>
-                    </ScrollView>
+                    </View>
+                  </Animated.View>
+                  <View style={{ marginTop: 40 }}>
+                    <View style = {{ flex: 1, flexDirection: 'row' }} >
+                      <View style = {{flex: 4}} >
+                        <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
+                          { vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }   Your Vibe's 
+                        </Text>
+                      </View>
+                      <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
+                        <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen',{
+                          businessData: filterBusinesses
+                        })} >
+                          <Text >
+                            View on Maps
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                    <FlatList
+                      data={ vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
+                      renderItem={({item}) => {
+                      //  console.log("the render item", item);
+                        return(
+                          <Home 
+                            width={width}
+                            height= {height}
+                            item = {item}
+                          />
+                        );
+                      }}
+                      showsHorizontalScrollIndicator = {false}
+                      horizontal = {true}
+                      keyExtractor={item => item.place_id}
+                    />  
+                    </View>
+                  </View>
+                  <View style={{ marginTop: 40 }}>
+                    <View style = {{ flex: 1, flexDirection: 'row' }} >
+                      <View style = {{flex: 4}} >
+                        <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
+                          { vibe.crowdedPlace ? "unCrowdy" : "Crowdy" } 
+                        </Text>
+                      </View>
+                      <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
+                        <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen',{
+                          businessData: filterBusinesses
+                        })} >
+                          <Text >
+                            View on Maps
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                    <FlatList
+                      data={!vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
+                      renderItem={({item}) => {
+                      //  console.log("the render item", item);
+                        return(
+                          <Home 
+                            width={width}
+                            height= {height}
+                            item = {item}
+                          />
+                        );
+                      }}
+                      showsHorizontalScrollIndicator = {false}
+                      horizontal = {true}
+                      keyExtractor={item => item.place_id}
+                    />  
+                    </View>
+                  </View>  
+                  <View style={{ flex: 1, paddingTop: 20 }}>
+                    <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
+                      What can we help you find, John?
+                    </Text>
+                    <View style={{ marginTop: 15 }}>    
+                      <ScrollView
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false}
+                        style = {{ marginLeft:20 }}
+                      >
+                        <Category 
+                          imageUri={"https://ewscripps.brightspotcdn.com/dims4/default/a300d3c/2147483647/strip/true/crop/800x450+67+0/resize/1280x720!/quality/90/?url=http%3A%2F%2Fewscripps-brightspot.s3.amazonaws.com%2Fd1%2F6c%2F45cf0abe4b9a98e1ed52f20e3913%2Ftop-of-the-market-san-diego-view.jpg"}
+                          name="Restaurants"
+                          width={width}
+                          height= {height}
+                        />
+                        <Category 
+                          imageUri={"https://blog.sandiego.org/wp-content/uploads/2018/06/101-proof-oceanside-speakeasy-1024x512.jpg"}
+                          name="Bar"
+                          width={width}
+                          height= {height}
+                        />
+                        <Category 
+                          imageUri={ "https://nunustavern.com/wp-content/uploads/Nunus-Tavern-Inside-Bar-1366x768.jpg" }
+                          name="Night Life"
+                          width={width}
+                          height= {height}
+                        />
+                      </ScrollView>
+                    </View>
+                  </View>
+                </ScrollView>
 
-                </View>
-              </SafeAreaView> 
-           
+            </View>
+          </SafeAreaView>    
         );
     }
 }
 const mapStateToProps = (state) => {
-  const { business } = state
-  return { business: business }
+  const { business, vibe } = state
+  return { 
+    business: business,
+    vibe: vibe
+  }
 };
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
     getAllBusiness,
-    getfilteredBusiness
+    getfilteredBusiness,
+    getVibe
   }, dispatch)
 );
 

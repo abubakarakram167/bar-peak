@@ -182,7 +182,7 @@ const HomeTabScreen = () => {
       <Stack.Screen
         name="MapScreen"
         component={MapScreen}
-        
+
       />
     </Stack.Navigator>
   );

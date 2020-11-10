@@ -16,7 +16,7 @@ export class Card extends React.Component {
           style={styles.thumbnail} 
           source={{uri: this.props.card.image}} 
         />
-        {/* <Text style={styles.text}>This is card {this.props.card.name}</Text> */}
+        <Text style={styles.text}>{this.props.card.question}</Text>
       </View>
     )
   }
@@ -38,21 +38,34 @@ export class NoMoreCards extends React.Component {
 
 const styles = StyleSheet.create({
   card: {
-    alignItems: 'center',
+    justifyContent : "flex-start",
+    alignSelf: 'flex-start',
     borderRadius: 5,
     overflow: 'hidden',
     borderColor: 'grey',
     backgroundColor: 'white',
     borderWidth: 0,
     elevation: 0,
+    width
   },
   thumbnail: {
-    width: width * 1,
+    width: width,
     height: height * 0.6,
+    position: 'relative'
   },
   noMoreCards: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  text:{
+    position: 'absolute',
+    color: 'white',
+    top: '30%',
+    left: '8%',
+    fontSize: 30,
+    width: '80%',
+    textAlign: 'center',
+    fontWeight: '700'
   }
-})
+}) 

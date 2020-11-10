@@ -3,7 +3,7 @@ import {Fetch_All_Business, FILTERED_BUSINESS} from '../types';
 
 const INITIAL_STATE = {
   businesses: [],
-  filterBusinesses: []
+  filterBusinesses: {}
 };
 
 const businessReducer = (state = INITIAL_STATE, action) => {
