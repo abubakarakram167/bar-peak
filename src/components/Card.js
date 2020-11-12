@@ -37,20 +37,42 @@ export class NoMoreCards extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  leftText: {
+    position: 'absolute',
+    color: 'red',
+    top: '10%',
+    right: '45%'
+    ,
+    fontSize: 40,
+    width: '80%',
+    textAlign: 'center',
+    fontWeight: '700'
+  },
+  rightText: {
+    position: 'absolute',
+    color: 'green',
+    top: '10%',
+    right: '10%',
+    fontSize: 40,
+    width: '80%',
+    textAlign: 'center',
+    fontWeight: '700'
+  }
+  ,
   card: {
-    justifyContent : "flex-start",
-    alignSelf: 'flex-start',
+    justifyContent : 'center',
+    alignSelf: 'center',
     borderRadius: 5,
     overflow: 'hidden',
     borderColor: 'grey',
     backgroundColor: 'white',
-    borderWidth: 0,
+    borderWidth: 1,
     elevation: 0,
-    width
+    width: width * 0.97 
   },
   thumbnail: {
     width: width,
-    height: height * 0.6,
+    height: height * 0.65,
     position: 'relative'
   },
   noMoreCards: {

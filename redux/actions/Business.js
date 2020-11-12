@@ -35,9 +35,22 @@ export const getAllBusiness = () => async (dispatch, getState) => {
   }
 };
 
-export const getfilteredBusiness = (data) => async (dispatch, getState) => {
+export const getfilteredBusiness = (data, location) => async (dispatch, getState) => {
+
+  console.log("the vibe in call");
+  const { vibe } = getState();
+  const actualVibe = vibe.vibe.vibe
+  //For Testing coordiantes
+  const latitude = 32.7174;
+  const longitude = -117.1628;
+
+  // For Production
+  // const { latitude, longitude } = location;
+  // console.log("the actual vibe", actualVibe);
+  
   try{ 
-    const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=32.7174,-117.1628&radius=15000&type=restaurant&keyword=cruise&fields=photos,formatted_address,name,rating,types,price_level&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
+    const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=15000&type=${actualVibe.barOrRestaurant}&keyword=cruise&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
+    // console.log(" the results from google is", res.data.results);
     let specificPlaces = data.map(business => business.placeId);
     const filteredBusiness = res.data.results.filter((business)=>{
       return(specificPlaces.includes(business.place_id))

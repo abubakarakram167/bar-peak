@@ -24,14 +24,34 @@ import {getAllBusiness} from '../../redux/actions/Business';
 import {getfilteredBusiness} from '../../redux/actions/Business';
 import {getVibe} from '../../redux/actions/Vibe';
 import { removeStorageItem } from '../components/localStorage'; 
+import * as Location from 'expo-location';
 
 const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      location: null,
+      errorMsg: null
+    }
+  }
+
   async componentDidMount(){
-    console.log("in component")
+    const { coords } = await this.getCurrentLocation();
     const getBusiness =  await this.props.getAllBusiness();
     const getVibe = await this.props.getVibe();
-    const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness);
+    const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords);
+  }
+
+  getCurrentLocation = async() => {
+    let { status } = await Location.requestPermissionsAsync();
+    if (status !== 'granted') {
+      setErrorMsg('Permission to access location was denied');
+    }
+
+    let location = await Location.getCurrentPositionAsync({});
+    return location;
   }
     
   componentWillMount() {
@@ -70,14 +90,8 @@ class HomeScreen extends Component {
     render() {
       const { navigation } = this.props;
       const { filterBusinesses } = this.props.business.business;
-      const { crowded, unCrowded } = filterBusinesses;
       const { vibe } = this.props.vibe.vibe;
-      const arrayToMap = vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
-      const nonVibe = !vibe.crowdedPlace ? filterBusinesses.unCrowded : filterBusinesses.crowded;  
       
-      console.log("the vibe", vibe);   
-      console.log("the filter business", filterBusinesses.unCrowded);
-        
         return (
           <SafeAreaView style = {{ flex: 1 }} >
             <View style={{ flex: 1 }}>
@@ -167,7 +181,8 @@ class HomeScreen extends Component {
                       </View>
                       <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
                         <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen',{
-                          businessData: filterBusinesses
+                          businessData: vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded,
+                          showGreen:true
                         })} >
                           <Text >
                             View on Maps
@@ -203,7 +218,8 @@ class HomeScreen extends Component {
                       </View>
                       <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
                         <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen',{
-                          businessData: filterBusinesses
+                          businessData: !vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded,
+                          showGreen: false
                         })} >
                           <Text >
                             View on Maps
@@ -215,7 +231,7 @@ class HomeScreen extends Component {
                     <FlatList
                       data={!vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
                       renderItem={({item}) => {
-                      //  console.log("the render item", item);
+                        console.log("the render item", item);
                         return(
                           <Home 
                             width={width}

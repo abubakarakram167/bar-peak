@@ -26,6 +26,7 @@
     "expo-status-bar": "~1.0.2",
     "expo-updates": "~0.3.3",
     "expo-video-player": "^1.5.8",
+    "fontisto": "^3.0.4",
     "formik": "^2.2.1",
     "graphql": "^15.4.0",
     "lodash": "^4.17.19",
@@ -76,6 +77,7 @@
     "redux-thunk": "^2.3.0",
     "rn-bottom-drawer": "^1.4.3",
     "rn-sliding-up-panel": "^2.4.3",
+    "underscore": "^1.11.0",
     "yup": "^0.29.3"
   },
   "devDependencies": {

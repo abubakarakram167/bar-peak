@@ -23,7 +23,7 @@ class Home extends Component {
         <View style={{ flex: 1 }}>
           <Image
             style={styles.businessImage}
-            source={ { uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${item.photos[0].photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM` } } 
+            source={ { uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${ item.photos[0].photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM` } } 
           />
         </View>
         <View style={{ flex: 1, alignItems: 'flex-start', paddingLeft: 10, paddingTop: 10 }}>

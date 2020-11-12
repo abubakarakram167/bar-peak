@@ -78,6 +78,11 @@ class BottomSheet extends React.Component {
   }
 
   render() {
+    const { filterBusinesses } = this.props.business.business;
+    const { vibe } = this.props.vibe.vibe;
+    const arrayVibe = vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
+    const unVibeArray = !vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
+
     return (
       <View style={styles.container}>
         <Text>Hello world</Text>
@@ -106,13 +111,13 @@ class BottomSheet extends React.Component {
                       fontWeight: '600'
                     }}
                   >
-                    Pricier
+                    { vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }   Your Vibe's 
                   </Text>
                   <ScrollView        
                     horizontal = {true}
                   >          
                     {
-                      this.state.business.map((business)=>{
+                      arrayVibe.map((business)=>{
                         return(
                           <Home 
                             width={width}
@@ -132,13 +137,13 @@ class BottomSheet extends React.Component {
                       fontWeight: '600'
                     }}
                   >
-                    UnPricier
+                    { vibe.crowdedPlace ? "unCrowdy" : "Crowdy" } 
                   </Text>
                   <ScrollView        
                     horizontal = {true}
                   >          
                     {
-                      this.state.business.map((business)=>{
+                      unVibeArray.map((business)=>{
                         return(
                           <Home 
                             width={width}
@@ -160,8 +165,11 @@ class BottomSheet extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const { business } = state
-  return { business: business }
+  const { business, vibe } = state
+  return { 
+    business: business, 
+    vibe
+  }
 };
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
