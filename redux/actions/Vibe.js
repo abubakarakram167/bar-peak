@@ -48,7 +48,7 @@ export const updateVibe = ({ crowdedPlace,expensivePlace, isPartner, barOrRestau
   const body = {
       query:`
       mutation{
-        setVibe(vibeInput: {
+        updateVibe(vibeInput: {
           crowdedPlace: ${crowdedPlace},
           expensivePlace: ${expensivePlace},
           isPartner: ${isPartner},
@@ -56,12 +56,7 @@ export const updateVibe = ({ crowdedPlace,expensivePlace, isPartner, barOrRestau
         })
           {
             crowdedPlace,
-            expensivePlace,
-            user{
-              email,
-              password,
-              firstName
-            }
+            expensivePlace
           }
       }
       `
@@ -73,9 +68,9 @@ export const updateVibe = ({ crowdedPlace,expensivePlace, isPartner, barOrRestau
     
     dispatch({
       type: Update_Vibe,
-      payload: res.data.data.setVibe,
+      payload: res.data.data.updateVibe,
     })
-    return Promise.resolve(res.data.data.setVibe);
+    return Promise.resolve(res.data.data.updateVibe);
   }catch(err){
     console.log("hte errorsss", err.response.data)
   }
@@ -100,7 +95,7 @@ export const getVibe = () => async (dispatch, getState) => {
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-    
+  
     dispatch({
       type: Set_Vibe,
       payload: res.data.data.getVibe,

@@ -73,7 +73,7 @@ class SignUpComponent extends React.Component {
         storeUserData(res.data.data.createUser)
         this.setState({ spinner: false })
         this.props.closeModal();
-        navigation.navigate('HomeScreen', { name:  "welcome abubakar" })
+        navigation.navigate('HomeApp', { name:  "welcome abubakar" })
       }
       
     }).catch(err =>{

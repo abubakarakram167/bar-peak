@@ -38,10 +38,12 @@ class HomeScreen extends Component {
   }
 
   async componentDidMount(){
-    const { coords } = await this.getCurrentLocation();
-    const getBusiness =  await this.props.getAllBusiness();
-    const getVibe = await this.props.getVibe();
-    const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords);
+    this.props.navigation.addListener('focus', async () => {
+      const { coords } = await this.getCurrentLocation();
+      const getBusiness =  await this.props.getAllBusiness();
+      const getVibe = await this.props.getVibe();
+      const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords);
+    })
   }
 
   getCurrentLocation = async() => {
@@ -91,7 +93,8 @@ class HomeScreen extends Component {
       const { navigation } = this.props;
       const { filterBusinesses } = this.props.business.business;
       const { vibe } = this.props.vibe.vibe;
-      
+      // console.log("the filter business", filterBusinesses)
+       console.log("caliing vibe", vibe);
         return (
           <SafeAreaView style = {{ flex: 1 }} >
             <View style={{ flex: 1 }}>
@@ -175,8 +178,8 @@ class HomeScreen extends Component {
                   <View style={{ marginTop: 40 }}>
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
                       <View style = {{flex: 4}} >
-                        <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                          { vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }   Your Vibe's 
+                        <Text style={{ fontSize: 20, fontWeight: '700', paddingHorizontal: 20 }}>
+                          Your Vibe's  <Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { vibe.expensivePlace ? "expensive" : "cheap" }), { vibe.barOrRestaurant === "restaurant" ? "resturants" : "bars" })</Text> 
                         </Text>
                       </View>
                       <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
@@ -213,7 +216,7 @@ class HomeScreen extends Component {
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
                       <View style = {{flex: 4}} >
                         <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                          { vibe.crowdedPlace ? "unCrowdy" : "Crowdy" } 
+                         Unvibe <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { !vibe.expensivePlace ? "expensive" : "cheap" }), { vibe.barOrRestaurant === "restaurant" ? "restaurant" : "bars" }</Text> 
                         </Text>
                       </View>
                       <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
@@ -231,7 +234,7 @@ class HomeScreen extends Component {
                     <FlatList
                       data={!vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
                       renderItem={({item}) => {
-                        console.log("the render item", item);
+                        // console.log("the render item", item);
                         return(
                           <Home 
                             width={width}

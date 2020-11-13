@@ -5,7 +5,6 @@ import { getUserData } from '../../src/components/localStorage';
 
 export const getAllBusiness = () => async (dispatch, getState) => {
   const { token } = await getUserData();
-  console.log("the token", token)
   const body = {
       query:`
       query{
@@ -24,7 +23,6 @@ export const getAllBusiness = () => async (dispatch, getState) => {
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-    
     dispatch({
       type: Fetch_All_Business,
       payload: res.data.data.allBusinesses,
@@ -37,7 +35,7 @@ export const getAllBusiness = () => async (dispatch, getState) => {
 
 export const getfilteredBusiness = (data, location) => async (dispatch, getState) => {
 
-  console.log("the vibe in call");
+  // console.log("the vibe in call");
   const { vibe } = getState();
   const actualVibe = vibe.vibe.vibe
   //For Testing coordiantes
@@ -50,11 +48,12 @@ export const getfilteredBusiness = (data, location) => async (dispatch, getState
   
   try{ 
     const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=15000&type=${actualVibe.barOrRestaurant}&keyword=cruise&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
-    // console.log(" the results from google is", res.data.results);
+    //  console.log(" the results from google is", res.data.results);
     let specificPlaces = data.map(business => business.placeId);
     const filteredBusiness = res.data.results.filter((business)=>{
       return(specificPlaces.includes(business.place_id))
     })
+    // console.log("the business in our database", filteredBusiness);
     
     let filterCategoryBusinessVibe = {
       crowded: [],
@@ -64,13 +63,15 @@ export const getfilteredBusiness = (data, location) => async (dispatch, getState
     filteredBusiness.map((googleBusiness)=>{
       data.map(business => {
         if(googleBusiness.place_id === business.placeId){
-          if(business.profile.crowded)
+          if(business.profile.crowded && business.profile.expensive )
             filterCategoryBusinessVibe.crowded.push(googleBusiness)
-          else
+          else if (!business.profile.crowded && !business.profile.expensive)
             filterCategoryBusinessVibe.unCrowded.push(googleBusiness)
         }
       })
     })
+
+    // console.log("the filteferf business", filterCategoryBusinessVibe)
   
     dispatch({
       type: FILTERED_BUSINESS,

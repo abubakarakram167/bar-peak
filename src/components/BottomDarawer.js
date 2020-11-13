@@ -111,7 +111,9 @@ class BottomSheet extends React.Component {
                       fontWeight: '600'
                     }}
                   >
-                    { vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }   Your Vibe's 
+                    <Text style={{ fontSize: 20, fontWeight: '700', paddingHorizontal: 20 }}>
+                      Your Vibe's  <Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { vibe.expensivePlace ? "expensive" : "cheap" }, { vibe.barOrRestaurant === "restaurant" ? "resturants" : "bars" })</Text> 
+                    </Text>
                   </Text>
                   <ScrollView        
                     horizontal = {true}
@@ -137,7 +139,9 @@ class BottomSheet extends React.Component {
                       fontWeight: '600'
                     }}
                   >
-                    { vibe.crowdedPlace ? "unCrowdy" : "Crowdy" } 
+                    <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
+                      Unvibe <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { !vibe.expensivePlace ? "expensive" : "cheap" }), { vibe.barOrRestaurant === "restaurant" ? "restaurant" : "bars" }</Text> 
+                    </Text>
                   </Text>
                   <ScrollView        
                     horizontal = {true}

@@ -23,13 +23,28 @@ class MyVibe extends React.Component{
         {no: '4', image: 'https://static3.depositphotos.com/1003631/209/i/450/depositphotos_2099183-stock-photo-fine-table-setting-in-gourmet.jpg',question: "Are you want to go a Bar or Restaurant?"},
         {no: '5', image: 'https://media.timeout.com/images/105553441/image.jpg',question: "Setting your Vibe...."}
       ],
-      currentCard: 0,
+      cardIndex: 0,
+      answers: [],
+      swipeLeft: false,
+      showIndicator: false,
+      showLeftText: false,
+      showRightText: true,
+      showSecond: false
+    };
+    this.swiperRef = React.createRef();
+  }
+
+  makeDefaultState = () => {
+    console.log("hereee")
+    this.setState( {
+      cardIndex: 0,
       answers: [],
       swipeLeft: false,
       showIndicator: false,
       showLeftText: false,
       showRightText: true
-    };
+    },  ()=>{ this.setState({  showSecond: true }) })
+
     this.swiperRef = React.createRef();
   }
 
@@ -44,7 +59,13 @@ class MyVibe extends React.Component{
   }
 
   componentDidMount(){
-
+    this.props.navigation.addListener('focus', () => {
+      this.makeDefaultState();
+    });
+    this.props.navigation.addListener('focus', () => {
+      this.makeDefaultState();
+      this.setState({ showSecond: false })
+    });
   }
 
   submitVibe = async() => {
@@ -67,8 +88,12 @@ class MyVibe extends React.Component{
       }
     }
     else{
+      console.log("in updating vibe")
       const updateVibe = await this.props.updateVibe(vibeData);
-      
+      if(updateVibe){
+        this.setState({ showIndicator: false })
+        navigation.navigate('Home');
+      }
     }
     
   }
@@ -76,6 +101,7 @@ class MyVibe extends React.Component{
   render(){
     return (
       <View style={styles.screen}>
+        { !this.state.showSecond  && 
         <View style = {{ flex: 1 }} >
           <Swiper
             cards={ this.state.cards }
@@ -91,7 +117,7 @@ class MyVibe extends React.Component{
             }}
             onSwiped={(cardIndex) => { 
               console.log("the answers", this.state.answers);
-              this.setState({ currentCard: cardIndex })
+              this.setState({  cardIndex })
               if(cardIndex === 3){
                 this.setState({ 
                   showIndicator: true
@@ -102,7 +128,7 @@ class MyVibe extends React.Component{
               }
             }}
             onSwipedAll={() => {console.log('onSwipedAll', this.state.answers)}}
-            cardIndex={this.state.currentCard}
+            cardIndex={this.state.cardIndex}
             backgroundColor={'#EAE9E9'}
             disableLeftSwipe = {this.state.swipeLeft}
             animateCardOpacity = {true}
@@ -147,7 +173,7 @@ class MyVibe extends React.Component{
             overlayLabels = {
               {
                 left: {
-                  title:  this.state.currentCard === 2 ? 'Restaurant' : 'Yes',
+                  title:  this.state.cardIndex === 2 ? 'Restaurant' : 'Yes',
                   style: {
                     label: {
                       backgroundColor: 'transparent',
@@ -164,7 +190,7 @@ class MyVibe extends React.Component{
                   }
                 },
                 right: {
-                  title: this.state.currentCard === 2 ? 'Bar' : 'No',
+                  title: this.state.cardIndex === 2 ? 'Bar' : 'No',
                   style: {
                     label: {
                       backgroundColor: 'transparent',
@@ -184,7 +210,117 @@ class MyVibe extends React.Component{
             
             >  
           </Swiper>
-        </View>
+        </View> }
+        { this.state.showSecond &&
+        <View style = {{ flex: 1 }} >
+          <Swiper
+            cards={ this.state.cards }
+            ref={ref => { this.swiperRef = ref; }}
+            renderCard={(card) => {
+              return (  
+                <Card 
+                  card = {card} 
+                  showLeftText = {this.state.showLeftText}
+                  showRightText = {this.state.showRightText}         
+                />
+              )
+            }}
+            onSwiped={(cardIndex) => { 
+              console.log("the answers", this.state.answers);
+              this.setState({  cardIndex })
+              if(cardIndex === 3){
+                this.setState({ 
+                  showIndicator: true
+                })
+                setTimeout(async()=>{
+                  this.submitVibe()
+                }, 3000)
+              }
+            }}
+            onSwipedAll={() => {console.log('onSwipedAll', this.state.answers)}}
+            cardIndex={this.state.cardIndex}
+            backgroundColor={'#EAE9E9'}
+            disableLeftSwipe = {this.state.swipeLeft}
+            animateCardOpacity = {true}
+            style = {{ backgroundColor: 'white', width: 100 }}
+            goBackToPreviousCardOnSwipeRight = {false}
+            stackSize= {3}
+            showSecondCard={true}
+            disableBottomSwipe = {true}
+            disableTopSwipe = {true}
+            animateCardOpacity = {true}
+            onSwipedLeft = {(currentCardIndex)=>{
+              let answer = {};
+              answer.no = currentCardIndex + 1;
+              if(currentCardIndex === 3)
+                answer.answer = "restaurant"
+              else  
+                answer.answer = true;
+              let allAnswers = this.state.answers;
+              allAnswers.push(answer)
+              this.setState(allAnswers)
+            }}
+            onSwipedRight = {(currentCardIndex)=>{
+              let answer = {};
+              answer.no = currentCardIndex + 1;
+              if(currentCardIndex === 3)
+                answer.answer = "bar"
+              else
+                answer.answer = false;
+              let allAnswers = this.state.answers;
+              allAnswers.push(answer)
+              this.setState(allAnswers)
+            }}
+            overlayLabelStyle = {
+              {
+                fontSize: 45,
+                fontWeight: 'bold',
+                borderRadius: 10,
+                padding: 10,
+                overflow: 'hidden'
+              }
+            }
+            overlayLabels = {
+              {
+                left: {
+                  title:  this.state.cardIndex === 2 ? 'Restaurant' : 'Yes',
+                  style: {
+                    label: {
+                      backgroundColor: 'transparent',
+                      borderColor: 'black',
+                      color: 'green',
+                    },
+                    wrapper: {
+                      flexDirection: 'column',
+                      alignItems: 'flex-end',
+                      justifyContent: 'flex-start',
+                      marginTop: 30,
+                      
+                    }
+                  }
+                },
+                right: {
+                  title: this.state.cardIndex === 2 ? 'Bar' : 'No',
+                  style: {
+                    label: {
+                      backgroundColor: 'transparent',
+                      borderColor: 'black',
+                      color: 'red'
+                    },
+                    wrapper: {
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                      marginTop: 30,   
+                    }
+                  }
+                }
+              }
+            }
+            
+            >  
+          </Swiper>
+          </View> }
        { !this.state.showIndicator &&  
         <View style = {{ flex: 1, justifyContent: 'center',alignItems:'center',flexDirection: 'row',position: 'relative', top: '43%' }} >
           <View style = {styles.swipeButtons}>
@@ -294,7 +430,7 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: "center",
       position: 'relative',
-      left: '4%'
+      bottom: '10%'
     },
     horizontal: {
       flexDirection: "row",
