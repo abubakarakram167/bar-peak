@@ -12,7 +12,8 @@ import {
     Dimensions,
     Animated,
     FlatList,
-    TouchableOpacity
+    TouchableOpacity,
+    ActivityIndicator 
 } from "react-native";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -23,8 +24,11 @@ import Tag from '../../screens/components/Tag'
 import {getAllBusiness} from '../../redux/actions/Business';
 import {getfilteredBusiness} from '../../redux/actions/Business';
 import {getVibe} from '../../redux/actions/Vibe';
+import {emptyBusiness} from '../../redux/actions/Business';
 import { removeStorageItem } from '../components/localStorage'; 
 import * as Location from 'expo-location';
+import ShowPopupModal from '../components/popUpModal';
+import _, { map } from 'underscore';
 
 const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
@@ -33,15 +37,20 @@ class HomeScreen extends Component {
     super(props);
     this.state = {
       location: null,
-      errorMsg: null
+      errorMsg: null,
+      showModal: false
     }
   }
 
   async componentDidMount(){
     this.props.navigation.addListener('focus', async () => {
+      await this.props.emptyBusiness()
       const { coords } = await this.getCurrentLocation();
       const getBusiness =  await this.props.getAllBusiness();
       const getVibe = await this.props.getVibe();
+      const isVibeEmpty = _.isEmpty(getVibe);  
+      if(isVibeEmpty)
+        this.setState({ showModal: true })    
       const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords);
     })
   }
@@ -93,8 +102,7 @@ class HomeScreen extends Component {
       const { navigation } = this.props;
       const { filterBusinesses } = this.props.business.business;
       const { vibe } = this.props.vibe.vibe;
-      // console.log("the filter business", filterBusinesses)
-       console.log("caliing vibe", vibe);
+        // console.log("caliing vibe", filterBusinesses);
         return (
           <SafeAreaView style = {{ flex: 1 }} >
             <View style={{ flex: 1 }}>
@@ -193,24 +201,29 @@ class HomeScreen extends Component {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                    <FlatList
-                      data={ vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
-                      renderItem={({item}) => {
-                      //  console.log("the render item", item);
-                        return(
-                          <Home 
-                            width={width}
-                            height= {height}
-                            item = {item}
-                          />
-                        );
-                      }}
-                      showsHorizontalScrollIndicator = {false}
-                      horizontal = {true}
-                      keyExtractor={item => item.place_id}
-                    />  
-                    </View>
+                    { filterBusinesses.crowded || filterBusinesses.unCrowded ?
+                      <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>      
+                        <FlatList
+                          data={ vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
+                          renderItem={({item}) => {
+                          //  console.log("the render item", item);
+                            return(
+                              <Home 
+                                width={width}
+                                height= {height}
+                                item = {item}
+                              />
+                            );
+                          }}
+                          showsHorizontalScrollIndicator = {false}
+                          horizontal = {true}
+                          keyExtractor={item => item.place_id}
+                        />                       
+                      </View> :
+                      <View style={{ position: 'absolute', top:"60%",right: 0, left: 0 }}>
+                        <ActivityIndicator animating={true} size="small" color="black" />
+                      </View>
+                    }
                   </View>
                   <View style={{ marginTop: 40 }}>
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
@@ -230,24 +243,29 @@ class HomeScreen extends Component {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                    <FlatList
-                      data={!vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
-                      renderItem={({item}) => {
-                        // console.log("the render item", item);
-                        return(
-                          <Home 
-                            width={width}
-                            height= {height}
-                            item = {item}
-                          />
-                        );
-                      }}
-                      showsHorizontalScrollIndicator = {false}
-                      horizontal = {true}
-                      keyExtractor={item => item.place_id}
-                    />  
-                    </View>
+                    { filterBusinesses.crowded || filterBusinesses.unCrowded ? 
+                      <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                        <FlatList
+                          data={!vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
+                          renderItem={({item}) => {
+                            // console.log("the render item", item);
+                            return(
+                              <Home 
+                                width={width}
+                                height= {height}
+                                item = {item}
+                              />
+                            );
+                          }}
+                          showsHorizontalScrollIndicator = {false}
+                          horizontal = {true}
+                          keyExtractor={item => item.place_id}
+                        />  
+                      </View> :
+                      <View style={{ position: 'absolute', top:"60%",right: 0, left: 0 }}>
+                        <ActivityIndicator animating={true} size="small" color="black" />
+                      </View>
+                    }
                   </View>  
                   <View style={{ flex: 1, paddingTop: 20 }}>
                     <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
@@ -281,7 +299,7 @@ class HomeScreen extends Component {
                     </View>
                   </View>
                 </ScrollView>
-
+                { this.state.showModal &&  <ShowPopupModal  closeModal = {()=> this.setState({ showModal: false })} navigation = {this.props.navigation} /> } 
             </View>
           </SafeAreaView>    
         );
@@ -298,7 +316,8 @@ const mapDispatchToProps = dispatch => (
   bindActionCreators({
     getAllBusiness,
     getfilteredBusiness,
-    getVibe
+    getVibe,
+    emptyBusiness
   }, dispatch)
 );
 

@@ -1,10 +1,13 @@
 import React from 'react';
-import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text, KeyboardAvoidingView , ScrollView, Alert, Modal} from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment';
 import Spinner from 'react-native-loading-spinner-overlay';
 import axios from '../api/axios';
 import {storeUserData} from '../components/localStorage';
+import { showMessage, hideMessage } from "react-native-flash-message";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
+import RNPickerSelect from 'react-native-picker-select';  
 
 const shadowOpt = {
   width:160,
@@ -15,6 +18,23 @@ const shadowOpt = {
   style:{marginVertical:5}
 }
 
+const createTwoButtonAlert = (message) =>
+  Alert.alert(
+    "Error",
+    message,
+    [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel"
+      },
+      { text: "OK", onPress: () => console.log("OK Pressed") }
+    ],
+    { cancelable: true }
+);
+
+const keyboardVerticalOffset = Platform.OS === 'ios' ? 200 : 0
+
 class SignUpComponent extends React.Component {
 	
 	constructor(props){
@@ -24,7 +44,9 @@ class SignUpComponent extends React.Component {
       showPicker: false,
       email: "",
       firstName: "",
-      lastName: ""
+      lastName: "",
+      showAlert: true,
+      message: "normal"
     }
 	}
 
@@ -43,6 +65,7 @@ class SignUpComponent extends React.Component {
 
   changeDate = (date) => {
     this.setState({ date: moment(date).format("YYYY-MM-DD"), showPicker: false })
+    setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
     console.log("the date", moment(date).format("YYYY-MM-DD"))
   }
 
@@ -51,7 +74,9 @@ class SignUpComponent extends React.Component {
     const {navigation} = this.props;
     let password = this.props.user ? "asdfg" : this.state.password;
     let accountType = this.props.user ? 'social' : "app";
-      
+    
+    console.log("on sigunup", this.state);
+    
     const body = {
       query: `
       mutation{
@@ -66,6 +91,7 @@ class SignUpComponent extends React.Component {
       `
     }
     
+    console.log("the body", body)
     
     axios.post('graphql?',body).then((res)=>{
       console.log("after sign up", res);
@@ -77,8 +103,10 @@ class SignUpComponent extends React.Component {
       }
       
     }).catch(err =>{
-      console.log("the err", err)
-      alert("Invalid username or password") 
+      const { errors } = err.response.data;
+      // console.log("the err", err.response.data)
+      // this.setState({ message: errors[0].message }, ()=> this.setState( { showAlert: true } ))
+      alert(errors[0].message) 
       this.setState({ spinner: false })
     })
   }
@@ -88,81 +116,118 @@ class SignUpComponent extends React.Component {
 		return (
       <View style = {styles.container} >
         <Image style = { styles.ImageLogo }  source = {{ uri: "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png" }}  />
-        <View style = {styles.inputForm} >   
-          <View style={styles.inputView} >
-            
-              <TextInput
-                style={[styles.inputText]}
-                placeholder="First Name"
-                placeholderTextColor="#003f5c"
-                onChangeText={val => this.onChangeText('firstName', val)}
-                value = {this.state.firstName}
-              />
-              
-          </View>
-          <View style={styles.inputView} >
-            <TextInput
-              style={styles.inputText}
-              placeholder="Last Name"
-              placeholderTextColor="#003f5c"
-              onChangeText={val => this.onChangeText('lastName', val)}
-              value = {this.state.lastName}
-            />
-          </View>
-          <View style={styles.inputView} >
-            <DateTimePickerModal
-              isVisible={this.state.showPicker}
-              mode="date"
-              onConfirm = {(date)=> this.changeDate(date)}
-              onCancel = {()=>{ this.setState({ showPicker: false }) }}
-              style = {{ backgroundColor: 'gray', color: 'gray' }}
-            />
-            <TextInput
-              style={styles.inputText}
-              placeholder="SelectBirtday (MM/DD/YYYY)"
-              placeholderTextColor="#003f5c"
-              onFocus = {()=> this.setState({ showPicker: true }) }
-              onChange = {()=> this.setState({ showPicker: true })}
-              defaultValue = "SelectBirday(MM/DD/YYYY)"
-              value = { this.state.date && this.state.date }
-            />
-          </View>
-          <View style={styles.inputView} >
-            <TextInput
-              style={styles.inputText, styles.disabledInputStyle, {fontWeight: '600'}}
-              placeholder="Email"
-              ref= "email"
-              // placeholderTextColor="#003f5c"
-              value = {this.state.email}
-              onChangeText={val => this.onChangeText('email', val)}
-            />
-          </View>
-          { this.props.user &&
-            (<View > 
-              <Text style = {{lineHeight: 14, marginTop: 10}} >This info came from facebook and not editable.</Text>
-            </View>
-            )
-          }
-          { !this.props.user &&(
-            <View style = { styles.inputView } >
-            <View  >
-              <TextInput
-                style={styles.inputText}
-                placeholder="Password"
-                placeholderTextColor="#003f5c"
-                onChangeText={val => this.onChangeText('password', val)}
-                secureTextEntry
-              />
-            </View>
-            <View  > 
-              <Text style = {{lineHeight: 14, marginTop: 10}} >Password must be atleast 5 key words</Text>
-            </View>
-            </View>
-          )
-          }
-          <TouchableOpacity style={{ backgroundColor: 'black', marginTop: '10%' }} onPress = { ()=>{this.signUp()} } >
-            <Text style={styles.SignUpText}>Signup</Text>
-          </TouchableOpacity>
+        <View style = {styles.inputForm} >
+          
+          {/* <ScrollView   style = {{flex:1, backgroundColor: 'white', width: '100%'}}>
+            <KeyboardAvoidingView  style = {{ flex:1 }} behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}>         */}
+            <KeyboardAwareScrollView style ={{ flex:1 }} >  
+              <View style={styles.inputView} >
+                <TextInput
+                  style={[styles.inputText]}
+                  placeholder="First Name"
+                  placeholderTextColor="#003f5c"
+                  onChangeText={val => this.onChangeText('firstName', val)}
+                  value = {this.state.firstName}
+                />
+              </View>
+              <View style={styles.inputView} >
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="Last Name"
+                  placeholderTextColor="#003f5c"
+                  onChangeText={val => this.onChangeText('lastName', val)}
+                  value = {this.state.lastName}
+                />
+              </View>
+              <View style={styles.inputView} >
+                <DateTimePickerModal
+                  isVisible={this.state.showPicker}
+                  mode="date"
+                  onConfirm = {(date)=> this.changeDate(date)}
+                  onCancel = {()=>{ 
+                    setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
+                  }}
+                  style = {{ backgroundColor: 'gray', color: 'gray' }}
+                />
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="SelectBirtday (MM/DD/YYYY)"
+                  placeholderTextColor="#003f5c"
+                   onFocus = {()=> 
+                    this.setState({ showPicker: true })
+                  }
+                  // onChange = {()=> this.setState({ showPicker: true })}
+                  defaultValue = "SelectBirday(MM/DD/YYYY)"
+                  value = { this.state.date && this.state.date }
+                />
+              </View>
+              {/* <View style={styles.inputView} >
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="Last Name"
+                  placeholderTextColor="#003f5c"
+                  onChangeText={val => this.onChangeText('lastName', val)}
+                  value = {this.state.lastName}
+                />
+              </View> */}
+              <View style={styles.inputView} >
+                <TextInput
+                  style={ styles.inputText }
+                  placeholder="Email"
+                  ref= "email"
+                  placeholderTextColor="#003f5c"
+                  value = {this.state.email}
+                  onChangeText={val => this.onChangeText('email', val)}
+                />
+              </View>
+              { this.props.user &&
+                (<View > 
+                  <Text style = {{lineHeight: 14, marginTop: 10}} >This info came from facebook and not editable.</Text>
+                </View>
+                )
+              }
+              { !this.props.user &&(
+                <View style = { styles.inputView } >
+                  <View  >
+                    <TextInput
+                      style={styles.inputText}
+                      placeholder="Password"
+                      placeholderTextColor="#003f5c"
+                      onChangeText={val => this.onChangeText('password', val)}
+                      secureTextEntry
+                    />
+                  </View>
+                <View  > 
+                  <Text style = {{lineHeight: 14, marginTop: 10}} >Password must be atleast 5 key words</Text>
+                </View>
+                </View>
+                
+              )
+              }
+              <View style = { [styles.inputView, { padding: 0, paddingLeft: 20 }] } >
+                <RNPickerSelect
+                  style={[styles.inputText ]}
+                  onValueChange={(value) => console.log(value)}
+                  placeholderTextColor="black"
+
+                  placeholder = {
+                    { label: 'Female', value: 'female', color: 'black' }
+                  }
+                  items={[
+                      { label: 'Male', value: 'male' },
+                      { label: 'Other', value: 'other' },
+                  ]}
+                  onValueChange={(value) => {
+                    this.setState({ gender: value })
+                  }}
+                />
+              </View>
+              <TouchableOpacity style={{ width: '40%',alignSelf: 'center' ,backgroundColor: 'black', marginTop: '10%', borderRadius: '10%' }} onPress = { ()=>{this.signUp()} } >
+                <Text style={styles.SignUpText}>Signup</Text>
+              </TouchableOpacity>
+            {/* </KeyboardAvoidingView>
+          </ScrollView> */} 
+          </KeyboardAwareScrollView>   
         </View>
         <Spinner
           visible={this.state.spinner}
@@ -182,6 +247,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingLeft: 10,
     paddingRight: 10,
+    textAlign: 'center'
   },
   spinnerTextStyle: {
     color: '#FFF'
@@ -191,6 +257,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     alignItems: 'center',
+    justifyContent: 'center',
     margin: 0,
     borderWidth: 0,
     width: '100%',
@@ -209,16 +276,17 @@ const styles = StyleSheet.create({
     height: '15%',
     marginBottom: "5%",
     backgroundColor: 'white',
-    marginTop: '20%'
+    marginTop: '15%'
   },
   inputView: {
-    width: "80%",
+    width: "100%",
     //  backgroundColor: "#465881",
     borderRadius: 7,
     borderWidth: 1,
     height: 50,
     // marginTop: 50,
     marginTop: 20,
+    marginLeft: 0,
     justifyContent: "center",
     padding: 20
   },

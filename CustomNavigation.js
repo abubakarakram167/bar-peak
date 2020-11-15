@@ -2,6 +2,7 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from "./src/screens/HomeScreen";
+import userSettings from "./src/screens/userSettings";
 import SignUpScreen from './src/screens/SignUpScreen';
 import MapScreen from './src/screens/MapScreen';
 import SplashScreen from './src/screens/SplashScreen';
@@ -85,7 +86,7 @@ function HomeApp() {
       }
     />
     <Tab.Screen
-      name="Screen 3"
+      name="vibeTabNavigator"
       component={MyVibeTab}  // Replaced Screen 3
       options = 
       {
@@ -103,7 +104,7 @@ function HomeApp() {
     />
      <Tab.Screen
       name="Screen 4"
-      component={MyVibeTab}  // Replaced Screen 3
+      component={userProfile}  // Replaced Screen 3
       options = 
       {
         {
@@ -208,3 +209,21 @@ const HomeTabScreen = () => {
   }
   
   export {MyVibeTab}; 
+
+  const userProfile = () => {
+    return (
+      <Stack.Navigator >
+        <Stack.Screen
+          name="userSettingOptions"
+          component={userSettings}
+          options = {
+          { title: "My Settings ",
+            headerShown: true,
+            headerLeft: () => {return null} 
+          }}
+        />
+      </Stack.Navigator>
+    );
+  }
+  
+  export {userProfile}; 

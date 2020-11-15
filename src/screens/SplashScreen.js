@@ -14,19 +14,19 @@ import { graphql } from 'graphql';
 
   async componentDidMount() {
     // Prevent native splash screen from autohiding
-    console.log("in splash")
+    // console.log("in splash")
     const { navigation } = this.props;
-    console.log("the navigation in splash", navigation)
-    // this.focusListener = navigation.addListener("didFocus", async () => {
-    //   console.log("the listener");
+    // console.log("the navigation in splash", navigation)
+    navigation.addListener("focus", async () => {
+       console.log("the listener");
       try {
         await SplashScreen.preventAutoHideAsync();
       } catch (e) {
         console.warn(e);
       }
-      setTimeout(()=>{ this.prepareResources() }, 1000)
+      setTimeout(()=>{ this.prepareResources() }, 100)
 
-    // })
+    })
   }
 
   async performAPICalls() {

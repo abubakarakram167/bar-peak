@@ -1,4 +1,4 @@
-import {Fetch_All_Business, FILTERED_BUSINESS} from '../types'; 
+import {Fetch_All_Business, FILTERED_BUSINESS, Empty_Business} from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
@@ -82,3 +82,13 @@ export const getfilteredBusiness = (data, location) => async (dispatch, getState
     console.log("hte errorsss", err.response.data)
   }
 };
+
+export const emptyBusiness = () => async (dispatch, getState) => {
+  dispatch({
+    type: Empty_Business,
+    payload: null,
+  })
+  setTimeout(()=>{
+    return Promise.resolve('ok');
+  }, 2000) 
+}

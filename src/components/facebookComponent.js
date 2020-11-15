@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } fr
 import * as Facebook from 'expo-facebook';
 import { SocialIcon } from 'react-native-elements'
 import axios from '../api/axios';
+import {storeUserData} from '../components/localStorage';
 console.disableYellowBox = true;
 
 export default function App(props) {
@@ -42,7 +43,7 @@ export default function App(props) {
         expires,
         permissions,
         declinedPermissions,
-      } = await Facebook.logInWithReadPermissionsAsync('897285013968583', {
+      } = await Facebook.logInWithReadPermissionsAsync({
         permissions: ['public_profile'],
       });
       if (type === 'success') {
@@ -54,8 +55,32 @@ export default function App(props) {
             console.log("the user found", userFound)
             if(!userFound.data.data.checkUserAvailable)
               navigation.navigate('SignUpScreen', { user: data })
-            else  
-              navigation.navigate('NestedScreen', { name:  "welcome abubakar" });
+            else{
+              const body = {
+                query:`
+                query{
+                  login(email: "${data.email}", password: "asdfg")
+                  {
+                    token,
+                    userId
+                  }
+                }
+                `
+              }
+              axios.post(`graphql?`,body).then((res)=>{
+                console.log("in login facebook", res)
+                if(res.data.data.login){
+                  console.log("in facebook component", res.data.data.login)
+                  storeUserData(res.data.data.login).then(() => {
+                    navigation.navigate('HomeApp', { name:  data.name });
+                  })
+                }
+              }).catch(err => {
+                  console.log("the login error", err)
+                  alert("Invalid username or password") 
+              })
+            }  
+              
             setLoggedinStatus(true);
             setUserData(data);
           })
@@ -101,7 +126,7 @@ export default function App(props) {
               />
             </View> 
             <View style={{flex: 1, height: 15 , marginLeft: '12%' }}  >
-              <Text style = {{ color: "black" }}  > Continue With Facebook</Text>  
+              <Text style = {{ color: "black" }}  > Continue With Facebooks</Text>  
             </View>
             
           </View>

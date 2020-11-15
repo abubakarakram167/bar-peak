@@ -100,9 +100,14 @@ export const getVibe = () => async (dispatch, getState) => {
       type: Set_Vibe,
       payload: res.data.data.getVibe,
     })
-    return Promise.resolve("ok");
+    return Promise.resolve(res.data.data.getVibe);
   }catch(err){
     console.log("hte errorsss", err.response.data)
   }
 
 }
+
+
+
+
+

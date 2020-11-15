@@ -32,6 +32,7 @@ export const getUserData = async () => {
 
 export const removeStorageItem = (navigation) => {
   AsyncStorage.clear().then(()=>{
+    console.log("in under func", navigation)
     navigation.navigate('SplashScreen')
   });
 }

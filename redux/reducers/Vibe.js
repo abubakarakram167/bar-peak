@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import {Set_Vibe, Update_Vibe} from '../types'; 
+import {Set_Vibe, Update_Vibe, Empty_Vibe} from '../types'; 
 
 const INITIAL_STATE = {
   vibe:{}
@@ -14,6 +14,13 @@ const vibeReducer = (state = INITIAL_STATE, action) => {
         ...state,
         vibe: action.payload
       }
+    case Empty_Vibe:
+      if (action.payload === null)
+        action.payload = {};
+      return{
+        ...state,
+        vibe: {}
+      }  
     case  Update_Vibe:
       return{
         ...state,

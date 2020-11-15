@@ -7,6 +7,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {getfilteredBusiness} from '../../redux/actions/Business';
 import Constants from 'expo-constants';
+import _, { map } from 'underscore';
+
 
 const { height, width } = Dimensions.get('window')
 
@@ -82,7 +84,8 @@ class BottomSheet extends React.Component {
     const { vibe } = this.props.vibe.vibe;
     const arrayVibe = vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
     const unVibeArray = !vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
-
+    console.log("the filter business", filterBusinesses);
+    const isVibeEmpty = _.isEmpty(filterBusinesses); 
     return (
       <View style={styles.container}>
         <Text>Hello world</Text>
@@ -119,7 +122,7 @@ class BottomSheet extends React.Component {
                     horizontal = {true}
                   >          
                     {
-                      arrayVibe.map((business)=>{
+                      !isVibeEmpty && arrayVibe.map((business)=>{
                         return(
                           <Home 
                             width={width}
@@ -147,7 +150,7 @@ class BottomSheet extends React.Component {
                     horizontal = {true}
                   >          
                     {
-                      unVibeArray.map((business)=>{
+                      !isVibeEmpty && unVibeArray.map((business)=>{
                         return(
                           <Home 
                             width={width}
