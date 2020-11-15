@@ -84,7 +84,7 @@ class BottomSheet extends React.Component {
     const { vibe } = this.props.vibe.vibe;
     const arrayVibe = vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
     const unVibeArray = !vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
-    console.log("the filter business", filterBusinesses);
+    // console.log("the filter business", filterBusinesses);
     const isVibeEmpty = _.isEmpty(filterBusinesses); 
     return (
       <View style={styles.container}>
