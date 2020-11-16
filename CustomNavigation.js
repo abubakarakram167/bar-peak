@@ -9,9 +9,12 @@ import SplashScreen from './src/screens/SplashScreen';
 import MyVibeScreen from './src/screens/MyVibe';
 import Screen2 from "./screens/Screen2";
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
+import vibeInfoComponent from "./src/screens/vibeInfoScreen";
+import radiusScreen from "./src/screens/radiusScreen";
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import { Icon } from 'react-native-elements'
 import { Image } from 'react-native'
+import RadiusScreen from "./src/screens/radiusScreen";
 const Tab = createBottomTabNavigator();
 
 
@@ -74,11 +77,11 @@ function HomeApp() {
       options = 
       {
         {
-          tabBarLabel: 'SAVED',
+          tabBarLabel: 'Recents',
           tabBarIcon: ({ tintColor }) => (
             <Icon 
-              name="ios-heart"
-              type = 'ionicon'  
+              name="list-thumbnails"
+              type = 'foundation'  
               color = {tintColor} 
             />
           )
@@ -212,14 +215,32 @@ const HomeTabScreen = () => {
 
   const userProfile = () => {
     return (
-      <Stack.Navigator >
+      <Stack.Navigator initialRouteName = "userSettingOptions" >
         <Stack.Screen
           name="userSettingOptions"
           component={userSettings}
           options = {
-          { title: "My Settings ",
+          { title: "Settings",
             headerShown: true,
             headerLeft: () => {return null} 
+          }}
+        />
+        <Stack.Screen
+          name="vibeInfo"
+          component={vibeInfoComponent}
+          options = {
+          { title: "Your Vibe's",
+            headerShown: true,
+           
+          }}
+        />
+        <Stack.Screen
+          name="radiusScreen"
+          component={radiusScreen}
+          options = {
+          { title: "Select Radius",
+            headerShown: true,
+           
           }}
         />
       </Stack.Navigator>

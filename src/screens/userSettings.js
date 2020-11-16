@@ -23,13 +23,13 @@ class UserSettings extends React.Component{
   }
 
   render(){
+    const {navigation} = this.props;
     return(
       <View style={styles.container}>
-        <Text style = {{ marginTop: 10, fontWeight: '500', marginLeft: 20 , fontSize: 14}} > Account Settings </Text>
         <View style = {{ marginTop: 50, marginLeft: 18}} >
           <View style ={{ flexDirection: 'row'}} >
             <View style = {{ flex: 5 }} >
-              <Text> Personal Information </Text>
+              <Text style = {styles.headingText} > Personal Information </Text>
             </View>
             <View style ={{ flex:1 }} >
               <Icon 
@@ -47,6 +47,53 @@ class UserSettings extends React.Component{
               }}
             />
         </View>
+        <View style = {{ marginTop: 50, marginLeft: 18}} >
+          <View style ={{ flexDirection: 'row'}} >
+            <View style = {{ flex: 5 }} >
+              <TouchableOpacity onPress = {()=> { navigation.navigate('vibeInfo') }} >
+                <Text style = {styles.headingText} > Vibe Info </Text>
+              </TouchableOpacity> 
+            </View>
+            <View style ={{ flex:1 }} >
+              <Icon 
+                name="heart"
+                type = 'foundation'
+              />
+            </View>
+          </View>  
+            <View
+              style={{
+                borderBottomColor: 'gray',
+                borderBottomWidth: 1,
+                width: 340,
+                marginTop: 20
+              }}
+            />
+        </View>
+        <View style = {{ marginTop: 50, marginLeft: 18}} >
+          <View style ={{ flexDirection: 'row'}} >
+            <View style = {{ flex: 5 }} >
+              <TouchableOpacity onPress = {()=> { navigation.navigate('radiusScreen') }} >
+                <Text style = {styles.headingText} >Your Radius</Text>
+                <Text style = {{ fontSize: 12, fontWeight: '500', color: 'gray' }} >This option ensures in how much distance in m you gonna see your results. </Text>
+              </TouchableOpacity> 
+            </View>
+            <View style ={{ flex:1 }} >
+              <Icon 
+                name="compass"
+                type = 'foundation'
+              />
+            </View>
+          </View>  
+            <View
+              style={{
+                borderBottomColor: 'gray',
+                borderBottomWidth: 1,
+                width: 340,
+                marginTop: 20
+              }}
+            />
+        </View>
         <View style = {{ marginTop: 20, marginLeft: 18, flex:1 }} >
           <TouchableOpacity onPress = {()=> this.makeLogout()} >
             <Text style = {{ fontSize: 20, color: 'red' }} >
@@ -54,7 +101,6 @@ class UserSettings extends React.Component{
             </Text>
           </TouchableOpacity>
         </View>
-
       </View>
     )
   }
@@ -67,6 +113,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+  },
+  headingText: {
+    fontSize: 25,
+    position: 'relative',
+    bottom: 5
+  },
+  descriptionText: {
+    fontSize: 20
   }
 });
 
