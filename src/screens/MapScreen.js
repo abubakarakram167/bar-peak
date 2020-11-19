@@ -41,7 +41,7 @@ class MapScreen extends React.Component{
     const vibeData = vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
     const unVibeData = !vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
 
-    console.log("the vibe data", vibeData);
+    // console.log("the vibe data", vibeData);
 
     const vibeMarkers = vibeData.map((marker)=>{
       return {
@@ -111,6 +111,9 @@ class MapScreen extends React.Component{
   }
 
   render(){
+    const route = this.props.route;
+    const {category} = route.params;
+    console.log("the category", category);
     return(
       <View style={styles.container}>
         <MapView
@@ -232,7 +235,7 @@ class MapScreen extends React.Component{
             
         </Animated.ScrollView> 
         <Text style = {{color: 'black'}} >sdfsdsss</Text>
-        <BottomDrawer  />
+        <BottomDrawer category = {category}  />
       </View>
     )
   }
@@ -252,7 +255,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     position: "absolute",
-    bottom: 30,
+    bottom: '6%',
     left: 0,
     right: 0,
     paddingVertical: 10,

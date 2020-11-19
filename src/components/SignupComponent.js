@@ -8,6 +8,11 @@ import {storeUserData} from '../components/localStorage';
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import RNPickerSelect from 'react-native-picker-select';  
+import { getUser } from '../../redux/actions/User';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import AlertComponent from '../components/AlertComponent';
+
 
 const shadowOpt = {
   width:160,
@@ -46,7 +51,8 @@ class SignUpComponent extends React.Component {
       firstName: "",
       lastName: "",
       showAlert: true,
-      message: "normal"
+      message: "",
+      showError: false
     }
 	}
 
@@ -85,29 +91,34 @@ class SignUpComponent extends React.Component {
         password: "${password}", dob: "${this.state.date}", accountType: "${accountType}"})
         {
           token
-          userId
+          user{
+            _id
+            firstName
+            radius
+            lastName
+            email
+            dob
+          }
         }
       }
       `
     }
     
-    console.log("the body", body)
-    
-    axios.post('graphql?',body).then((res)=>{
-      console.log("after sign up", res);
+    axios.post('graphql?',body).then( async (res)=>{
+      console.log("after sign up", res.data.data);
       if(res.data.data.createUser){
         storeUserData(res.data.data.createUser)
         this.setState({ spinner: false })
         this.props.closeModal();
-        navigation.navigate('HomeApp', { name:  "welcome abubakar" })
+        const user = await this.props.getUser();
+        if(user === 'ok')
+          navigation.navigate('HomeApp');
       }
       
     }).catch(err =>{
       const { errors } = err.response.data;
-      // console.log("the err", err.response.data)
-      // this.setState({ message: errors[0].message }, ()=> this.setState( { showAlert: true } ))
-      alert(errors[0].message) 
-      this.setState({ spinner: false })
+      const { message } = errors[0]; 
+      this.setState({ spinner: false, message, showError: true })
     })
   }
 
@@ -116,6 +127,11 @@ class SignUpComponent extends React.Component {
 		return (
       <View style = {styles.container} >
         <Image style = { styles.ImageLogo }  source = {{ uri: "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png" }}  />
+        { this.state.showError && <AlertComponent 
+            showError = {this.state.showError}  
+            message = {this.state.message} 
+            closeModal = { ()=> this.setState({ showError: false  }) }  
+        />}
         <View style = {styles.inputForm} >
           
           {/* <ScrollView   style = {{flex:1, backgroundColor: 'white', width: '100%'}}>
@@ -187,7 +203,7 @@ class SignUpComponent extends React.Component {
                 )
               }
               { !this.props.user &&(
-                <View style = { styles.inputView } >
+                <View style = {[ styles.inputView, { marginBottom: 20 }] } >
                   <View  >
                     <TextInput
                       style={styles.inputText}
@@ -196,10 +212,8 @@ class SignUpComponent extends React.Component {
                       onChangeText={val => this.onChangeText('password', val)}
                       secureTextEntry
                     />
+                   <Text style = {{lineHeight: 14, marginTop: 15, color: 'gray'}} >Password must be atleast 5 key words</Text>
                   </View>
-                <View  > 
-                  <Text style = {{lineHeight: 14, marginTop: 10}} >Password must be atleast 5 key words</Text>
-                </View>
                 </View>
                 
               )
@@ -238,6 +252,14 @@ class SignUpComponent extends React.Component {
     )
 	}
 }
+
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    getUser
+  }, dispatch)
+);
+
+export default connect(null, mapDispatchToProps)(SignUpComponent);
 
 const styles = StyleSheet.create({
   SignUpText: {
@@ -302,4 +324,3 @@ const styles = StyleSheet.create({
   }
 }) 
 
-export default SignUpComponent;

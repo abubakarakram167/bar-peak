@@ -1,12 +1,11 @@
  import {AsyncStorage} from 'react-native';
 
 
-export const storeUserData = async({ token, userId }) => {
-   console.log("in store user data");
-   console.log("the sjfdnksdnkjdsnkjsjnck", userId)
+export const storeUserData = async({ token, user }) => {
+   console.log("the user ID in local storage", user._id)
   try {
     await AsyncStorage.setItem(
-    'UserId', JSON.stringify(userId)
+    'UserId', JSON.stringify(user._id)
     );
   } catch (error) {
     console.log("thee error on saving", error)

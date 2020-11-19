@@ -86,6 +86,7 @@ class BottomSheet extends React.Component {
     const unVibeArray = !vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
     // console.log("the filter business", filterBusinesses);
     const isVibeEmpty = _.isEmpty(filterBusinesses); 
+    const { category } =  this.props;
     return (
       <View style={styles.container}>
         <Text>Hello world</Text>
@@ -115,7 +116,7 @@ class BottomSheet extends React.Component {
                     }}
                   >
                     <Text style={{ fontSize: 20, fontWeight: '700', paddingHorizontal: 20 }}>
-                      Your Vibe's  <Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { vibe.expensivePlace ? "expensive" : "cheap" }, { vibe.barOrRestaurant === "restaurant" ? "resturants" : "bars" })</Text> 
+                     { category ? "Results By Category" : "Your Vibe's" }<Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" },{ vibe.expensivePlace ? "expensive" : "cheap" } ,{ category ? category : vibe.barOrRestaurant})</Text> 
                     </Text>
                   </Text>
                   <ScrollView        
@@ -143,7 +144,7 @@ class BottomSheet extends React.Component {
                     }}
                   >
                     <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                      Unvibe <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { !vibe.expensivePlace ? "expensive" : "cheap" }), { vibe.barOrRestaurant === "restaurant" ? "restaurant" : "bars" }</Text> 
+                    { category ? "Results By Category" : "Unvibe" } <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { !vibe.expensivePlace ? "expensive" : "cheap" }), {category ? category : vibe.barOrRestaurant}</Text> 
                     </Text>
                   </Text>
                   <ScrollView        

@@ -6,6 +6,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FaceBookComponent from '../components/facebookComponent';
 import {storeUserData} from '../components/localStorage';
 import axios from '../api/axios';
+import { getUser } from '../../redux/actions/User';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import AlertComponent from '../components/AlertComponent';
 
  class LoginScreen extends React.Component {
   constructor(props){
@@ -14,7 +18,8 @@ import axios from '../api/axios';
       username:"",
       password:"",
       spinner: false,
-      showModal: false
+      showModal: false,
+      showError: false
     }
   }
 
@@ -38,7 +43,14 @@ import axios from '../api/axios';
         login(email: "${this.state.username}", password: "${this.state.password}")
         {
           token,
-          userId
+          user{
+            _id
+            firstName
+            radius
+            lastName
+            email
+            dob
+          }
         }
       }
       `
@@ -46,18 +58,20 @@ import axios from '../api/axios';
 
     
     axios.post(`graphql?`,body).then((res)=>{
-      console.log("in login", res)
+      console.log("in login", res.data.data.login)
       if(res.data.data.login){
-        console.log("before calling store")
-        storeUserData(res.data.data.login).then(() => {
+        storeUserData(res.data.data.login).then(async() => {
           this.setState({ spinner: false });
-          navigation.navigate('HomeApp', { name:  "welcome abubakar" });
+          const user = await this.props.getUser();
+          if(user === 'ok')
+            navigation.navigate('HomeApp');
         })
       }
     }).catch(err => {
-        console.log("the login error", err)
-        alert("Invalid username or password") 
-      this.setState({ spinner: false })
+        console.log("the login error", err.response.data)
+        const {errors} =  err.response.data; 
+        const { message } = errors[0]; 
+        this.setState({ spinner: false, message, showError: true })
     })
       
   }
@@ -146,12 +160,23 @@ import axios from '../api/axios';
           textContent={'Loading...'}
           textStyle={styles.spinnerTextStyle}
         />
+        <AlertComponent 
+          showError = {this.state.showError}  
+          message = {this.state.message} 
+          closeModal = { ()=> this.setState({ showError: false  }) }  
+        />
       </View>
     );
   }
 }
 
-export default withNavigation(LoginScreen);
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    getUser
+  }, dispatch)
+);
+
+export default connect(null, mapDispatchToProps)(LoginScreen);
 
 const styles = StyleSheet.create({
   

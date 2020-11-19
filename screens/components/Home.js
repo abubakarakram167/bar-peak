@@ -18,26 +18,31 @@ class Home extends Component {
 
   render() {
     const { item } = this.props
+    // console.log("the item in home", item)
     return (
-      <View style={[styles.businessItem, {  width: this.props.width * 0.65, height: this.props.height * 0.4 }]}>
-        <View style={{ flex: 1 }}>
-          <Image
-            style={styles.businessImage}
-            source={ { uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${ item.photos[0].photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM` } } 
-          />
-        </View>
-        <View style={{ flex: 1, alignItems: 'flex-start', paddingLeft: 10, paddingTop: 10 }}>
-          <StarRating
-            disable={true}
-            maxStars={5}
-            rating={item.rating}
-            starSize={10}
-            starStyle = {{ color:'#ffbf00' }}
-          />
-          <Text style={[{ fontSize: 20, color: '#b63838' }, styles.textInfo]}>{item.types[0]}</Text>
-          <Text style={[{ fontSize: 16, fontWeight: 'bold' }, styles.textInfo]}>{item.name}</Text>
-          <Text style={[{ fontSize: 12 }, styles.textInfo]}>{item.price_level>0 ?  this.renderDollar(item.price_level) : "Price not available" }</Text>
-        </View>
+       <View style={[styles.businessItem, {  width: this.props.width * 0.65, height: this.props.height * 0.4 }]}>
+        { item.hasOwnProperty('photos') && 
+        <View style = {{ flex:1 }} >
+          <View style={{ flex: 1 }}>
+            <Image
+              style={styles.businessImage}
+              source={ { uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${ item.photos && item.photos[0].photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM` } } 
+            />
+          </View>
+          <View style={{ flex: 1, alignItems: 'flex-start', paddingLeft: 10, paddingTop: 10 }}>
+            <StarRating
+              disable={true}
+              maxStars={5}
+              rating={item.rating}
+              starSize={10}
+              starStyle = {{ color:'#ffbf00' }}
+            />
+            <Text style={[{ fontSize: 20, color: '#b63838' }, styles.textInfo]}>{item.types[0]}</Text>
+            <Text style={[{ fontSize: 16, fontWeight: 'bold' }, styles.textInfo]}>{item.name}</Text>
+            <Text style={[{ fontSize: 12 }, styles.textInfo]}>{item.price_level>0 ?  this.renderDollar(item.price_level) : "Price not available" }</Text>
+          </View>
+        </View> 
+        }
       </View>
     );
   }

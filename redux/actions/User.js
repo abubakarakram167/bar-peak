@@ -1,22 +1,21 @@
-import { Update_Radius } from '../types'; 
+import { Update_Radius, Fetch_User } from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
 
-export const updateRadius = () => async (dispatch, getState) => {
+export const updateRadius = (radius) => async (dispatch, getState) => {
   const { token } = await getUserData();
   const body = {
       query:`
-      query{
-        allBusinesses{
-            placeId,
-            category,
-            profile{
-              expensive,
-              crowded
-            }
+      mutation{
+        updateRadius(radius: ${radius}){
+            firstName
+            radius
+            lastName
+            email
+            dob
         }
-       }
+      }
       `
     }
   try{  
@@ -24,10 +23,40 @@ export const updateRadius = () => async (dispatch, getState) => {
       'Authorization': `Bearer ${token}`
     } });
     dispatch({
-      type: Fetch_All_Business,
-      payload: res.data.data.allBusinesses,
+      type: Update_Radius,
+      payload: res.data.data.updateRadius,
     })
-    return Promise.resolve(res.data.data.allBusinesses);
+    return Promise.resolve('ok');
+  }catch(err){
+    console.log("hte errorsss", err.response.data)
+  }
+}
+
+export const getUser = () => async (dispatch, getState) => {
+  const { token } = await getUserData();
+  const body = {
+    query:`
+      query{
+        getUser{
+            _id
+            firstName
+            lastName
+            email
+            dob
+            radius
+        }
+      }
+    ` 
+  }
+  try{  
+    const res = await axios.post(`graphql?`,body,{ headers: {
+      'Authorization': `Bearer ${token}`
+    } });
+    dispatch({
+      type: Fetch_User,
+      payload: res.data.data.getUser,
+    })
+    return Promise.resolve('ok');
   }catch(err){
     console.log("hte errorsss", err.response.data)
   }

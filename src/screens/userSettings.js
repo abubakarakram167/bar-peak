@@ -26,7 +26,7 @@ class UserSettings extends React.Component{
     const {navigation} = this.props;
     return(
       <View style={styles.container}>
-        <View style = {{ marginTop: 50, marginLeft: 18}} >
+        <View style = {{ marginTop: 50}} >
           <View style ={{ flexDirection: 'row'}} >
             <View style = {{ flex: 5 }} >
               <Text style = {styles.headingText} > Personal Information </Text>
@@ -47,7 +47,7 @@ class UserSettings extends React.Component{
               }}
             />
         </View>
-        <View style = {{ marginTop: 50, marginLeft: 18}} >
+        <View style = {{ marginTop: 50}} >
           <View style ={{ flexDirection: 'row'}} >
             <View style = {{ flex: 5 }} >
               <TouchableOpacity onPress = {()=> { navigation.navigate('vibeInfo') }} >
@@ -70,7 +70,7 @@ class UserSettings extends React.Component{
               }}
             />
         </View>
-        <View style = {{ marginTop: 50, marginLeft: 18}} >
+        <View style = {{ marginTop: 50}} >
           <View style ={{ flexDirection: 'row'}} >
             <View style = {{ flex: 5 }} >
               <TouchableOpacity onPress = {()=> { navigation.navigate('radiusScreen') }} >
@@ -94,9 +94,9 @@ class UserSettings extends React.Component{
               }}
             />
         </View>
-        <View style = {{ marginTop: 20, marginLeft: 18, flex:1 }} >
+        <View style = {{ marginTop: 20, alignSelf: 'flex-start' }} >
           <TouchableOpacity onPress = {()=> this.makeLogout()} >
-            <Text style = {{ fontSize: 20, color: 'red' }} >
+            <Text style = {{ fontSize: 20, color: 'red', textAlign: 'center', marginLeft: 35, marginTop: 20 }} >
               Log out
             </Text>
           </TouchableOpacity>
@@ -111,8 +111,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'flex-start'
   },
   headingText: {
     fontSize: 25,

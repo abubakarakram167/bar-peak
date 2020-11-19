@@ -16,13 +16,22 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-const radiusScreen = () => {
 
-  const [choosenLabel, setChoosenLabel] = useState('');
-  const [choosenIndex, setChoosenIndex] = useState('500');
+class radiusScreen extends React.Component{
 
-  return (
-    <SafeAreaView style={{flex: 1}}>
+  constructor(props){
+    super(props);
+    this.state = {
+      choosenLabel: 0,
+      chooseIndex: 500
+    }
+  }
+
+  render(){
+    const { navigation } = this.props;
+    const { user } = this.props.user.user;
+    return(
+      <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
         {/*Picker with multiple chose to choose*/}
         {/*selectedValue to set the preselected value if any*/}
@@ -32,10 +41,13 @@ const radiusScreen = () => {
             The Radius ensures that in how much km you gonna see your results.
           </Text>
           <Picker
-            selectedValue={choosenLabel}
+            selectedValue={this.state.choosenLabel === 0 ? user.radius : this.state.choosenLabel }
             onValueChange={(itemValue, itemIndex) => {
-              setChoosenLabel(itemValue);
-              setChoosenIndex(itemIndex);
+              this.setState(
+                { choosenLabel: itemValue,
+                  chooseIndex: itemIndex
+                }
+              )
             }}>
             <Picker.Item label="1000" value = "1000" />
             <Picker.Item label="2000" value = "2000" />
@@ -54,7 +66,7 @@ const radiusScreen = () => {
             <Picker.Item label="15000" value = "15000" />
           </Picker>
           <Text style={[styles.text, { fontWeight: '600' }]}>
-            You Selected: {choosenLabel}
+            Your Radius: {this.state.choosenLabel === 0 ? user.radius : this.state.choosenLabel }m
           </Text>
           <Text style={[styles.text, {marginTop: '10%'}]}>
             Max Selection is 15000 m
@@ -62,16 +74,82 @@ const radiusScreen = () => {
         </View>
         <View style= {{flex:1}} >
           <TouchableOpacity 
-            onPress = {()=>{ navigation.navigate("HomeApp") }}
+            onPress = {async ()=>{ 
+              const data =   await this.props.updateRadius(this.state.choosenLabel)
+              navigation.navigate("Screen 1") 
+            }}
           >
             <Text style = {{ alignSelf: 'center' , fontSize: 25, color: '#3fa1bf'}} >Done</Text>
           </TouchableOpacity>
         </View>
         {/*Text to show selected picker value*/}
-      </View>
-    </SafeAreaView>
-  );
-};
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+
+}
+
+
+
+
+// const radiusScreen = () => {
+
+//   const [choosenLabel, setChoosenLabel] = useState('');
+//   const [choosenIndex, setChoosenIndex] = useState('500');
+
+//   return (
+//     <SafeAreaView style={{flex: 1}}>
+//       <View style={styles.container}>
+//         {/*Picker with multiple chose to choose*/}
+//         {/*selectedValue to set the preselected value if any*/}
+//         {/*onValueChange will help to handle the changes*/}
+//         <View style = {{flex:5, justifyContent: 'center'}} >
+//           <Text style={styles.infoText}>
+//             The Radius ensures that in how much km you gonna see your results.
+//           </Text>
+//           <Picker
+//             selectedValue={choosenLabel}
+//             onValueChange={(itemValue, itemIndex) => {
+//               setChoosenLabel(itemValue);
+//               setChoosenIndex(itemIndex);
+//             }}>
+//             <Picker.Item label="1000" value = "1000" />
+//             <Picker.Item label="2000" value = "2000" />
+//             <Picker.Item label="3000" value = "3000" />
+//             <Picker.Item label="4000" value = "4000" />
+//             <Picker.Item label="5000" value = "5000" />
+//             <Picker.Item label="6000" value = "6000" />
+//             <Picker.Item label="7000" value = "7000" />
+//             <Picker.Item label="8000" value = "8000" />
+//             <Picker.Item label="9000" value = "9000" />
+//             <Picker.Item label="10000" value = "10000" />
+//             <Picker.Item label="11000" value = "11000" />
+//             <Picker.Item label="12000" value = "12000" />
+//             <Picker.Item label="13000" value = "13000" />
+//             <Picker.Item label="14000" value = "14000" />
+//             <Picker.Item label="15000" value = "15000" />
+//           </Picker>
+//           <Text style={[styles.text, { fontWeight: '600' }]}>
+//             You Selected: {choosenLabel}
+//           </Text>
+//           <Text style={[styles.text, {marginTop: '10%'}]}>
+//             Max Selection is 15000 m
+//           </Text>
+//         </View>
+//         <View style= {{flex:1}} >
+//           <TouchableOpacity 
+//             onPress = {()=>{ navigation.navigate("HomeApp") }}
+//           >
+//             <Text style = {{ alignSelf: 'center' , fontSize: 25, color: '#3fa1bf'}} >Done</Text>
+//           </TouchableOpacity>
+//         </View>
+//         {/*Text to show selected picker value*/}
+//       </View>
+//     </SafeAreaView>
+//   );
+// };
 
 const styles = StyleSheet.create({
   container: {
@@ -88,7 +166,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderWidth: 0,
     maxWidth: '80%',
-    fontSize: 20
+    fontSize: 20,
+    textAlign: 'center'
   }
 });
 
@@ -104,4 +183,4 @@ const mapDispatchToProps = dispatch => (
   }, dispatch)
 );
 
-export default connect(null, mapDispatchToProps)(radiusScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(radiusScreen);

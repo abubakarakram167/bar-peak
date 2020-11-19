@@ -29,6 +29,7 @@ import { removeStorageItem } from '../components/localStorage';
 import * as Location from 'expo-location';
 import ShowPopupModal from '../components/popUpModal';
 import _, { map } from 'underscore';
+import Modal from '../components/Modal';
 
 const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
@@ -38,7 +39,9 @@ class HomeScreen extends Component {
     this.state = {
       location: null,
       errorMsg: null,
-      showModal: false
+      showModal: false,
+      showProfileModal: false,
+      selectedItem: {}
     }
   }
 
@@ -48,11 +51,24 @@ class HomeScreen extends Component {
       const { coords } = await this.getCurrentLocation();
       const getBusiness =  await this.props.getAllBusiness();
       const getVibe = await this.props.getVibe();
+      console.log("the vibe", getVibe)
       const isVibeEmpty = _.isEmpty(getVibe);  
       if(isVibeEmpty)
         this.setState({ showModal: true })    
-      const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords);
+      const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords, null);
     })
+  }
+
+  getBusinessByCategory = async(category) => {
+    const { navigation } = this.props;
+    const { coords } = await this.getCurrentLocation();
+    const getBusiness =  await this.props.getAllBusiness();
+    const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords, category);
+
+    navigation.navigate('MapScreen',{
+      category
+    })
+
   }
 
   getCurrentLocation = async() => {
@@ -76,7 +92,7 @@ class HomeScreen extends Component {
     }
 
     this.animatedHeaderHeight = this.scrollY.interpolate({
-        inputRange: [0, 50],
+        inputRange: [120, 250],
         outputRange: [this.startHeaderHeight, this.endHeaderHeight],
         extrapolate: 'clamp'
     })
@@ -102,6 +118,8 @@ class HomeScreen extends Component {
       const { navigation } = this.props;
       const { filterBusinesses } = this.props.business.business;
       const { vibe } = this.props.vibe.vibe;
+      const { user } = this.props.user.user;
+      console.log("the user in Home screen", user);
         // console.log("caliing vibe", filterBusinesses);
         return (
           <SafeAreaView style = {{ flex: 1 }} >
@@ -171,7 +189,12 @@ class HomeScreen extends Component {
                             Near 
                           </Text>
                           <View style  = {{ borderRadius:10, borderWidth:1 , backgroundColor: 'white'}} >
-                            <TouchableOpacity > 
+                            <TouchableOpacity 
+                              onPress = {()=> navigation.navigate('MapScreen',{
+                                businessData: vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded,
+                                showGreen:true
+                              })} 
+                            > 
                               <Text
                                 style = {{ textAlign: 'center' ,paddingLeft: 18, paddingRight: 18 ,paddingTop:8, paddingBottom:8, fontSize:14, fontWeight: '600'}} 
                               >
@@ -191,10 +214,12 @@ class HomeScreen extends Component {
                         </Text>
                       </View>
                       <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
-                        <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen',{
-                          businessData: vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded,
-                          showGreen:true
-                        })} >
+                        <TouchableOpacity 
+                          onPress = {()=> navigation.navigate('MapScreen',{
+                            businessData: vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded,
+                            showGreen:true
+                           })} 
+                        >
                           <Text >
                             View on Maps
                           </Text>
@@ -208,11 +233,17 @@ class HomeScreen extends Component {
                           renderItem={({item}) => {
                           //  console.log("the render item", item);
                             return(
-                              <Home 
-                                width={width}
-                                height= {height}
-                                item = {item}
-                              />
+                              <TouchableOpacity
+                                onPress = {()=>{ 
+                                  this.setState({ showProfileModal: true, selectedItem: item })
+                                }}
+                              >
+                                <Home 
+                                  width={width}
+                                  height= {height}
+                                  item = {item}
+                                />
+                              </TouchableOpacity>
                             );
                           }}
                           showsHorizontalScrollIndicator = {false}
@@ -268,8 +299,8 @@ class HomeScreen extends Component {
                     }
                   </View>  
                   <View style={{ flex: 1, paddingTop: 20 }}>
-                    <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                      What can we help you find, John?
+                    <Text style={{ fontSize: 22, fontWeight: '700', paddingHorizontal: 18 }}>
+                      What can we help you find, {user.firstName}
                     </Text>
                     <View style={{ marginTop: 15 }}>    
                       <ScrollView
@@ -277,39 +308,53 @@ class HomeScreen extends Component {
                         showsHorizontalScrollIndicator={false}
                         style = {{ marginLeft:20 }}
                       >
+                      <TouchableOpacity
+                        onPress = {()=>{ this.getBusinessByCategory('restaurant') }}
+                      >  
                         <Category 
                           imageUri={"https://ewscripps.brightspotcdn.com/dims4/default/a300d3c/2147483647/strip/true/crop/800x450+67+0/resize/1280x720!/quality/90/?url=http%3A%2F%2Fewscripps-brightspot.s3.amazonaws.com%2Fd1%2F6c%2F45cf0abe4b9a98e1ed52f20e3913%2Ftop-of-the-market-san-diego-view.jpg"}
                           name="Restaurants"
                           width={width}
                           height= {height}
                         />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress = {()=>{ this.getBusinessByCategory('bar') }}
+                      >    
                         <Category 
                           imageUri={"https://blog.sandiego.org/wp-content/uploads/2018/06/101-proof-oceanside-speakeasy-1024x512.jpg"}
                           name="Bar"
                           width={width}
                           height= {height}
                         />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress = {()=>{ this.getBusinessByCategory('night life') }}
+                      >     
                         <Category 
                           imageUri={ "https://nunustavern.com/wp-content/uploads/Nunus-Tavern-Inside-Bar-1366x768.jpg" }
                           name="Night Life"
                           width={width}
                           height= {height}
                         />
+                      </TouchableOpacity>  
                       </ScrollView>
                     </View>
                   </View>
                 </ScrollView>
                 { this.state.showModal &&  <ShowPopupModal  closeModal = {()=> this.setState({ showModal: false })} navigation = {this.props.navigation} /> } 
+                { this.state.showProfileModal && <Modal  item  = {this.state.selectedItem}  show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  }   
             </View>
           </SafeAreaView>    
         );
     }
 }
 const mapStateToProps = (state) => {
-  const { business, vibe } = state
+  const { business, vibe, user } = state
   return { 
     business: business,
-    vibe: vibe
+    vibe: vibe,
+    user
   }
 };
 const mapDispatchToProps = dispatch => (

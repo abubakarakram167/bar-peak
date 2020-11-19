@@ -60,6 +60,7 @@ function HomeApp() {
         return{
           tabBarVisible: true,
           tabBarLabel: 'Home',
+          unmountOnBlur: true,
           tabBarIcon: ({ tintColor }) => (
             <Icon
              name='ios-home'
@@ -112,6 +113,7 @@ function HomeApp() {
       {
         {
           tabBarLabel: 'Profile',
+          unmountOnBlur: true,
           tabBarIcon: ({ tintColor }) => (
             <Icon 
               name="ios-person"

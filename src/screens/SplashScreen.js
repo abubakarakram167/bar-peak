@@ -3,8 +3,9 @@ import { StyleSheet, Text, View, Image, ActivityIndicator, Dimensions, AsyncStor
 import * as SplashScreen from 'expo-splash-screen';
 import { withNavigation } from 'react-navigation';
 import { getUserData } from '../components/localStorage';
-import axios from 'axios';
-import { graphql } from 'graphql';
+import { getUser } from '../../redux/actions/User';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
  class SplashedScreen extends Component {
   state = {
@@ -18,7 +19,6 @@ import { graphql } from 'graphql';
     const { navigation } = this.props;
     // console.log("the navigation in splash", navigation)
     navigation.addListener("focus", async () => {
-       console.log("the listener");
       try {
         await SplashScreen.preventAutoHideAsync();
       } catch (e) {
@@ -32,12 +32,15 @@ import { graphql } from 'graphql';
   async performAPICalls() {
     const { navigation } = this.props;
     const { token, userId } =  await getUserData();
-    console.log("in splash token", token)
-    if(token && userId)
+    console.log("calling splash")
+    const user = await this.props.getUser()
+    console.log("in splash", user)
+    // console.log(`token is ${token} and userId is ${userId}`);
+    if(token && userId && user === "ok" )
       navigation.navigate('HomeApp')
     else{
       // navigation.navigate('HomeApp')
-       navigation.navigate('LoginScreen')
+      navigation.navigate('LoginScreen')
     }
       
   }
@@ -71,9 +74,15 @@ import { graphql } from 'graphql';
   }
 }
 
-export default withNavigation(SplashedScreen);
+// export default withNavigation(SplashedScreen);
 
-// Put any code you need to prepare your app in these functions
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    getUser
+  }, dispatch)
+);
+
+export default connect(null, mapDispatchToProps)(SplashedScreen);
 
 
 const styles = StyleSheet.create({

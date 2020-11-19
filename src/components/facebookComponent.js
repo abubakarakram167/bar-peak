@@ -4,6 +4,8 @@ import * as Facebook from 'expo-facebook';
 import { SocialIcon } from 'react-native-elements'
 import axios from '../api/axios';
 import {storeUserData} from '../components/localStorage';
+import { useDispatch } from 'react-redux';
+
 console.disableYellowBox = true;
 
 export default function App(props) {
@@ -12,6 +14,7 @@ export default function App(props) {
   const [isLoggedin, setLoggedinStatus] = useState(false);
   const [userData, setUserData] = useState(null);
   const [isImageLoading, setImageLoadStatus] = useState(false);
+  const dispatch = useDispatch();
 
   const checkUserExist = async(email) => {
     const body = {
@@ -62,7 +65,14 @@ export default function App(props) {
                   login(email: "${data.email}", password: "asdfg")
                   {
                     token,
-                    userId
+                    user{
+                      _id
+                      firstName
+                      radius
+                      lastName
+                      email
+                      dob
+                    }
                   }
                 }
                 `
@@ -71,8 +81,13 @@ export default function App(props) {
                 console.log("in login facebook", res)
                 if(res.data.data.login){
                   console.log("in facebook component", res.data.data.login)
-                  storeUserData(res.data.data.login).then(() => {
-                    navigation.navigate('HomeApp', { name:  data.name });
+                  storeUserData(res.data.data.login).then( async () => {
+                    dispatch({
+                      type: 'Fetch_User',
+                      payload: res.data.data.login.user
+                    })
+                    console.log("then");
+                    navigation.navigate('HomeApp');
                   })
                 }
               }).catch(err => {

@@ -84,7 +84,7 @@ class MyVibe extends React.Component{
       const submitVibe =  await this.props.submitVibe(vibeData)
       if(submitVibe){
         this.setState({ showIndicator: false })
-        navigation.navigate('Home');
+        navigation.navigate('Screen 1');
       }
     }
     else{
@@ -92,7 +92,7 @@ class MyVibe extends React.Component{
       const updateVibe = await this.props.updateVibe(vibeData);
       if(updateVibe){
         this.setState({ showIndicator: false })
-        navigation.navigate('Home');
+        navigation.navigate('Screen 1');
       }
     }
     
