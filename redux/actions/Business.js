@@ -14,7 +14,9 @@ export const getAllBusiness = () => async (dispatch, getState) => {
             profile{
               expensive,
               crowded
-            }
+            },
+            shortDescription,
+            longDescription
         }
        }
       `
@@ -23,6 +25,7 @@ export const getAllBusiness = () => async (dispatch, getState) => {
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
+    // console.log("the data", res.data.data.allBusinesses)
     dispatch({
       type: Fetch_All_Business,
       payload: res.data.data.allBusinesses,

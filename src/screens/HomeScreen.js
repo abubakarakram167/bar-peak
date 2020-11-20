@@ -41,7 +41,8 @@ class HomeScreen extends Component {
       errorMsg: null,
       showModal: false,
       showProfileModal: false,
-      selectedItem: {}
+      selectedItem: {},
+      selectedBusiness: {}
     }
   }
 
@@ -51,7 +52,6 @@ class HomeScreen extends Component {
       const { coords } = await this.getCurrentLocation();
       const getBusiness =  await this.props.getAllBusiness();
       const getVibe = await this.props.getVibe();
-      console.log("the vibe", getVibe)
       const isVibeEmpty = _.isEmpty(getVibe);  
       if(isVibeEmpty)
         this.setState({ showModal: true })    
@@ -68,7 +68,12 @@ class HomeScreen extends Component {
     navigation.navigate('MapScreen',{
       category
     })
+  }
 
+  selectSpecificBusiness = (item) => {
+    const { businesses } = this.props.business.business;
+    const selectedBusiness = businesses.filter( (business) => business.placeId === item.place_id )[0]
+    this.setState({ selectedItem: item, showProfileModal: true, selectedBusiness });
   }
 
   getCurrentLocation = async() => {
@@ -119,7 +124,7 @@ class HomeScreen extends Component {
       const { filterBusinesses } = this.props.business.business;
       const { vibe } = this.props.vibe.vibe;
       const { user } = this.props.user.user;
-      console.log("the user in Home screen", user);
+      // console.log("the user in Home screen", user);
         // console.log("caliing vibe", filterBusinesses);
         return (
           <SafeAreaView style = {{ flex: 1 }} >
@@ -235,7 +240,7 @@ class HomeScreen extends Component {
                             return(
                               <TouchableOpacity
                                 onPress = {()=>{ 
-                                  this.setState({ showProfileModal: true, selectedItem: item })
+                                 this.selectSpecificBusiness(item)
                                 }}
                               >
                                 <Home 
@@ -343,7 +348,7 @@ class HomeScreen extends Component {
                   </View>
                 </ScrollView>
                 { this.state.showModal &&  <ShowPopupModal  closeModal = {()=> this.setState({ showModal: false })} navigation = {this.props.navigation} /> } 
-                { this.state.showProfileModal && <Modal  item  = {this.state.selectedItem}  show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  }   
+                { this.state.showProfileModal && <Modal  item  = {this.state.selectedItem}  businessData = {this.state.selectedBusiness}  show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  }   
             </View>
           </SafeAreaView>    
         );
