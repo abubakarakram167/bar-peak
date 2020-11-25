@@ -5,3 +5,4 @@ export const Update_Vibe = 'Update_Vibe';
 export const Empty_Business = 'Empty_Business';
 export const Update_Radius = 'Update_Radius';
 export const Fetch_User = 'Fetch_User';
+export const Fetch_Category = 'Fetch_Category';

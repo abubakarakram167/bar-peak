@@ -9,6 +9,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.2.2",
     "@gorhom/bottom-sheet": "^2.0.0-alpha.0",
+    "@material-ui/core": "^4.11.0",
     "@mdi/font": "^5.8.55",
     "@mdi/react": "^1.4.0",
     "@react-native-community/datetimepicker": "3.0.0",

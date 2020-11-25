@@ -3,7 +3,7 @@ import { graphql } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
 
-export const submitVibe = ({ crowdedPlace,expensivePlace, isPartner, barOrRestaurant }) => async (dispatch, getState) => {
+export const submitVibe = ({ crowdedPlace, nightLife, ageInterval, barType }) => async (dispatch, getState) => {
   
   
   const { token } = await getUserData();
@@ -12,13 +12,14 @@ export const submitVibe = ({ crowdedPlace,expensivePlace, isPartner, barOrRestau
       mutation{
         setVibe(vibeInput: {
           crowdedPlace: ${crowdedPlace},
-          expensivePlace: ${expensivePlace},
-          isPartner: ${isPartner},
-          barOrRestaurant: "${barOrRestaurant}"
+          nightLife: ${nightLife},
+          ageInterval: "${ageInterval}",
+          barType: "${barType}"
         })
           {
             crowdedPlace,
-            expensivePlace,
+            nightLife,
+            ageInterval
             user{
               email,
               password,
@@ -43,24 +44,26 @@ export const submitVibe = ({ crowdedPlace,expensivePlace, isPartner, barOrRestau
   }
 };
 
-export const updateVibe = ({ crowdedPlace,expensivePlace, isPartner, barOrRestaurant }) => async (dispatch, getState) => {
+export const updateVibe = ({ crowdedPlace, nightLife, ageInterval, barType }) => async (dispatch, getState) => {
   const { token } = await getUserData();
   const body = {
-      query:`
-      mutation{
-        updateVibe(vibeInput: {
-          crowdedPlace: ${crowdedPlace},
-          expensivePlace: ${expensivePlace},
-          isPartner: ${isPartner},
-          barOrRestaurant: "${barOrRestaurant}"
-        })
-          {
-            crowdedPlace,
-            expensivePlace
-          }
-      }
-      `
+    query:`
+    mutation{
+      updateVibe(vibeInput: {
+        crowdedPlace: ${crowdedPlace},
+        nightLife: ${nightLife},
+        ageInterval: "${ageInterval}",
+        barType: "${barType}"
+      })
+        {
+          crowdedPlace,
+          nightLife,
+          ageInterval
+          barType
+        }
     }
+    `
+  }
   try{  
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
@@ -83,10 +86,9 @@ export const getVibe = () => async (dispatch, getState) => {
       query{
         getVibe{
           crowdedPlace,
-          expensivePlace,
-          isPartner,
-          barOrRestaurant,
-          
+          nightLife,
+          ageInterval
+          barType     
         }
       } 
       `

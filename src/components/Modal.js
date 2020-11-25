@@ -14,14 +14,16 @@ import {
   Linking
 } from "react-native";
 import { SliderBox } from "react-native-image-slider-box";
+import TimingModal from './TimingModal';
 import axios  from '../api/axios';
-import { Icon } from 'react-native-elements';
+import { Icon, Rating } from 'react-native-elements';
 import StarRating from 'react-native-star-rating'
 import _, { map } from 'underscore';
 // import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 const { height, width } = Dimensions.get('window')
 import call from 'react-native-phone-call';
+
 const iconsList = [
   {
     type: 'bar',
@@ -49,7 +51,8 @@ class ProfileModal extends Component {
   state = {
     modalVisible: false,
     businessProfile:{} ,
-    images: []
+    images: [],
+    showTimings: false
   };
 
   setModalVisible = (visible) => {
@@ -62,7 +65,6 @@ class ProfileModal extends Component {
   }
 
   getIconName = (icons) => {
-    console.log("the icons", icons)
     const data =  iconsList.filter((icon) => icon.type === icons)[0]
     return data ? data.iconName : ''
   
@@ -82,7 +84,8 @@ class ProfileModal extends Component {
     const { show } = this.props;
     const { businessProfile } = this.state;
     const { businessData } = this.props;
-    console.log("business data", businessProfile.types);
+    console.log("business data", businessData);
+
     return (
       <View style={styles.centeredView}>
         <Modal
@@ -102,7 +105,7 @@ class ProfileModal extends Component {
                   images={this.state.images}
                   sliderBoxHeight={200}
                   onCurrentImagePressed={index => console.warn(`image ${index} pressed`)}
-                  dotColor="#FFEE58"
+                  dotColor="white"
                   inactiveDotColor="#90A4AE"
                   paginationBoxVerticalPadding={20}
                   circleLoop
@@ -138,7 +141,7 @@ class ProfileModal extends Component {
                     name="x"
                     type = 'foundation'
                     size = {20}
-                    color = "gray"  
+                    color = "white"  
                   />
                 </TouchableOpacity>
               </View>
@@ -222,7 +225,7 @@ class ProfileModal extends Component {
                     <Text 
                       style = {styles.largeDescription}
                     >
-                      skjhfdks slkjdfklsj skldjfklsdf skljdfnsjkldf slkdfnskljdf slkdfjks slkdjfklsdj sjkfdh skjdhfkjshf skjfnkjsfn skjfnjksfnd skjdfnjks
+                        { businessData.longDescription } 
                     </Text>
                   </View>
                 </View>
@@ -242,27 +245,137 @@ class ProfileModal extends Component {
                 <View
                   style={styles.divider}
                 />
+                <View style = {{ flex:2, borderWidth: 0, width: '100%', marginTop: 20}} >
+                  <View style = {{ flex: 1, alignItems: 'flex-start', borderWidth:0 }} >
+                    <Text style = {{ textAlign: 'left', borderWidth:0, fontSize: 18, marginBottom:15 }} >Rating</Text>
+                  </View>
+                  <View 
+                    style = {[styles.starComponent, { marginTop:0 }]} 
+                  >
+                    <Text style = {styles.heading } >Crowdy:</Text>
+                    <StarRating
+                      disable={true}
+                      maxStars={5}
+                      rating={2}
+                      starSize={15}
+                      starStyle = {{ color: 'orange' }}
+                    />
+                    <Text>10/6</Text>
+                  </View>
+                  <View 
+                    style = {styles.starComponent} 
+                  >
+                    <Text style = {styles.heading } >Fun Factor:</Text>
+                    <StarRating
+                      disable={true}
+                      maxStars={5}
+                      rating={4}
+                      starSize={15}
+                      starStyle = {{ color: 'green' }}
+                    />
+                    <Text>10/8</Text>
+                  </View>
+                  <View 
+                    style = {styles.starComponent} 
+                  >
+                    <Text style = {styles.heading }  >Girl to Guy Ratio:</Text>
+                    <StarRating
+                      disable={true}
+                      maxStars={5}
+                      rating={2}
+                      starSize={15}
+                      starStyle = {{ color: 'orange' }}
+                    />
+                    <Text>10/6</Text>
+                  </View>
+                  <View 
+                    style = {styles.starComponent} 
+                  >
+                    <Text style = {styles.heading }  >Difficulty Getting in:</Text>
+                    <StarRating
+                      disable={true}
+                      maxStars={5}
+                      rating={2}
+                      starSize={15}
+                      starStyle = {{ color: 'red' }}
+                    />
+                    <Text>10/3</Text>
+                  </View>
+                  <View 
+                    style = {styles.starComponent} 
+                  >
+                    <Text style = {styles.heading }  >Difficulty Getting a Drink:</Text>
+                    <StarRating
+                      disable={true}
+                      maxStars={5}
+                      rating={2}
+                      starSize={15}
+                      starStyle = {{ color: 'orange' }}
+                    />
+                    <Text>10/5</Text>
+                  </View>        
+                </View>
+                <View
+                  style={[styles.divider, { marginBottom: 20 }]}
+                />
               </View>
-            </ScrollView> 
-          </View>
-         
+            </ScrollView>
+            
+            { this.state.showTimings &&
+                (<TimingModal 
+                  timings = { !_.isEmpty(businessProfile) && businessProfile.opening_hours.weekday_text}
+                  showTimings = { this.state.showTimings }
+                  closeModal = {()=>{ this.setState({ showTimings: false }) }}
+                />)
+            }
+            <View style = {{ height: '8%', borderTopWidth: 1, borderTopColor: 'gray' }} >
+              <View style = {{ flex:1, flexDirection: 'row' }} >
+                <View style = {{ flex:2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }} >
+                  <View style = {{ flex:1, alignItems : 'center' }} >  
+                      <StarRating
+                        disable={true}
+                        maxStars={1}
+                        rating={2}
+                        starSize={15}
+                        starStyle = {{ color: 'red' }}
+                      />
+                  </View>
+                  <View style = {{ flex:2 }} >
+                    <Text style = {{ fontWeight: '300', color: 'gray' }} >5.0 ({  !_.isEmpty(businessProfile) && businessProfile.reviews.length })</Text>
+                  </View>
+                </View>
+                <View style = {{ flex:1, justifyContent: 'center', marginBottom: 10 }} >
+                  <TouchableOpacity
+                    style = {{ borderRadius: 6, marginTop: '5%', borderWidth:1, width: '80%',backgroundColor: '#E56060' }}
+                    onPress = {() => {  
+                      this.setState({ showTimings: true })
+                    }}
+                  >
+                    <Text style = {{ textAlign: 'center', fontSize: 12,color: 'white', fontWeight: '700',paddingTop: 8, paddingBottom: 8 }} > Timings </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View> 
+          </View>       
         </Modal>
-        
-
-        {/* <TouchableHighlight
-          style={styles.openButton}
-          onPress={() => {
-            this.setModalVisible(true);
-          }}
-        >
-          <Text style={styles.textStyle}>Show Modal</Text>
-        </TouchableHighlight> */}
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  heading: {
+    textAlign: 'left',
+    width: '30%'
+  },
+  starComponent: {
+    flex:1,
+    width: '100%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: 15
+  },
   container: {
     flex: 1
   },
@@ -308,8 +421,8 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0,
+    shadowRadius: 1,
     elevation: 5,
     flex:2
   },
@@ -335,3 +448,17 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileModal;
+
+
+function TheTimingModalWrapper() {
+  return (
+    <View>
+      <TimingModal isVisible={true}>
+        <View style={{ flex: 1 }}>
+          <Text>I am the modal content!</Text>
+        </View>
+      </TimingModal>
+    </View>
+  )
+}
+

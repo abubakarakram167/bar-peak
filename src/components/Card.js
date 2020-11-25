@@ -9,14 +9,15 @@ export class Card extends React.Component {
   }
 
   render() {
+    // console.log("the props", this.props.card)
     return (
       <View style={styles.card}>
-        <Image 
-          resizeMode = 'cover' 
-          style={styles.thumbnail} 
-          source={{uri: this.props.card.image}} 
-        />
         <Text style={styles.text}>{this.props.card.question}</Text>
+        <Image 
+          resizeMode = 'stretch' 
+          style={styles.thumbnail} 
+          source={this.props.card.image} 
+        />
       </View>
     )
   }
@@ -60,19 +61,21 @@ const styles = StyleSheet.create({
   }
   ,
   card: {
-    justifyContent : 'center',
+    justifyContent : 'flex-end',
     alignSelf: 'center',
-    borderRadius: 5,
+    borderRadius: 15,
     overflow: 'hidden',
     borderColor: 'grey',
-    backgroundColor: 'white',
-    borderWidth: 1,
+    backgroundColor: '#EEEEEE',
+    borderWidth: 0,
+    borderTopWidth: 0,
     elevation: 0,
-    width: width * 0.97 
+    width: width * 0.97 ,
+    marginTop: 50
   },
   thumbnail: {
     width: width,
-    height: height * 0.65,
+    height: height * 0.35,
     position: 'relative'
   },
   noMoreCards: {
@@ -81,11 +84,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text:{
-    position: 'absolute',
-    color: 'white',
-    top: '30%',
-    left: '8%',
-    fontSize: 30,
+    // position: 'absolute',
+    color: 'black',
+    // top: 0,
+    // left: 0,
+    fontSize: 20,
+    alignSelf: 'center',
     width: '80%',
     textAlign: 'center',
     fontWeight: '700'

@@ -1,15 +1,19 @@
 import React from 'react'
-import { StyleSheet, Text, View, Button, Dimensions, ActivityIndicator, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, Button, Dimensions, ActivityIndicator, TouchableOpacity, Image, ScrollView } from 'react-native'
 import SwipeCards from 'react-native-swipe-cards';
 import { Card, NoMoreCards } from '../components/Card';
 import Swiper from 'react-native-deck-swiper'
 import {submitVibe} from '../../redux/actions/Vibe';
 import {updateVibe} from '../../redux/actions/Vibe';
+import { getAllCategories } from '../../redux/actions/Category';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'react-native-elements'
 import _, { map } from 'underscore';
-var {width} = Dimensions.get('window');
+import { getNullableType } from 'graphql';
+import { SliderBox } from "react-native-image-slider-box";
+var {width, height} = Dimensions.get('window');
+let count = 0;
 
 class MyVibe extends React.Component{
 
@@ -17,11 +21,12 @@ class MyVibe extends React.Component{
     super(props);
     this.state = {
       cards: [
-        {no: '1', image: 'https://cdn.vox-cdn.com/thumbor/Zo7vqyNk4ta12WZ_5MxfIqUTPE4=/0x0:1184x753/1200x900/filters:focal(498x283:686x471)/cdn.vox-cdn.com/uploads/chorus_image/image/56415715/ElbowRoom.6.jpg',question: " Do you like crowdy places ?"},
-        {no: '2', image: 'https://www.sandiego.org/-/media/images/sdta-site/campaigns/sunny-7/rooftops/nolan-1233x860.jpg?bc=white&h=500&w=700&c=1',question: " Do you like expensive places?"},
-        {no: '3', image: 'https://content.tripster.com/travelguide/wp-content/uploads/2016/08/Friends-at-Night-ThinkstockPhotos-505961864-750x450.jpg',question: "Are you want to go with a partner?"},
-        {no: '4', image: 'https://static3.depositphotos.com/1003631/209/i/450/depositphotos_2099183-stock-photo-fine-table-setting-in-gourmet.jpg',question: "Are you want to go a Bar or Restaurant?"},
-        {no: '5', image: 'https://media.timeout.com/images/105553441/image.jpg',question: "Setting your Vibe...."}
+        {no: '1', image: require(`../../assets/imageOne.png`) ,question: " How hard are you trying to Party? "},
+        {no: '2', image: require(`../../assets/imageFour.png`) ,question: "What type of Partying are you looking for?"},
+        {no: '3', image: require(`../../assets/imageThree.png`) ,question: "What is Crowd Vibe You are looking for?"},
+        {no: '4', image: require(`../../assets/imageTwo.png`) ,question: "What age demographic?"},
+        // {no: '5', image: require(`../../assets/imageTwo.png`) ,question: "Its a bar category"},
+        {no: '6', image: require(`../../assets/settingVibeLogo.jpg`),question: "Setting your Vibe...."}
       ],
       cardIndex: 0,
       answers: [],
@@ -29,7 +34,11 @@ class MyVibe extends React.Component{
       showIndicator: false,
       showLeftText: false,
       showRightText: true,
-      showSecond: false
+      showFirst: true,
+      count: 0,
+      showSwiper: true,
+      images: [require(`../../assets/imageOne.png`), require(`../../assets/imageFour.png`)],
+      selectedBar: ''
     };
     this.swiperRef = React.createRef();
   }
@@ -43,7 +52,7 @@ class MyVibe extends React.Component{
       showIndicator: false,
       showLeftText: false,
       showRightText: true
-    },  ()=>{ this.setState({  showSecond: true }) })
+    },  ()=>{ this.setState({  showFirst: true }) })
 
     this.swiperRef = React.createRef();
   }
@@ -58,29 +67,61 @@ class MyVibe extends React.Component{
     console.log(`Maybe for ${card.text}`)
   }
 
-  componentDidMount(){
-    this.props.navigation.addListener('focus', () => {
+  async componentDidMount(){
+    this.props.navigation.addListener('focus', async () => {
+      await this.props.getAllCategories();
       this.makeDefaultState();
-    });
-    this.props.navigation.addListener('focus', () => {
-      this.makeDefaultState();
-      this.setState({ showSecond: false })
+      this.setState({ showFirst :true })
     });
   }
 
   submitVibe = async() => {
-
-    console.log("call");
-    console.log("the answers", this.state.answers)
+    // console.log("the answers", this.state.answers)
     const {navigation} = this.props;
+    
     let vibeData = {
-      crowdedPlace: this.state.answers[0].answer,
-      expensivePlace: this.state.answers[1].answer,
-      isPartner: this.state.answers[2].answer,
-      barOrRestaurant: this.state.answers[3].answer
+      crowdedPlace: false,
+      nightLife: false,
+      ageInterval: '',
+      barType: ''
     }
-     const getVibe = this.props.vibe.vibe.vibe
+
+    if(this.state.answers[0].answer === "more"){
+      console.log("inn")
+      vibeData.nightLife = true;
+    }
+    else {
+      console.log("out", this.state.answers[0])
+      vibeData.nightLife = false;
+    }      
+    
+    if(this.state.answers[1].answer === 'nightClub')
+      vibeData.nightLife = true
+    else 
+      vibeData.nightLife = false;   
+
+    if(this.state.answers[2].answer === 'crowdy')
+      vibeData.crowdedPlace = true
+    else
+      vibeData.crowdedPlace = false
+    
+    if(vibeData.crowdedPlace && !vibeData.nightLife && this.state.answers[1].answer === 'nightClub')  // This check is for if user select more bu select quiet place
+      vibeData.nightLife = true;  
+
+    if(this.state.answers[3] === 'elder')
+      vibeData.ageInterval = 'elder';
+    else 
+      vibeData.ageInterval = 'young';   
+    
+    console.log("the selected bar", this.state.selectedBar)
+
+    if(this.state.selectedBar && !vibeData.nightLife)
+      vibeData.barType = this.state.selectedBar;
+
+    console.log("the vibe data update", vibeData);  
+    const getVibe = this.props.vibe.vibe.vibe
     if(_.isEmpty(getVibe)){
+      console.log("the new", getVibe)
       const submitVibe =  await this.props.submitVibe(vibeData)
       if(submitVibe){
         this.setState({ showIndicator: false })
@@ -98,11 +139,61 @@ class MyVibe extends React.Component{
     
   }
 
+  getSwipeLableLeft = (index) => {
+    
+    if(index === 0)
+      return "nightClub"
+    else if(index === 1){
+      return "UnCrowdy"
+    }
+    else if(index === 2){
+      return "Young"
+    }  
+  }
+
+  getSwipeLableRight = (index) => {
+   
+    if(index === 0)
+      return "bar"
+    else if(index === 1){
+      return "Crowdy"
+    }
+    else if(index === 2){
+      return "elder"
+    }  
+  }
+
+  selectedBar = (category) =>{
+    console.log("the category", category)
+    this.setState({ 
+      selectedBar: category.title, 
+      showSwiper: true,
+      cardIndex: 4 
+    },()=>{
+      this.setState({ 
+        showIndicator: true
+      })
+      setTimeout(async()=>{
+        this.submitVibe()
+      }, 3000)
+    })
+    
+  }
+
+  wannaBar = () => {
+    if(this.state.answers[1].answer !== 'nightClub')
+      return true
+    return false;  
+  }
+
   render(){
+    const { category } = this.props.category.category
+    const barCategories = category.length>0 && category.filter((category)=> category.type === "sub_bar" );
     return (
       <View style={styles.screen}>
-        { !this.state.showSecond  && 
+        {  this.state.showFirst  && 
         <View style = {{ flex: 1 }} >
+        { this.state.showSwiper ?
           <Swiper
             cards={ this.state.cards }
             ref={ref => { this.swiperRef = ref; }}
@@ -116,9 +207,12 @@ class MyVibe extends React.Component{
               )
             }}
             onSwiped={(cardIndex) => { 
-              console.log("the answers", this.state.answers);
+               console.log("on swipe index", cardIndex);
               this.setState({  cardIndex })
-              if(cardIndex === 3){
+              if(cardIndex === 3 && this.wannaBar() ){
+                this.setState({ showSwiper: false })
+              }
+              else if(cardIndex === 3 && !this.wannaBar()){
                 this.setState({ 
                   showIndicator: true
                 })
@@ -140,12 +234,18 @@ class MyVibe extends React.Component{
             disableTopSwipe = {true}
             animateCardOpacity = {true}
             onSwipedLeft = {(currentCardIndex)=>{
+              console.log("the index in answer", currentCardIndex)
               let answer = {};
               answer.no = currentCardIndex + 1;
-              if(currentCardIndex === 3)
-                answer.answer = "restaurant"
-              else  
-                answer.answer = true;
+              if(currentCardIndex === 0)
+                answer.answer = "more"
+              else if(currentCardIndex === 1)
+                answer.answer = "bar"
+              else if(currentCardIndex === 2)
+                answer.answer = "uncrowdy"
+              else if(currentCardIndex === 3)
+                answer.answer = "young"     
+              
               let allAnswers = this.state.answers;
               allAnswers.push(answer)
               this.setState(allAnswers)
@@ -153,17 +253,22 @@ class MyVibe extends React.Component{
             onSwipedRight = {(currentCardIndex)=>{
               let answer = {};
               answer.no = currentCardIndex + 1;
-              if(currentCardIndex === 3)
-                answer.answer = "bar"
-              else
-                answer.answer = false;
+              if(currentCardIndex === 0)
+                answer.answer = "less"
+              else if(currentCardIndex === 1)
+                answer.answer = "nightClub"
+              else if(currentCardIndex === 2)
+                answer.answer = "crowdy"
+              else if(currentCardIndex === 3)
+                answer.answer = "elder"   
+
               let allAnswers = this.state.answers;
               allAnswers.push(answer)
               this.setState(allAnswers)
             }}
             overlayLabelStyle = {
               {
-                fontSize: 45,
+                fontSize: 20,
                 fontWeight: 'bold',
                 borderRadius: 10,
                 padding: 10,
@@ -173,7 +278,7 @@ class MyVibe extends React.Component{
             overlayLabels = {
               {
                 left: {
-                  title:  this.state.cardIndex === 2 ? 'Restaurant' : 'Yes',
+                  title:  this.getSwipeLableLeft(this.state.cardIndex),
                   style: {
                     label: {
                       backgroundColor: 'transparent',
@@ -190,7 +295,7 @@ class MyVibe extends React.Component{
                   }
                 },
                 right: {
-                  title: this.state.cardIndex === 2 ? 'Bar' : 'No',
+                  title: this.getSwipeLableRight(this.state.cardIndex),
                   style: {
                     label: {
                       backgroundColor: 'transparent',
@@ -209,119 +314,44 @@ class MyVibe extends React.Component{
             }
             
             >  
-          </Swiper>
-        </View> }
-        { this.state.showSecond &&
-        <View style = {{ flex: 1 }} >
-          <Swiper
-            cards={ this.state.cards }
-            ref={ref => { this.swiperRef = ref; }}
-            renderCard={(card) => {
-              return (  
-                <Card 
-                  card = {card} 
-                  showLeftText = {this.state.showLeftText}
-                  showRightText = {this.state.showRightText}         
-                />
-              )
-            }}
-            onSwiped={(cardIndex) => { 
-              console.log("the answers", this.state.answers);
-              this.setState({  cardIndex })
-              if(cardIndex === 3){
-                this.setState({ 
-                  showIndicator: true
+          </Swiper> :  
+            <View 
+              style = {{ flex: 1 ,backgroundColor: '#f8f7f7', borderWidth: 0, justifyContent: 'center', marginTop: 0, position: 'relative', top: '20%'}}
+            > 
+              <Text style = {{ fontSize: 25, width: '80%',textAlign: 'center',alignItems: 'center', justifyContent: 'center', alignSelf: 'center' }} >Which Bar type you gonna for?</Text>
+              <ScrollView  horizontal = { true } showsHorizontalScrollIndicator = { false }>
+                {barCategories && barCategories.map((category)=>{
+                 return (
+                  <View 
+                    style = {{ flex:1 }} 
+                  >
+                    <View style = {{ flex:1, alignItems: 'center', justifyContent: 'flex-end' }} >
+                      <Text style = {{ fontSize: 20, fontWeight: '700' }} >{ category.title }</Text>
+                    </View>
+                    <View style = {{ flex:4, padding: 5 }} >
+                      <Image
+                        source = {{ uri: category.imageUrl}}
+                        style = {{ width: width * 0.5, height: height * 0.2 }}
+                      />
+                      <TouchableOpacity 
+                        style = { styles.selectBar }
+                        onPress = {()=>{  this.selectedBar(category)}} 
+                      >
+                        <Text style = {{ fontSize: 25 }} >Select</Text>
+                      </TouchableOpacity>    
+                    </View>
+                  </View>
+                 )
                 })
-                setTimeout(async()=>{
-                  this.submitVibe()
-                }, 3000)
-              }
-            }}
-            onSwipedAll={() => {console.log('onSwipedAll', this.state.answers)}}
-            cardIndex={this.state.cardIndex}
-            backgroundColor={'#EAE9E9'}
-            disableLeftSwipe = {this.state.swipeLeft}
-            animateCardOpacity = {true}
-            style = {{ backgroundColor: 'white', width: 100 }}
-            goBackToPreviousCardOnSwipeRight = {false}
-            stackSize= {3}
-            showSecondCard={true}
-            disableBottomSwipe = {true}
-            disableTopSwipe = {true}
-            animateCardOpacity = {true}
-            onSwipedLeft = {(currentCardIndex)=>{
-              let answer = {};
-              answer.no = currentCardIndex + 1;
-              if(currentCardIndex === 3)
-                answer.answer = "restaurant"
-              else  
-                answer.answer = true;
-              let allAnswers = this.state.answers;
-              allAnswers.push(answer)
-              this.setState(allAnswers)
-            }}
-            onSwipedRight = {(currentCardIndex)=>{
-              let answer = {};
-              answer.no = currentCardIndex + 1;
-              if(currentCardIndex === 3)
-                answer.answer = "bar"
-              else
-                answer.answer = false;
-              let allAnswers = this.state.answers;
-              allAnswers.push(answer)
-              this.setState(allAnswers)
-            }}
-            overlayLabelStyle = {
-              {
-                fontSize: 45,
-                fontWeight: 'bold',
-                borderRadius: 10,
-                padding: 10,
-                overflow: 'hidden'
-              }
-            }
-            overlayLabels = {
-              {
-                left: {
-                  title:  this.state.cardIndex === 2 ? 'Restaurant' : 'Yes',
-                  style: {
-                    label: {
-                      backgroundColor: 'transparent',
-                      borderColor: 'black',
-                      color: 'green',
-                    },
-                    wrapper: {
-                      flexDirection: 'column',
-                      alignItems: 'flex-end',
-                      justifyContent: 'flex-start',
-                      marginTop: 30,
-                      
-                    }
-                  }
-                },
-                right: {
-                  title: this.state.cardIndex === 2 ? 'Bar' : 'No',
-                  style: {
-                    label: {
-                      backgroundColor: 'transparent',
-                      borderColor: 'black',
-                      color: 'red'
-                    },
-                    wrapper: {
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      justifyContent: 'flex-start',
-                      marginTop: 30,   
-                    }
-                  }
                 }
-              }
-            }
-            
-            >  
-          </Swiper>
-          </View> }
-       { !this.state.showIndicator &&  
+              </ScrollView>
+            </View>           
+          }
+          
+        </View> 
+        }
+        
+       { (!this.state.showIndicator && this.state.showSwiper )  &&  
         <View style = {{ flex: 1, justifyContent: 'center',alignItems:'center',flexDirection: 'row',position: 'relative', top: '43%' }} >
           <View style = {styles.swipeButtons}>
             <TouchableOpacity
@@ -351,17 +381,6 @@ class MyVibe extends React.Component{
               />
             </TouchableOpacity>
           </View>
-          <View style = {styles.swipeButtons} >
-            <TouchableOpacity
-              style={styles.roundButton1}>
-              <Icon
-                name='refresh'
-                type = 'foundation'
-                color = {"#f5d431"}
-                size = {50}  
-              />
-            </TouchableOpacity>
-          </View>
           </View>  
         }
         
@@ -380,13 +399,17 @@ class MyVibe extends React.Component{
 }
 
 const mapStateToProps = (state) => {
-  const { vibe } = state
-  return { vibe: vibe }
+  const { vibe, category } = state
+  return { 
+    vibe: vibe, 
+    category 
+  }
 };
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
     submitVibe,
-    updateVibe
+    updateVibe,
+    getAllCategories
   }, dispatch)
 );
 
@@ -398,6 +421,13 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'center', 
       alignItems: 'center' 
+    },
+    selectBar:{
+      position: 'absolute', 
+      top: '28%',
+      left: '40%', 
+      borderRadius: 6, 
+      backgroundColor: '#ffcccc' 
     },
     screen:{
       flex:1,
@@ -430,7 +460,7 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: "center",
       position: 'relative',
-      bottom: '10%'
+      bottom: '30%'
     },
     horizontal: {
       flexDirection: "row",

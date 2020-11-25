@@ -125,7 +125,7 @@ class HomeScreen extends Component {
       const { vibe } = this.props.vibe.vibe;
       const { user } = this.props.user.user;
       // console.log("the user in Home screen", user);
-        // console.log("caliing vibe", filterBusinesses);
+      console.log("caliing vibe", vibe);
         return (
           <SafeAreaView style = {{ flex: 1 }} >
             <View style={{ flex: 1 }}>
