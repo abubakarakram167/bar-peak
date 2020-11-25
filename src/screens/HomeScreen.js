@@ -125,7 +125,7 @@ class HomeScreen extends Component {
       const { vibe } = this.props.vibe.vibe;
       const { user } = this.props.user.user;
       // console.log("the user in Home screen", user);
-      console.log("caliing vibe", vibe);
+      console.log("caliing ", filterBusinesses);
         return (
           <SafeAreaView style = {{ flex: 1 }} >
             <View style={{ flex: 1 }}>
@@ -215,13 +215,13 @@ class HomeScreen extends Component {
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
                       <View style = {{flex: 4}} >
                         <Text style={{ fontSize: 20, fontWeight: '700', paddingHorizontal: 20 }}>
-                          Your Vibe's  <Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { vibe.expensivePlace ? "expensive" : "cheap" }), { vibe.barOrRestaurant === "restaurant" ? "resturants" : "bars" })</Text> 
+                          Your Vibe's  <Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" })</Text> 
                         </Text>
                       </View>
                       <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
                         <TouchableOpacity 
                           onPress = {()=> navigation.navigate('MapScreen',{
-                            businessData: vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded,
+                            businessData: filterBusinesses.goodSpots,
                             showGreen:true
                            })} 
                         >
@@ -231,10 +231,10 @@ class HomeScreen extends Component {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    { filterBusinesses.crowded || filterBusinesses.unCrowded ?
+                    { filterBusinesses.goodSpots ?
                       <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>      
                         <FlatList
-                          data={ vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
+                          data={ filterBusinesses.goodSpots }
                           renderItem={({item}) => {
                           //  console.log("the render item", item);
                             return(
@@ -265,12 +265,12 @@ class HomeScreen extends Component {
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
                       <View style = {{flex: 4}} >
                         <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                         Unvibe <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { !vibe.expensivePlace ? "expensive" : "cheap" }), { vibe.barOrRestaurant === "restaurant" ? "restaurant" : "bars" }</Text> 
+                         Unvibe <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" })</Text> 
                         </Text>
                       </View>
                       <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
                         <TouchableOpacity onPress = {()=> navigation.navigate('MapScreen',{
-                          businessData: !vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded,
+                          businessData: filterBusinesses.badSpots,
                           showGreen: false
                         })} >
                           <Text >
@@ -279,10 +279,10 @@ class HomeScreen extends Component {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    { filterBusinesses.crowded || filterBusinesses.unCrowded ? 
+                    { filterBusinesses.badSpots ? 
                       <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
                         <FlatList
-                          data={!vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded}
+                          data={filterBusinesses.badSpots}
                           renderItem={({item}) => {
                             // console.log("the render item", item);
                             return(

@@ -9,18 +9,28 @@ export const getAllBusiness = () => async (dispatch, getState) => {
       query:`
       query{
         allBusinesses{
-            placeId,
-            category,
-            profile{
-              expensive,
-              crowded
-            },
-            shortDescription,
-            longDescription
-        }
-       }
+               placeId,
+               category{
+                   title
+                   type
+                   imageUrl
+               },
+               shortDescription,
+               longDescription,
+               title,
+               ageInterval,
+               rating{
+                   fun,
+                   crowd,
+                   girlToGuyRatio,
+                   difficultyGettingIn,
+                   difficultyGettingDrink
+               },
+               totalUserCountRating
+           }
+      }
       `
-    }
+  }
   try{  
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
@@ -43,47 +53,82 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
   const actualUser = user.user.user;
   console.log("the actual user", actualUser);
   const actualVibe = vibe.vibe.vibe
+  console.log("the actual vibe", actualVibe)
   //For Testing coordiantes
-  const latitude = 32.7174;
-  const longitude = -117.1628;
+  const latitude = 32.7970465;
+  const longitude = -117.2545220;
+  let selectedCategory = '' 
 
-  let selectedCategory = '';
-
-  if(category !== null)
-    selectedCategory = category;
-  else
-    selectedCategory = actualVibe.barOrRestaurant
-    console.log("the selected category", selectedCategory);
+  let whatPlace = '';
+  if(actualVibe.nightLife){
+    whatPlace = "night_club";
+    selectedCategory = "nightLife"
+  }
+  else{
+    selectedCategory = actualVibe.barType;
+    whatPlace = "bar"
+  }
+  console.log(`the selectedCategory ${selectedCategory} and whatplace is ${whatPlace}`);
+      
+  // if(category !== null)
+  //   selectedCategory = category;
+  // else
+  //   selectedCategory = actualVibe.barOrRestaurant
+    // console.log("the selected category", selectedCategory);
   // For Production
   // const { latitude, longitude } = location;
   // console.log("the actual vibe", actualVibe);
   
   try{ 
-    const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${actualUser.radius}&type=${selectedCategory}&keyword=cruise&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
-    //  console.log(" the results from google is", res.data.results);
+    const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${actualUser.radius}&type=${whatPlace}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
+      // console.log(" the results from google is", res.data.results);
     let specificPlaces = data.map(business => business.placeId);
+    
+    // console.log("specific places::", specificPlaces)
+
     const filteredBusiness = res.data.results.filter((business)=>{
-      return(specificPlaces.includes(business.place_id))
+      return(specificPlaces.includes(business.place_id));
     })
-    // console.log("the business in our database", filteredBusiness);
     
     let filterCategoryBusinessVibe = {
-      crowded: [],
-      unCrowded: []
+      goodSpots: [],
+      averageSpots: [],
+      badSpots: []
     };
+    
+    // console.log("the filter businesses", filteredBusiness);
     
     filteredBusiness.map((googleBusiness)=>{
       data.map(business => {
-        if(googleBusiness.place_id === business.placeId){
-          if(business.profile.crowded && business.profile.expensive )
-            filterCategoryBusinessVibe.crowded.push(googleBusiness)
-          else if (!business.profile.crowded && !business.profile.expensive)
-            filterCategoryBusinessVibe.unCrowded.push(googleBusiness)
+        // console.log("the business", business)
+        if(googleBusiness.place_id === business.placeId && business.ageInterval === actualVibe.ageInterval && selectedCategory === business.category.title){
+          if(actualVibe.crowdedPlace){
+            if(business.rating.crowd > 7.1 && business.rating.crowd < 10){
+              filterCategoryBusinessVibe.goodSpots.push(business)
+            }
+            else if(business.rating.crowd >= 5.1 && business.rating.crowd <= 7){
+              filterCategoryBusinessVibe.averageSpots.push(business)
+            }
+            else if(business.rating.crowd >= 1 && business.rating.crowd <= 5){
+              filterCategoryBusinessVibe.badSpots.push(business)
+            }
+          }
+          else{
+            if(business.rating.crowd > 1 && business.rating.crowd < 5){
+              filterCategoryBusinessVibe.goodSpots.push(business)
+            }
+            else if(business.rating.crowd >= 5.1 && business.rating.crowd <= 7){
+              filterCategoryBusinessVibe.averageSpots.push(business)
+            }
+            else if(business.rating.crowd >= 7.1 && business.rating.crowd <= 10){
+              filterCategoryBusinessVibe.badSpots.push(business)
+            }
+          }   
         }
       })
     })
 
-    // console.log("the filteferf business", filterCategoryBusinessVibe)
+    // console.log("the division business", filterCategoryBusinessVibe)
   
     dispatch({
       type: FILTERED_BUSINESS,
