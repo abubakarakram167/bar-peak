@@ -48,13 +48,9 @@ export const getAllBusiness = () => async (dispatch, getState) => {
 
 export const getfilteredBusiness = (data, location, category) => async (dispatch, getState) => {
 
-  // console.log("the vibe in call");
   const { vibe, user } = getState();
   const actualUser = user.user.user;
-  console.log("the actual user", actualUser);
   const actualVibe = vibe.vibe.vibe
-  console.log("the actual vibe", actualVibe)
-  //For Testing coordiantes
   const latitude = 32.7970465;
   const longitude = -117.2545220;
   let selectedCategory = '' 
@@ -68,67 +64,72 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
     selectedCategory = actualVibe.barType;
     whatPlace = "bar"
   }
-  console.log(`the selectedCategory ${selectedCategory} and whatplace is ${whatPlace}`);
+  console.log(`the selectedCategory ${selectedCategory} and whatplace is ${whatPlace} and category is ${category}`);
       
-  // if(category !== null)
-  //   selectedCategory = category;
-  // else
-  //   selectedCategory = actualVibe.barOrRestaurant
-    // console.log("the selected category", selectedCategory);
+  if(category !== null){
+    if(category === "nightLife"){
+      selectedCategory = "nightLife"
+      whatPlace = "night_club"
+    }
+    else{
+      selectedCategory = actualVibe.barType;
+      whatPlace = "bar"
+    }
+  }
+    
+
   // For Production
   // const { latitude, longitude } = location;
   // console.log("the actual vibe", actualVibe);
   
   try{ 
     const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${actualUser.radius}&type=${whatPlace}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
-      // console.log(" the results from google is", res.data.results);
     let specificPlaces = data.map(business => business.placeId);
-    
-    // console.log("specific places::", specificPlaces)
-
+  
     const filteredBusiness = res.data.results.filter((business)=>{
       return(specificPlaces.includes(business.place_id));
     })
+
+    console.log("the filtered busines", filteredBusiness);
     
     let filterCategoryBusinessVibe = {
       goodSpots: [],
       averageSpots: [],
       badSpots: []
     };
-    
-    // console.log("the filter businesses", filteredBusiness);
+
+    console.log("the actual Vibe", actualVibe)
     
     filteredBusiness.map((googleBusiness)=>{
       data.map(business => {
-        // console.log("the business", business)
         if(googleBusiness.place_id === business.placeId && business.ageInterval === actualVibe.ageInterval && selectedCategory === business.category.title){
           if(actualVibe.crowdedPlace){
             if(business.rating.crowd > 7.1 && business.rating.crowd < 10){
-              filterCategoryBusinessVibe.goodSpots.push(business)
+              filterCategoryBusinessVibe.goodSpots.push(googleBusiness)
             }
             else if(business.rating.crowd >= 5.1 && business.rating.crowd <= 7){
-              filterCategoryBusinessVibe.averageSpots.push(business)
+              filterCategoryBusinessVibe.averageSpots.push(googleBusiness)
             }
             else if(business.rating.crowd >= 1 && business.rating.crowd <= 5){
-              filterCategoryBusinessVibe.badSpots.push(business)
+              filterCategoryBusinessVibe.badSpots.push(googleBusiness)
             }
           }
           else{
             if(business.rating.crowd > 1 && business.rating.crowd < 5){
-              filterCategoryBusinessVibe.goodSpots.push(business)
+              filterCategoryBusinessVibe.goodSpots.push(googleBusiness)
             }
             else if(business.rating.crowd >= 5.1 && business.rating.crowd <= 7){
-              filterCategoryBusinessVibe.averageSpots.push(business)
+              filterCategoryBusinessVibe.averageSpots.push(googleBusiness)
             }
             else if(business.rating.crowd >= 7.1 && business.rating.crowd <= 10){
-              filterCategoryBusinessVibe.badSpots.push(business)
+              filterCategoryBusinessVibe.badSpots.push(googleBusiness)
             }
           }   
         }
       })
     })
 
-    // console.log("the division business", filterCategoryBusinessVibe)
+   
   
     dispatch({
       type: FILTERED_BUSINESS,

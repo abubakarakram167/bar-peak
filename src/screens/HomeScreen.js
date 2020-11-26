@@ -25,11 +25,13 @@ import {getAllBusiness} from '../../redux/actions/Business';
 import {getfilteredBusiness} from '../../redux/actions/Business';
 import {getVibe} from '../../redux/actions/Vibe';
 import {emptyBusiness} from '../../redux/actions/Business';
+import { getAllCategories } from '../../redux/actions/Category';
 import { removeStorageItem } from '../components/localStorage'; 
 import * as Location from 'expo-location';
 import ShowPopupModal from '../components/popUpModal';
 import _, { map } from 'underscore';
 import Modal from '../components/Modal';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
@@ -42,7 +44,9 @@ class HomeScreen extends Component {
       showModal: false,
       showProfileModal: false,
       selectedItem: {},
-      selectedBusiness: {}
+      selectedBusiness: {},
+      showIndicator: false,
+      spinner: false
     }
   }
 
@@ -56,15 +60,17 @@ class HomeScreen extends Component {
       if(isVibeEmpty)
         this.setState({ showModal: true })    
       const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords, null);
+      await this.props.getAllCategories();
     })
   }
 
   getBusinessByCategory = async(category) => {
+    this.setState({ spinner: true })
     const { navigation } = this.props;
     const { coords } = await this.getCurrentLocation();
     const getBusiness =  await this.props.getAllBusiness();
-    const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords, category);
-
+    await this.props.getfilteredBusiness(getBusiness, coords, category);
+    this.setState({ spinner: false })
     navigation.navigate('MapScreen',{
       category
     })
@@ -123,9 +129,11 @@ class HomeScreen extends Component {
       const { navigation } = this.props;
       const { filterBusinesses } = this.props.business.business;
       const { vibe } = this.props.vibe.vibe;
+      const { category } = this.props.category.category;
       const { user } = this.props.user.user;
+      console.log("the category,", category)
       // console.log("the user in Home screen", user);
-      console.log("caliing ", filterBusinesses);
+      // console.log("caliing ", filterBusinesses);
         return (
           <SafeAreaView style = {{ flex: 1 }} >
             <View style={{ flex: 1 }}>
@@ -211,11 +219,18 @@ class HomeScreen extends Component {
                       </View>
                     </View>
                   </Animated.View>
+                  <View style={styles.spinnerContainer}>
+                    <Spinner
+                      visible={this.state.spinner}
+                      textContent={'Loading...'}
+                      textStyle={styles.spinnerTextStyle}
+                    />
+                  </View>
                   <View style={{ marginTop: 40 }}>
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
                       <View style = {{flex: 4}} >
                         <Text style={{ fontSize: 20, fontWeight: '700', paddingHorizontal: 20 }}>
-                          Your Vibe's  <Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" })</Text> 
+                          Your Vibe's  <Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { vibe.nightLife? "nightLife": "barAndRestaurants"} )</Text> 
                         </Text>
                       </View>
                       <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
@@ -265,7 +280,7 @@ class HomeScreen extends Component {
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
                       <View style = {{flex: 4}} >
                         <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                         Unvibe <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" })</Text> 
+                         Unvibe <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" } { vibe.nightLife? "nightLife": "barAndRestaurants"} )</Text> 
                         </Text>
                       </View>
                       <View style = {{flex: 2 , alignSelf: 'center', justifyContent: 'flex-end' }} >
@@ -280,27 +295,33 @@ class HomeScreen extends Component {
                       </View>
                     </View>
                     { filterBusinesses.badSpots ? 
-                      <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                      <View style={{ marginLeft:15, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>      
                         <FlatList
-                          data={filterBusinesses.badSpots}
+                          data={ filterBusinesses.badSpots }
                           renderItem={({item}) => {
-                            // console.log("the render item", item);
+                          //  console.log("the render item", item);
                             return(
-                              <Home 
-                                width={width}
-                                height= {height}
-                                item = {item}
-                              />
+                              <TouchableOpacity
+                                onPress = {()=>{ 
+                                this.selectSpecificBusiness(item)
+                                }}
+                              >
+                                <Home 
+                                  width={width}
+                                  height= {height}
+                                  item = {item}
+                                />
+                              </TouchableOpacity>
                             );
                           }}
                           showsHorizontalScrollIndicator = {false}
                           horizontal = {true}
                           keyExtractor={item => item.place_id}
-                        />  
+                        />                       
                       </View> :
-                      <View style={{ position: 'absolute', top:"60%",right: 0, left: 0 }}>
-                        <ActivityIndicator animating={true} size="small" color="black" />
-                      </View>
+                    <View style={{ position: 'absolute', top:"60%",right: 0, left: 0 }}>
+                      <ActivityIndicator animating={true} size="small" color="black" />
+                    </View>
                     }
                   </View>  
                   <View style={{ flex: 1, paddingTop: 20 }}>
@@ -312,53 +333,39 @@ class HomeScreen extends Component {
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                         style = {{ marginLeft:20 }}
-                      >
-                      <TouchableOpacity
-                        onPress = {()=>{ this.getBusinessByCategory('restaurant') }}
-                      >  
-                        <Category 
-                          imageUri={"https://ewscripps.brightspotcdn.com/dims4/default/a300d3c/2147483647/strip/true/crop/800x450+67+0/resize/1280x720!/quality/90/?url=http%3A%2F%2Fewscripps-brightspot.s3.amazonaws.com%2Fd1%2F6c%2F45cf0abe4b9a98e1ed52f20e3913%2Ftop-of-the-market-san-diego-view.jpg"}
-                          name="Restaurants"
-                          width={width}
-                          height= {height}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress = {()=>{ this.getBusinessByCategory('bar') }}
-                      >    
-                        <Category 
-                          imageUri={"https://blog.sandiego.org/wp-content/uploads/2018/06/101-proof-oceanside-speakeasy-1024x512.jpg"}
-                          name="Bar"
-                          width={width}
-                          height= {height}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress = {()=>{ this.getBusinessByCategory('night life') }}
-                      >     
-                        <Category 
-                          imageUri={ "https://nunustavern.com/wp-content/uploads/Nunus-Tavern-Inside-Bar-1366x768.jpg" }
-                          name="Night Life"
-                          width={width}
-                          height= {height}
-                        />
-                      </TouchableOpacity>  
+                      >          
+                        { category && category.map(category => {
+                          return(
+                            <TouchableOpacity
+                              onPress = {()=>{ this.getBusinessByCategory(category.title) }}
+                            >
+                              <Category 
+                                imageUri={category.imageUrl}
+                                name= {category.title}
+                                width={width}
+                                height= {height}
+                              />
+                            </TouchableOpacity>
+                          )})
+                        }               
                       </ScrollView>
                     </View>
                   </View>
                 </ScrollView>
                 { this.state.showModal &&  <ShowPopupModal  closeModal = {()=> this.setState({ showModal: false })} navigation = {this.props.navigation} /> } 
                 { this.state.showProfileModal && <Modal  item  = {this.state.selectedItem}  businessData = {this.state.selectedBusiness}  show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  }   
+                              
             </View>
           </SafeAreaView>    
         );
     }
 }
 const mapStateToProps = (state) => {
-  const { business, vibe, user } = state
+  const { business, vibe, user, category } = state
   return { 
     business: business,
     vibe: vibe,
+    category,
     user
   }
 };
@@ -367,33 +374,53 @@ const mapDispatchToProps = dispatch => (
     getAllBusiness,
     getfilteredBusiness,
     getVibe,
-    emptyBusiness
+    emptyBusiness,
+    getAllCategories
   }, dispatch)
 );
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    homeLogo: { flex: 1,
-      height: null, 
-      width: '100%',
-      resizeMode: 'cover',
-      borderBottomLeftRadius:0,
-      borderBottomRightRadius:0 ,
-      borderRadius: 15,
-      borderBottomWidth: 0,
-      borderWidth: 1, 
-      borderColor: '#dddddd' 
-    },
-    ImageButton: {
-      position: 'absolute',
-      top: '25%',
-      left: '5%'
-
-    }
+  
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  homeLogo: { flex: 1,
+    height: null, 
+    width: '100%',
+    resizeMode: 'cover',
+    borderBottomLeftRadius:0,
+    borderBottomRightRadius:0 ,
+    borderRadius: 15,
+    borderBottomWidth: 0,
+    borderWidth: 1, 
+    borderColor: '#dddddd' 
+  },
+  ImageButton: {
+    position: 'absolute',
+    top: '25%',
+    left: '5%'
+  },
+  spinnerTextStyle: {
+    color: '#FFF'
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF'
+  },
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 10
+  },
+  instructions: {
+    textAlign: 'center',
+    color: '#333333',
+    marginBottom: 5
+  }
 });

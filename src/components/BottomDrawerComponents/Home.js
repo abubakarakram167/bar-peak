@@ -6,6 +6,8 @@ import {
     Image
 } from "react-native";
 import StarRating from 'react-native-star-rating'
+import _, { map } from 'underscore';
+
 class Home extends Component { 
   
   renderDollar = (priceLevel) => {
@@ -23,7 +25,7 @@ class Home extends Component {
         <View style={{ flex: 1 }}>
           <Image
             style={styles.businessImage}
-            source={ { uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${item.photos[0].photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM` } } 
+            source={ { uri: item.hasOwnProperty('photos') ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${item.photos[0].photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`: 'https://c8.alamy.com/comp/P2D5P1/photo-not-available-vector-icon-isolated-on-transparent-background-photo-not-available-logo-concept-P2D5P1.jpg' } } 
           />
         </View>
         <View style={{ flex: 1, alignItems: 'flex-start', paddingLeft: 10, paddingTop: 10 }}>

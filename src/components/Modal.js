@@ -13,16 +13,18 @@ import {
   Dimensions,
   Linking
 } from "react-native";
+import { connect } from 'react-redux';
 import { SliderBox } from "react-native-image-slider-box";
 import TimingModal from './TimingModal';
 import axios  from '../api/axios';
-import { Icon, Rating } from 'react-native-elements';
-import StarRating from 'react-native-star-rating'
+import { Icon } from 'react-native-elements';
+import StarRatings from 'react-native-star-rating'
 import _, { map } from 'underscore';
 // import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 const { height, width } = Dimensions.get('window')
 import call from 'react-native-phone-call';
+import { Rating, AirbnbRating } from 'react-native-elements';
 
 const iconsList = [
   {
@@ -52,7 +54,8 @@ class ProfileModal extends Component {
     modalVisible: false,
     businessProfile:{} ,
     images: [],
-    showTimings: false
+    showTimings: false,
+    showRatingModal: true
   };
 
   setModalVisible = (visible) => {
@@ -84,7 +87,8 @@ class ProfileModal extends Component {
     const { show } = this.props;
     const { businessProfile } = this.state;
     const { businessData } = this.props;
-    console.log("business data", businessData);
+    const { rating } = businessData;
+    const { vibe } = this.props.vibe.vibe;
 
     return (
       <View style={styles.centeredView}>
@@ -152,7 +156,7 @@ class ProfileModal extends Component {
                   style = {styles.detailSection} 
                 >
                   <View style = {{ flex:1, alignItems : 'flex-start' }} >  
-                    <StarRating
+                    <StarRatings
                       disable={true}
                       maxStars={1}
                       rating={2}
@@ -253,7 +257,7 @@ class ProfileModal extends Component {
                     style = {[styles.starComponent, { marginTop:0 }]} 
                   >
                     <Text style = {styles.heading } >Crowdy:</Text>
-                    <StarRating
+                    <StarRatings
                       disable={true}
                       maxStars={5}
                       rating={2}
@@ -266,7 +270,7 @@ class ProfileModal extends Component {
                     style = {styles.starComponent} 
                   >
                     <Text style = {styles.heading } >Fun Factor:</Text>
-                    <StarRating
+                    <StarRatings
                       disable={true}
                       maxStars={5}
                       rating={4}
@@ -279,7 +283,7 @@ class ProfileModal extends Component {
                     style = {styles.starComponent} 
                   >
                     <Text style = {styles.heading }  >Girl to Guy Ratio:</Text>
-                    <StarRating
+                    <StarRatings
                       disable={true}
                       maxStars={5}
                       rating={2}
@@ -292,7 +296,7 @@ class ProfileModal extends Component {
                     style = {styles.starComponent} 
                   >
                     <Text style = {styles.heading }  >Difficulty Getting in:</Text>
-                    <StarRating
+                    <StarRatings
                       disable={true}
                       maxStars={5}
                       rating={2}
@@ -305,7 +309,7 @@ class ProfileModal extends Component {
                     style = {styles.starComponent} 
                   >
                     <Text style = {styles.heading }  >Difficulty Getting a Drink:</Text>
-                    <StarRating
+                    <StarRatings
                       disable={true}
                       maxStars={5}
                       rating={2}
@@ -315,9 +319,32 @@ class ProfileModal extends Component {
                     <Text>10/5</Text>
                   </View>        
                 </View>
+                
                 <View
                   style={[styles.divider, { marginBottom: 20 }]}
                 />
+                <View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
+                  <TouchableOpacity
+                      style = {{ borderRadius: 6, borderWidth:1,height: '100%', width: '40%',backgroundColor: '#E56060' }}
+                      onPress = {() => {  
+                        this.setState({ showRatingModal: true })
+                      }}
+                    >
+                      <Text style = {{ textAlign: 'center', fontSize: 12,color: 'white', fontWeight: '700',paddingTop: 18, paddingBottom: 18 }} > Rate It! </Text>
+                    </TouchableOpacity>
+                </View>
+                { this.state.showRatingModal && 
+                  <RateModal  
+                    closeModal = {()=>{ 
+                      this.setState({ showRatingModal: false }) 
+                      console.log("the pressing")
+                    }}
+                    rating = {rating}
+                    vibe = {vibe} 
+                    data = { businessData }
+                    show = {this.state.showRatingModal}  
+                  />
+                }
               </View>
             </ScrollView>
             
@@ -332,7 +359,7 @@ class ProfileModal extends Component {
               <View style = {{ flex:1, flexDirection: 'row' }} >
                 <View style = {{ flex:2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }} >
                   <View style = {{ flex:1, alignItems : 'center' }} >  
-                      <StarRating
+                      <StarRatings
                         disable={true}
                         maxStars={1}
                         rating={2}
@@ -363,7 +390,212 @@ class ProfileModal extends Component {
   }
 }
 
+const mapStateToProps = (state) => {
+  const { vibe} = state
+  return { 
+    vibe: vibe
+  }
+};
+
+export default connect(mapStateToProps, null)(ProfileModal);
+
+class RateModal extends React.Component{
+
+  constructor(props){
+    super(props)
+    this.state = {
+        fun: 0,
+        crowd:0,
+        difficultyGettingDrink: 0,
+        difficultyGettingIn: 0,
+        girlToGuyRatio:0
+      
+    }
+  }
+
+  ratingCompleted(rating) {
+    console.log("Rating is: " + rating)
+  }
+
+  handleInputChange = (event)=>{
+    const value = event.value;
+    const name = event.name;
+    console.log(`the value${value} and name is ${name}`)
+    this.setState({
+      [name]: value
+    });
+  }
+
+  componentDidMount(){
+    const { rating } = this.props;
+    console.log("the rating with props", rating);
+    this.setState({ 
+      fun: rating.fun,
+      crowd: rating.crowd,
+      difficultyGettingDrink: rating.difficultyGettingDrink,
+      difficultyGettingIn: rating.difficultyGettingIn,
+      girlToGuyRatio: rating.girlToGuyRatio
+    })
+  }
+
+  saveRating = () => {
+    const {
+      fun,
+      crowd,
+      difficultyGettingDrink,
+      difficultyGettingIn,
+      girlToGuyRatio
+    } = this.state;
+    console.log("the rating", fun);
+  }
+
+  render(){
+    const {
+      fun,
+      crowd,
+      difficultyGettingDrink,
+      difficultyGettingIn,
+      girlToGuyRatio
+    } = this.state;
+    console.log("vibe", this.props.vibe);
+    return(
+      <View style={styles.centeredView}>
+        <Modal
+          animationType="fade"
+          transparent={true}
+          presentationStyle = "fullScreen"
+          visible={this.props.show}
+          onRequestClose={() => {
+            Alert.alert("Modal has been closed.");
+          }}
+        >
+          <ScrollView 
+            style = {{ flex: 1} } 
+            contentContainerStyle = {{ justifyContent: 'center', alignItems: 'center', paddingVertical: 50 }}  
+          >
+            <View style={styles.rateModal}>
+              <Text style = {{ fontSize: 16, textAlign: 'center', paddingLeft:10, paddingRight:10 }} >Please submit this seriously to help us imrove more next time.Thanks!</Text>
+              <View style = {{ flex:1, width: '100%', justifyContent: 'center', alignItems: 'center' }} >
+                <View 
+                  style = {styles.ratingComponent}  
+                >
+                  <Text style = { styles.ratingText } >Fun:</Text>
+                  <Rating 
+                    showRating 
+                    fractions={0.1} 
+                    startingValue={fun && fun}
+                    imageSize = {25}
+                    ratingCount = {10}
+                    onFinishRating = {(rating)=>{ this.setState({ fun: rating }) }} 
+                  />  
+                </View>
+                <View 
+                  style = {styles.ratingComponent} 
+                >
+                  <Text style = { styles.ratingText } >Crowdy:</Text>
+                  <Rating 
+                    showRating 
+                    fractions={0.1} 
+                    startingValue={crowd && crowd}
+                    imageSize = {25}
+                    ratingCount = {10}
+                    onFinishRating = {(rating)=>{ this.setState({ crowd: rating}) }} 
+                  /> 
+                </View>
+                <View 
+                  style = {styles.ratingComponent} 
+                >
+                  <Text style = { styles.ratingText } >Difficulty Getting Drink:</Text>
+                  <Rating 
+                    showRating 
+                    fractions={0.1} 
+                    startingValue={difficultyGettingDrink && difficultyGettingDrink}
+                    imageSize = {25}
+                    ratingCount = {10}
+                    onFinishRating = {(rating)=>{ this.setState({ difficultyGettingDrink: rating }) }} 
+                  /> 
+                </View>
+                <View 
+                  style = {styles.ratingComponent} 
+                >
+                  <Text style = { styles.ratingText }  > Girl To Guy Ratio </Text>
+                  <Rating 
+                    showRating 
+                    fractions={0.1} 
+                    startingValue={girlToGuyRatio && girlToGuyRatio}
+                    imageSize = {25}
+                    ratingCount = {10}
+                    onFinishRating = {(rating)=>{ this.setState({ girlToGuyRatio: rating })  }} 
+                  /> 
+                </View>
+                <View 
+                  style = {styles.ratingComponent} 
+                >
+                  <Text style = { styles.ratingText }  >Difficulty Getting In:</Text>
+                  <Rating 
+                    showRating 
+                    fractions={0.1} 
+                    startingValue={ difficultyGettingIn && difficultyGettingIn }
+                    imageSize = {25}
+                    ratingCount = {10}
+                    onFinishRating = {(rating)=>{ this.setState({ difficultyGettingIn: rating})  }} 
+                  /> 
+                </View>
+                <View style = {{ flex:1,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
+                  <TouchableOpacity
+                      style = {{ borderRadius: 6, borderWidth:1,height: '100%', width: '40%',backgroundColor: '#E56060' }}
+                      onPress = {() => {  
+                        this.saveRating()
+                      }}
+                    >
+                      <Text style = {{ textAlign: 'center', fontSize: 18,color: 'white', fontWeight: '700',paddingTop: 18, paddingBottom: 18,padding: 25 }} > Submit</Text>
+                    </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+          <View style = {{ alignSelf : "flex-start", position: 'absolute', top: '5%', left: '5%' }}  >
+            <TouchableOpacity
+              onPress = {()=> {
+                console.log("called")
+                this.props.closeModal()
+              }}
+            >
+              <Icon 
+                name="x"
+                type = 'foundation'
+                size = {30}
+                color = "black"  
+              />
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </View>  
+    )
+  }
+
+}
+
 const styles = StyleSheet.create({
+  ratingText: { 
+    textAlign: 'center', 
+    width: '30%',
+    fontSize: 18,
+    fontWeight: '600' 
+  }
+  ,
+  ratingComponent: {
+    flex:1,
+    marginTop: 25,
+    justifyContent: 'center',
+    alignItems: 'center' 
+  },
+  rateModal: {
+    flex:1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 40
+  },
   heading: {
     textAlign: 'left',
     width: '30%'
@@ -446,9 +678,6 @@ const styles = StyleSheet.create({
     
   }
 });
-
-export default ProfileModal;
-
 
 function TheTimingModalWrapper() {
   return (

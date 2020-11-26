@@ -5,5 +5,5 @@ const optix = 'http://192.168.100.233:3000/'
 const pHotspot = 'http://172.20.10.3:3000/'
 
 export default axios.create({
-  baseURL: optix
+  baseURL: jazz
 })

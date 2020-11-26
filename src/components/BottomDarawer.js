@@ -1,5 +1,5 @@
 import React from 'react'
-import {Text, View, Dimensions, FlatList,ScrollView, SafeAreaView} from 'react-native'
+import {Text, View, Dimensions, FlatList,ScrollView, SafeAreaView, TouchableOpacity} from 'react-native'
 import { Icon } from 'react-native-elements'
 import SlidingUpPanel from 'rn-sliding-up-panel'
 import Home from './BottomDrawerComponents/Home';
@@ -8,7 +8,7 @@ import { bindActionCreators } from 'redux';
 import {getfilteredBusiness} from '../../redux/actions/Business';
 import Constants from 'expo-constants';
 import _, { map } from 'underscore';
-
+import Modal from '../components/Modal';
 
 const { height, width } = Dimensions.get('window')
 
@@ -70,7 +70,9 @@ class BottomSheet extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      business: []
+      business: [],
+      selectedItem: {},
+      selectedBusiness: {}
     }
   }
 
@@ -79,11 +81,16 @@ class BottomSheet extends React.Component {
     this.setState({ business: filterBusinesses })
   }
 
+  selectSpecificBusiness = (item) => {
+    const { businesses } = this.props.business.business;
+    const selectedBusiness = businesses.filter( (business) => business.placeId === item.place_id )[0]
+    this.setState({ selectedItem: item, showProfileModal: true, selectedBusiness });
+  }
+
   render() {
     const { filterBusinesses } = this.props.business.business;
     const { vibe } = this.props.vibe.vibe;
-    const arrayVibe = vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
-    const unVibeArray = !vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded;
+    const { goodSpots, badSpots } = filterBusinesses;
     // console.log("the filter business", filterBusinesses);
     const isVibeEmpty = _.isEmpty(filterBusinesses); 
     const { category } =  this.props;
@@ -116,20 +123,26 @@ class BottomSheet extends React.Component {
                     }}
                   >
                     <Text style={{ fontSize: 20, fontWeight: '700', paddingHorizontal: 20 }}>
-                     { category ? "Results By Category" : "Your Vibe's" }<Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" },{ vibe.expensivePlace ? "expensive" : "cheap" } ,{ category ? category : vibe.barOrRestaurant})</Text> 
+                     { category ? "Results By Category" : "Your Vibe's" }<Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" },{ vibe.nightLife? "nightLife": "barAndRestaurants"}  ,{ category ? category : vibe.barOrRestaurant})</Text> 
                     </Text>
                   </Text>
                   <ScrollView        
                     horizontal = {true}
                   >          
                     {
-                      !isVibeEmpty && arrayVibe.map((business)=>{
+                      !isVibeEmpty && goodSpots.map((business)=>{
                         return(
-                          <Home 
-                            width={width}
-                            height= {height}
-                            item = {business}
-                          />
+                          <TouchableOpacity
+                            onPress = {()=>{ 
+                            this.selectSpecificBusiness(business)
+                            }}
+                          >
+                            <Home 
+                              width={width}
+                              height= {height}
+                              item = {business}
+                            />
+                          </TouchableOpacity>
                         )
                       })
                     }   
@@ -144,20 +157,26 @@ class BottomSheet extends React.Component {
                     }}
                   >
                     <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                    { category ? "Results By Category" : "Unvibe" } <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { !vibe.expensivePlace ? "expensive" : "cheap" }), {category ? category : vibe.barOrRestaurant}</Text> 
+                    { category ? "Results By Category" : "Unvibe" } <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { vibe.nightLife? "nightLife": "barAndRestaurants"} , {category ? category : vibe.barOrRestaurant}</Text> 
                     </Text>
                   </Text>
                   <ScrollView        
                     horizontal = {true}
                   >          
                     {
-                      !isVibeEmpty && unVibeArray.map((business)=>{
+                      !isVibeEmpty && badSpots.map((business)=>{
                         return(
-                          <Home 
-                            width={width}
-                            height= {height}
-                            item = {business}
-                          />
+                          <TouchableOpacity
+                            onPress = {()=>{ 
+                            this.selectSpecificBusiness(business)
+                            }}
+                          >
+                            <Home 
+                              width={width}
+                              height= {height}
+                              item = {business}
+                            />
+                          </TouchableOpacity >
                         )
                       })
                     }   
@@ -167,6 +186,7 @@ class BottomSheet extends React.Component {
             </View>
           )}
         </SlidingUpPanel>
+        { this.state.showProfileModal && <Modal  item  = {this.state.selectedItem}  businessData = {this.state.selectedBusiness}  show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  }   
       </View>
     )
   }

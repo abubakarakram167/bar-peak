@@ -71,6 +71,7 @@
     "react-native-svg": "12.1.0",
     "react-native-swipe-cards": "^0.1.1",
     "react-native-swipe-up-down": "^1.0.7",
+    "react-native-swipeable-rating": "^0.2.1",
     "react-native-table-component": "^1.2.1",
     "react-native-unimodules": "~0.11.0",
     "react-native-validation": "^1.0.3",

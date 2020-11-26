@@ -2,6 +2,7 @@ import { Fetch_Category } from '../types';
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
+import Category from '../reducers/Category';
 
 export const getAllCategories = () => async (dispatch, getState) => {
   const { token } = await getUserData();
@@ -12,6 +13,7 @@ export const getAllCategories = () => async (dispatch, getState) => {
         title
         type
         imageUrl
+        _id
       }
     }
     ` 
@@ -20,10 +22,12 @@ export const getAllCategories = () => async (dispatch, getState) => {
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-    console.log("the res", res)
+    // console.log("the res", res)
+    const allSpecificCategories = res.data.data.getCategories.filter(category => category.type === "main_category")
+    // console.log("all categories", allSpecificCategories)
     dispatch({
       type: Fetch_Category,
-      payload: res.data.data.getCategories,
+      payload: allSpecificCategories
     })
     return Promise.resolve('ok');
   }catch(err){
