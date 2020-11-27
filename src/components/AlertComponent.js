@@ -30,6 +30,7 @@ export default class App extends React.Component {
   render() {
     const {showAlert} = this.state;
     const { navigation } = this.props;
+    console.log("the props", this.props.showError)
     return (
       <View style={styles.container}>
  

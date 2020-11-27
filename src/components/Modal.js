@@ -25,6 +25,11 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 const { height, width } = Dimensions.get('window')
 import call from 'react-native-phone-call';
 import { Rating, AirbnbRating } from 'react-native-elements';
+import { getUserData } from './localStorage'; 
+import { bindActionCreators } from 'redux';
+import {addRating} from '../../redux/actions/Business';
+import Spinner from 'react-native-loading-spinner-overlay';
+import AlertComponent from './AlertComponent';
 
 const iconsList = [
   {
@@ -55,7 +60,9 @@ class ProfileModal extends Component {
     businessProfile:{} ,
     images: [],
     showTimings: false,
-    showRatingModal: true
+    showRatingModal: false,
+    rating: {},
+    spinner: false
   };
 
   setModalVisible = (visible) => {
@@ -72,23 +79,63 @@ class ProfileModal extends Component {
     return data ? data.iconName : ''
   
   }
+
+  getBusinessRating = async (placeId) =>{
+    console.log("placeId", placeId)
+    const body = {
+      query:`
+      query{
+      getSingleBusiness(placeId: "${placeId}"){
+        rating{
+          fun,
+          crowd,
+          girlToGuyRatio,
+          difficultyGettingIn,
+          difficultyGettingDrink
+        }
+      }}
+      `
+  }
+  try{  
+    const res = await axios.post(`graphql?`,body);
+    this.setState( { rating: res.data.data.getSingleBusiness.rating } )
+    // console.log("the response in business", res.data.data.getSingleBusiness);
+    
+  }catch(err){
+    console.log("hte errorsss", err.response.data)
+  }
+  } 
+
   async componentDidMount(){
     const { item } = this.props;
     const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`;
     const {data} =  await axios.post(url);
     const photos = data.result.photos;
+    const { placeId } = this.props.businessData;
+    this.getBusinessRating(placeId)
+    // this.setState({ rating })
     const AllPhotos = photos.map((photo)=>{
       return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`;
     })
     this.setState({ businessProfile: data.result, images: AllPhotos  })
   }
 
+  getCaseColor = (value) => {
+    if(value>= 0.1 && value <=5)
+      return "red";
+    else if(value>= 5.1 && value <=7)  
+      return "orange";
+    else if(value>= 7.1 && value <=10)
+      return "green";  
+  }
+
   render() {
     const { show } = this.props;
     const { businessProfile } = this.state;
-    const { businessData } = this.props;
-    const { rating } = businessData;
+    const { businessData } = this.props;  
     const { vibe } = this.props.vibe.vibe;
+    const { rating } = this.state;
+    console.log("the vibe", vibe);
 
     return (
       <View style={styles.centeredView}>
@@ -256,15 +303,15 @@ class ProfileModal extends Component {
                   <View 
                     style = {[styles.starComponent, { marginTop:0 }]} 
                   >
-                    <Text style = {styles.heading } >Crowdy:</Text>
+                    <Text style = {styles.heading } > { vibe.crowdedPlace ? "Crowdy:" : "Quiet" } </Text>
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={2}
+                      rating={rating.crowd/2}
                       starSize={15}
-                      starStyle = {{ color: 'orange' }}
+                      starStyle = {{ color: this.getCaseColor(rating.crowd) }}
                     />
-                    <Text>10/6</Text>
+                    <Text>10/{rating.crowd}</Text>
                   </View>
                   <View 
                     style = {styles.starComponent} 
@@ -273,11 +320,11 @@ class ProfileModal extends Component {
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={4}
+                      rating={rating.fun/2}
                       starSize={15}
-                      starStyle = {{ color: 'green' }}
+                      starStyle = {{ color: this.getCaseColor(rating.fun) }}
                     />
-                    <Text>10/8</Text>
+                    <Text>10/{rating.fun && rating.fun.toFixed(2)}</Text>
                   </View>
                   <View 
                     style = {styles.starComponent} 
@@ -286,37 +333,37 @@ class ProfileModal extends Component {
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={2}
+                      rating={ rating.girlToGuyRatio/2}
                       starSize={15}
-                      starStyle = {{ color: 'orange' }}
+                      starStyle = {{ color: this.getCaseColor(rating.girlToGuyRatio) }}
                     />
-                    <Text>10/6</Text>
+                    <Text>10/{rating.girlToGuyRatio && rating.girlToGuyRatio.toFixed(2)}</Text>
                   </View>
                   <View 
                     style = {styles.starComponent} 
                   >
-                    <Text style = {styles.heading }  >Difficulty Getting in:</Text>
+                    <Text style = {styles.heading }  > {vibe.crowdedPlace ? "Difficulty Getting in:" : " Easy Getting In  "} </Text>
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={2}
+                      rating={rating.difficultyGettingIn/2}
                       starSize={15}
-                      starStyle = {{ color: 'red' }}
+                      starStyle = {{ color: this.getCaseColor(rating.difficultyGettingIn) }}
                     />
-                    <Text>10/3</Text>
+                    <Text>10/{rating.difficultyGettingIn && rating.difficultyGettingIn.toFixed(2)}</Text>
                   </View>
                   <View 
                     style = {styles.starComponent} 
                   >
-                    <Text style = {styles.heading }  >Difficulty Getting a Drink:</Text>
+                    <Text style = {styles.heading }>  {vibe.crowdedPlace ? "Difficulty Getting Drink:" : " Easy Getting Drink  "} </Text>
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={2}
+                      rating={rating.difficultyGettingDrink/2}
                       starSize={15}
-                      starStyle = {{ color: 'orange' }}
+                      starStyle = {{ color: this.getCaseColor(rating.difficultyGettingDrink) }}
                     />
-                    <Text>10/5</Text>
+                    <Text>10/{rating.difficultyGettingDrink && rating.difficultyGettingDrink.toFixed(2)}</Text>
                   </View>        
                 </View>
                 
@@ -331,7 +378,7 @@ class ProfileModal extends Component {
                       }}
                     >
                       <Text style = {{ textAlign: 'center', fontSize: 12,color: 'white', fontWeight: '700',paddingTop: 18, paddingBottom: 18 }} > Rate It! </Text>
-                    </TouchableOpacity>
+                  </TouchableOpacity>
                 </View>
                 { this.state.showRatingModal && 
                   <RateModal  
@@ -339,10 +386,11 @@ class ProfileModal extends Component {
                       this.setState({ showRatingModal: false }) 
                       console.log("the pressing")
                     }}
-                    rating = {rating}
+                    rating = {this.state.rating}
                     vibe = {vibe} 
                     data = { businessData }
                     show = {this.state.showRatingModal}  
+                    updateRating = {(rating)=>{  this.setState({ rating })    }}
                   />
                 }
               </View>
@@ -381,6 +429,13 @@ class ProfileModal extends Component {
                     <Text style = {{ textAlign: 'center', fontSize: 12,color: 'white', fontWeight: '700',paddingTop: 8, paddingBottom: 8 }} > Timings </Text>
                   </TouchableOpacity>
                 </View>
+                <View style={styles.spinnerContainer}>
+                  <Spinner
+                    visible={this.state.spinner}
+                    textContent={'Loading...'}
+                    textStyle={styles.spinnerTextStyle}
+                  />
+                </View>
               </View>
             </View> 
           </View>       
@@ -391,11 +446,12 @@ class ProfileModal extends Component {
 }
 
 const mapStateToProps = (state) => {
-  const { vibe} = state
+  const { vibe } = state
   return { 
     vibe: vibe
   }
 };
+
 
 export default connect(mapStateToProps, null)(ProfileModal);
 
@@ -404,12 +460,13 @@ class RateModal extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-        fun: 0,
-        crowd:0,
-        difficultyGettingDrink: 0,
-        difficultyGettingIn: 0,
-        girlToGuyRatio:0
-      
+      fun: 0,
+      crowd:0,
+      difficultyGettingDrink: 0,
+      difficultyGettingIn: 0,
+      girlToGuyRatio:0,
+      spinner: false,
+      showConfirmation: false
     }
   }
 
@@ -427,7 +484,7 @@ class RateModal extends React.Component{
   }
 
   componentDidMount(){
-    const { rating } = this.props;
+    const { rating } = this.props
     console.log("the rating with props", rating);
     this.setState({ 
       fun: rating.fun,
@@ -438,15 +495,61 @@ class RateModal extends React.Component{
     })
   }
 
-  saveRating = () => {
-    const {
+  saveRating = async() => {
+    const { vibe } = this.props;
+    this.setState({ spinner: true })
+    let {
       fun,
       crowd,
       difficultyGettingDrink,
       difficultyGettingIn,
       girlToGuyRatio
     } = this.state;
-    console.log("the rating", fun);
+    
+
+    console.log("here", this.props)
+    console.log("the vibe in save rating", vibe)
+    if(!vibe.crowdedPlace){
+      crowd =  10 - crowd;
+      difficultyGettingDrink = 10 - difficultyGettingDrink;
+      girlToGuyRatio = 10 - girlToGuyRatio;
+    }
+    const { token } = await getUserData();
+    const { data } = this.props;
+    console.log("place id", data.placeId);
+    const body = {
+        query:`
+        mutation{
+          addRating(rating:{
+              fun: ${fun.toFixed(2)},
+              crowd: ${crowd.toFixed(2)},
+              girlToGuyRatio: ${girlToGuyRatio.toFixed(2)},
+              difficultyGettingIn: ${difficultyGettingIn.toFixed(2)},
+              difficultyGettingDrink: ${difficultyGettingDrink.toFixed(2)}    
+          },
+          businessId: "${data.placeId}"
+          ){
+              fun,
+              crowd,
+              girlToGuyRatio,
+              difficultyGettingDrink,
+              difficultyGettingIn
+          }
+        }
+        `
+    }
+    try{  
+      const res = await axios.post(`graphql?`,body,{ headers: {
+        'Authorization': `Bearer ${token}`
+      } });
+      console.log("the response in Rating", res.data.data.addRating);
+      this.props.updateRating(res.data.data.addRating);
+      this.setState({ spinner: false, showConfirmation: true })
+      this.props.closeModal()
+    }catch(err){
+      console.log("hte errorsss", err.response.data)
+    }
+
   }
 
   render(){
@@ -457,7 +560,6 @@ class RateModal extends React.Component{
       difficultyGettingIn,
       girlToGuyRatio
     } = this.state;
-    console.log("vibe", this.props.vibe);
     return(
       <View style={styles.centeredView}>
         <Modal
@@ -569,7 +671,17 @@ class RateModal extends React.Component{
               />
             </TouchableOpacity>
           </View>
-        </Modal>
+          <View style={styles.spinnerContainer}>
+            <Spinner
+              visible={this.state.spinner}
+              textContent={'Loading...'}
+              textStyle={styles.spinnerTextStyle}
+            />
+          </View>
+          { this.state.showConfirmation &&
+          <AlertComponent closeModal = {()=>{ this.setState({ showConfirmation: false }) }} showError = {this.state.showConfirmation} message = "Rating Succesffully Submitted" />
+          }
+          </Modal>
       </View>  
     )
   }
@@ -674,9 +786,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     alignSelf: 'flex-start',
     fontSize: 22,
-    fontWeight: '500',
-    
-  }
+    fontWeight: '500', 
+  },
+  spinnerTextStyle: {
+    color: '#FFF'
+  },
 });
 
 function TheTimingModalWrapper() {

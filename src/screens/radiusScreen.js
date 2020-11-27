@@ -16,9 +16,11 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+const milesArray = [0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8];
 
 class radiusScreen extends React.Component{
 
+  
   constructor(props){
     super(props);
     this.state = {
@@ -27,9 +29,17 @@ class radiusScreen extends React.Component{
     }
   }
 
+  getMilesintoMeters = (miles)=>{
+    return miles * 1609.344;
+  }
+  getMetersIntoMiles(meters){
+    return meters/1609.344;
+  }
+
   render(){
     const { navigation } = this.props;
     const { user } = this.props.user.user;
+    console.log("the user", user)
     return(
       <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
@@ -43,33 +53,34 @@ class radiusScreen extends React.Component{
           <Picker
             selectedValue={this.state.choosenLabel === 0 ? user.radius : this.state.choosenLabel }
             onValueChange={(itemValue, itemIndex) => {
+              console.log("the item value", itemValue);
               this.setState(
                 { choosenLabel: itemValue,
                   chooseIndex: itemIndex
                 }
               )
             }}>
-            <Picker.Item label="1000" value = "1000" />
-            <Picker.Item label="2000" value = "2000" />
-            <Picker.Item label="3000" value = "3000" />
-            <Picker.Item label="4000" value = "4000" />
-            <Picker.Item label="5000" value = "5000" />
-            <Picker.Item label="6000" value = "6000" />
-            <Picker.Item label="7000" value = "7000" />
-            <Picker.Item label="8000" value = "8000" />
-            <Picker.Item label="9000" value = "9000" />
-            <Picker.Item label="10000" value = "10000" />
-            <Picker.Item label="11000" value = "11000" />
-            <Picker.Item label="12000" value = "12000" />
-            <Picker.Item label="13000" value = "13000" />
-            <Picker.Item label="14000" value = "14000" />
-            <Picker.Item label="15000" value = "15000" />
+            <Picker.Item label="0.5" value = { this.getMilesintoMeters(0.5) } />
+            <Picker.Item label="1" value = { this.getMilesintoMeters(1)} />
+            <Picker.Item label="1.5" value =  { this.getMilesintoMeters(1.5)}   />
+            <Picker.Item label="2" value = { this.getMilesintoMeters(2)}  />
+            <Picker.Item label="2.5" value = { this.getMilesintoMeters(2.5)}  />
+            <Picker.Item label="3" value = { this.getMilesintoMeters(3)}  />
+            <Picker.Item label="3.5" value = { this.getMilesintoMeters(3.5)}  />
+            <Picker.Item label="4" value = { this.getMilesintoMeters(4)}  />
+            <Picker.Item label="4.5" value = { this.getMilesintoMeters(4.5)}  />
+            <Picker.Item label="5" value = { this.getMilesintoMeters(5)}  />
+            <Picker.Item label="5.5" value = { this.getMilesintoMeters(5.5)}  />
+            <Picker.Item label="6" value = { this.getMilesintoMeters(6)}  />
+            <Picker.Item label="6.5" value = { this.getMilesintoMeters(6.5)}  />
+            <Picker.Item label="7" value = { this.getMilesintoMeters(7)}  />
+            <Picker.Item label="7.5" value = { this.getMilesintoMeters(7.5)}  />
           </Picker>
           <Text style={[styles.text, { fontWeight: '600' }]}>
-            Your Radius: {this.state.choosenLabel === 0 ? user.radius : this.state.choosenLabel }m
+            Your Radius: {this.state.choosenLabel === 0 ?  this.getMetersIntoMiles(user.radius).toFixed(2) : this.getMetersIntoMiles(this.state.choosenLabel) } miles
           </Text>
           <Text style={[styles.text, {marginTop: '10%'}]}>
-            Max Selection is 15000 m
+            Max Selection is 7.5 miles
           </Text>
         </View>
         <View style= {{flex:1}} >

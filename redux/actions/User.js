@@ -4,11 +4,12 @@ import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
 
 export const updateRadius = (radius) => async (dispatch, getState) => {
+  console.log("here the user radius", radius);
   const { token } = await getUserData();
   const body = {
       query:`
       mutation{
-        updateRadius(radius: ${radius}){
+        updateRadius(radius: ${ parseInt(radius)}){
             firstName
             radius
             lastName

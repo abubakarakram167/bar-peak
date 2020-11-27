@@ -1,9 +1,10 @@
 import { combineReducers } from 'redux';
-import {Fetch_All_Business, FILTERED_BUSINESS, Empty_Business} from '../types'; 
+import {Fetch_All_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating} from '../types'; 
 
 const INITIAL_STATE = {
   businesses: [],
-  filterBusinesses: {}
+  filterBusinesses: {},
+  rating: {}
 };
 
 const businessReducer = (state = INITIAL_STATE, action) => {
@@ -23,7 +24,12 @@ const businessReducer = (state = INITIAL_STATE, action) => {
       return{
         ...state,
         filterBusinesses: {}
-      }  
+      }
+    case ADD_Rating:
+      return {
+        ...state,
+        rating: action.payload
+      }    
     default:
       return state
   }

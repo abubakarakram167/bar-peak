@@ -23,7 +23,7 @@ export const getAllCategories = () => async (dispatch, getState) => {
       'Authorization': `Bearer ${token}`
     } });
     // console.log("the res", res)
-    const allSpecificCategories = res.data.data.getCategories.filter(category => category.type === "main_category")
+    const allSpecificCategories = res.data.data.getCategories
     // console.log("all categories", allSpecificCategories)
     dispatch({
       type: Fetch_Category,

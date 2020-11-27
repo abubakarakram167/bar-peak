@@ -1,4 +1,4 @@
-import {Fetch_All_Business, FILTERED_BUSINESS, Empty_Business} from '../types'; 
+import {Fetch_All_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating} from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
@@ -149,4 +149,11 @@ export const emptyBusiness = () => async (dispatch, getState) => {
   setTimeout(()=>{
     return Promise.resolve('ok');
   }, 2000) 
+}
+
+export const addRating = (data) => async (dispatch, getState) => {
+  dispatch({
+    type: ADD_Rating,
+    payload: data,
+  })
 }

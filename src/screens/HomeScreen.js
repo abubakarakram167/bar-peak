@@ -131,7 +131,8 @@ class HomeScreen extends Component {
       const { vibe } = this.props.vibe.vibe;
       const { category } = this.props.category.category;
       const { user } = this.props.user.user;
-      console.log("the category,", category)
+      const mainCategories = category.length>0 && category.filter(category => category.type === "main_category")
+      
       // console.log("the user in Home screen", user);
       // console.log("caliing ", filterBusinesses);
         return (
@@ -334,7 +335,7 @@ class HomeScreen extends Component {
                         showsHorizontalScrollIndicator={false}
                         style = {{ marginLeft:20 }}
                       >          
-                        { category && category.map(category => {
+                        { mainCategories && mainCategories.map(category => {
                           return(
                             <TouchableOpacity
                               onPress = {()=>{ this.getBusinessByCategory(category.title) }}

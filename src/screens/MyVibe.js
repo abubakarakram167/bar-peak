@@ -188,7 +188,9 @@ class MyVibe extends React.Component{
 
   render(){
     const { category } = this.props.category.category
+    console.log("the category", category)
     const barCategories = category.length>0 && category.filter((category)=> category.type === "sub_bar" );
+    console.log("the bar categories", barCategories)
     return (
       <View style={styles.screen}>
         {  this.state.showFirst  && 
