@@ -560,6 +560,8 @@ class RateModal extends React.Component{
       difficultyGettingIn,
       girlToGuyRatio
     } = this.state;
+    const { vibe } = this.props;
+    console.log("in rating", vibe)
     return(
       <View style={styles.centeredView}>
         <Modal
@@ -594,7 +596,7 @@ class RateModal extends React.Component{
                 <View 
                   style = {styles.ratingComponent} 
                 >
-                  <Text style = { styles.ratingText } >Crowdy:</Text>
+                  <Text style = { styles.ratingText } >{ vibe.crowdedPlace ? "Crowdy:" : "Quiet" }</Text>
                   <Rating 
                     showRating 
                     fractions={0.1} 
@@ -607,7 +609,7 @@ class RateModal extends React.Component{
                 <View 
                   style = {styles.ratingComponent} 
                 >
-                  <Text style = { styles.ratingText } >Difficulty Getting Drink:</Text>
+                  <Text style = { styles.ratingText } > {vibe.crowdedPlace ? "Difficulty Getting Drink:" : " Easy Getting Drink  "}</Text>
                   <Rating 
                     showRating 
                     fractions={0.1} 
@@ -633,7 +635,7 @@ class RateModal extends React.Component{
                 <View 
                   style = {styles.ratingComponent} 
                 >
-                  <Text style = { styles.ratingText }  >Difficulty Getting In:</Text>
+                  <Text style = { styles.ratingText }  >{vibe.crowdedPlace ? "Difficulty Getting in:" : " Easy Getting In  "}</Text>
                   <Rating 
                     showRating 
                     fractions={0.1} 

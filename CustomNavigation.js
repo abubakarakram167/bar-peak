@@ -206,7 +206,8 @@ const HomeTabScreen = () => {
           options = {
           { title: " Setting My Vibe ",
             headerShown: true,
-            headerLeft: () => {return null} 
+            headerLeft: () => {return null},
+            unmountInactiveRoutes: true 
           }}
         />
       </Stack.Navigator>

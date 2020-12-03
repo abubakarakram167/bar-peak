@@ -75,6 +75,21 @@ class radiusScreen extends React.Component{
             <Picker.Item label="6.5" value = { this.getMilesintoMeters(6.5)}  />
             <Picker.Item label="7" value = { this.getMilesintoMeters(7)}  />
             <Picker.Item label="7.5" value = { this.getMilesintoMeters(7.5)}  />
+            <Picker.Item label="8" value = { this.getMilesintoMeters(8)}  />
+            <Picker.Item label="8.5" value = { this.getMilesintoMeters(8.5)}  />
+            <Picker.Item label="9" value = { this.getMilesintoMeters(9)}  />
+            <Picker.Item label="9.5" value = { this.getMilesintoMeters(9.5)}  />
+            <Picker.Item label="10" value = { this.getMilesintoMeters(10)}  />
+            <Picker.Item label="10.5" value = { this.getMilesintoMeters(10.5)}  />
+            <Picker.Item label="11" value = { this.getMilesintoMeters(11)}  />
+            <Picker.Item label="11.5" value = { this.getMilesintoMeters(11.5)}  />
+            <Picker.Item label="12" value = { this.getMilesintoMeters(12)}  />
+            <Picker.Item label="12.5" value = { this.getMilesintoMeters(12.5)}  />
+            <Picker.Item label="13" value = { this.getMilesintoMeters(13)}  />
+            <Picker.Item label="13.5" value = { this.getMilesintoMeters(13.5)}  />
+            <Picker.Item label="14" value = { this.getMilesintoMeters(14)}  />
+            <Picker.Item label="14.5" value = { this.getMilesintoMeters(14.5)}  />
+            <Picker.Item label="15" value = { this.getMilesintoMeters(15)}  />
           </Picker>
           <Text style={[styles.text, { fontWeight: '600' }]}>
             Your Radius: {this.state.choosenLabel === 0 ?  this.getMetersIntoMiles(user.radius).toFixed(2) : this.getMetersIntoMiles(this.state.choosenLabel) } miles

@@ -12,6 +12,7 @@ import { Icon } from 'react-native-elements'
 import _, { map } from 'underscore';
 import { getNullableType } from 'graphql';
 import { SliderBox } from "react-native-image-slider-box";
+import RNRestart from 'react-native-restart';
 var {width, height} = Dimensions.get('window');
 let count = 0;
 
@@ -69,6 +70,8 @@ class MyVibe extends React.Component{
 
   async componentDidMount(){
     this.props.navigation.addListener('focus', async () => {
+      console.log("hrer");
+      // RNRestart.Restart();
       await this.props.getAllCategories();
       this.makeDefaultState();
       this.setState({ showFirst :true })
@@ -133,14 +136,15 @@ class MyVibe extends React.Component{
       const updateVibe = await this.props.updateVibe(vibeData);
       if(updateVibe){
         this.setState({ showIndicator: false })
-        navigation.navigate('Screen 1');
+        // navigation.navigate('Screen 1');
+        navigation.popToTop()
       }
     }
     
   }
 
   getSwipeLableLeft = (index) => {
-    
+    console.log("the index", 0)
     if(index === 0)
       return "nightClub"
     else if(index === 1){
@@ -188,13 +192,14 @@ class MyVibe extends React.Component{
 
   render(){
     const { category } = this.props.category.category
-    console.log("the category", category)
+    // console.log("the category", category)
     const barCategories = category.length>0 && category.filter((category)=> category.type === "sub_bar" );
-    console.log("the bar categories", barCategories)
+    // console.log("the bar categories", barCategories)
     return (
       <View style={styles.screen}>
         {  this.state.showFirst  && 
         <View style = {{ flex: 1 }} >
+          
         { this.state.showSwiper ?
           <Swiper
             cards={ this.state.cards }
@@ -286,6 +291,7 @@ class MyVibe extends React.Component{
                       backgroundColor: 'transparent',
                       borderColor: 'black',
                       color: 'green',
+                      marginTop: 30
                     },
                     wrapper: {
                       flexDirection: 'column',
@@ -302,7 +308,8 @@ class MyVibe extends React.Component{
                     label: {
                       backgroundColor: 'transparent',
                       borderColor: 'black',
-                      color: 'red'
+                      color: 'red',
+                      marginTop: 30
                     },
                     wrapper: {
                       flexDirection: 'column',

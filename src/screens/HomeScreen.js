@@ -53,13 +53,16 @@ class HomeScreen extends Component {
   async componentDidMount(){
     this.props.navigation.addListener('focus', async () => {
       await this.props.emptyBusiness()
+      this.setState({ spinner: true })
       const { coords } = await this.getCurrentLocation();
       const getBusiness =  await this.props.getAllBusiness();
       const getVibe = await this.props.getVibe();
+      this.setState({ spinner: false })
       const isVibeEmpty = _.isEmpty(getVibe);  
       if(isVibeEmpty)
         this.setState({ showModal: true })    
       const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords, null);
+      
       await this.props.getAllCategories();
     })
   }
