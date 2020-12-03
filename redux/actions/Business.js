@@ -51,12 +51,12 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
   const { vibe, user } = getState();
   const actualUser = user.user.user;
   const actualVibe = vibe.vibe.vibe
-  // const { latitude, longitude } = location;
+  const { latitude, longitude } = location;
   // console.log("the location here", latitude);
   // console.log("the location here", longitude);
   // For Testing
-  const latitude = 32.7970465;
-  const longitude = -117.2545220;
+  // const latitude = 32.7970465;
+  // const longitude = -117.2545220;
   let selectedCategory = '' 
 
   let whatPlace = '';
