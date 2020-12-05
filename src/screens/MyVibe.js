@@ -128,7 +128,8 @@ class MyVibe extends React.Component{
       const submitVibe =  await this.props.submitVibe(vibeData)
       if(submitVibe){
         this.setState({ showIndicator: false })
-        navigation.navigate('Screen 1');
+        // navigation.navigate('Screen 1');
+        navigation.popToTop()
       }
     }
     else{

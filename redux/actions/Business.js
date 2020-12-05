@@ -35,7 +35,7 @@ export const getAllBusiness = () => async (dispatch, getState) => {
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-    // console.log("the data", res.data.data.allBusinesses)
+    //  console.log("the data in our database", res.data.data.allBusinesses)
     dispatch({
       type: Fetch_All_Business,
       payload: res.data.data.allBusinesses,
@@ -57,11 +57,13 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
   // For Testing
   // const latitude = 32.7970465;
   // const longitude = -117.2545220;
+  // const latitude =   31.4737;
+  // const longitude =  74.3834;
   let selectedCategory = '' 
 
   let whatPlace = '';
   if(actualVibe.nightLife){
-    whatPlace = "night_club";
+    whatPlace = "nightLife";
     selectedCategory = "nightLife"
   }
   else{
@@ -72,8 +74,8 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
    console.log(`the actual user radius is`, actualUser.radius);   
   if(category !== null){
     if(category === "nightLife"){
-      selectedCategory = "nightLife"
-      whatPlace = "night_club"
+      selectedCategory = category
+      whatPlace = category
     }
     else{
       selectedCategory = actualVibe.barType;
@@ -84,16 +86,27 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
 
   // For Production
   // const { latitude, longitude } = location;
+  // console.log("the actual vibe", actualVibe);
+  console.log("the lotitude", latitude.toFixed(4));
+  console.log("the longitude", longitude.toFixed(4));
+  // console.log("the axios url", process.env.NODE_ENV);
   console.log("the actual vibe", actualVibe);
-  
   try{ 
-    const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${actualUser.radius}&type=${whatPlace}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
+    
+    // console.log(`radius is ${actualUser.radius} and place is ${whatPlace} `)
+    // const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude.toFixed(4)},${longitude.toFixed(4)}&radius=${actualUser.radius}&type=${whatPlace}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
+    const res = await axios.get(`getGoogleMapsResults?business_type=${whatPlace}&lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}&radius=${actualUser.radius}`);
+    console.log("the res length ", res.data.length);
+    
     let specificPlaces = data.map(business => business.placeId);
-  
-    const filteredBusiness = res.data.results.filter((business)=>{
+    
+    // console.log("the specific places", specificPlaces);
+    // let googlePlaces = res.data.results.map(business => business.place_id);
+    // console.log("the places in google", googlePlaces);
+    const filteredBusiness = res.data.filter((business)=>{
       return(specificPlaces.includes(business.place_id));
     })
-
+  
     // console.log("the filtered busines", filteredBusiness);
     
     let filterCategoryBusinessVibe = {

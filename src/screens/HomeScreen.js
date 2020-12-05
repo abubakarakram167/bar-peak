@@ -92,6 +92,7 @@ class HomeScreen extends Component {
     }
 
     let location = await Location.getCurrentPositionAsync({});
+    console.log("he the location etting", location);
     return location;
   }
     
@@ -215,7 +216,7 @@ class HomeScreen extends Component {
                               <Text
                                 style = {{ textAlign: 'center' ,paddingLeft: 18, paddingRight: 18 ,paddingTop:8, paddingBottom:8, fontSize:14, fontWeight: '600'}} 
                               >
-                                Explore Nearby
+                                Explore Nearby 
                               </Text>
                             </TouchableOpacity>
                           </View>
@@ -303,7 +304,7 @@ class HomeScreen extends Component {
                         <FlatList
                           data={ filterBusinesses.badSpots }
                           renderItem={({item}) => {
-                          //  console.log("the render item", item);
+                            console.log("the render item", item);
                             return(
                               <TouchableOpacity
                                 onPress = {()=>{ 
