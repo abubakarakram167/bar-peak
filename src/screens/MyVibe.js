@@ -10,9 +10,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'react-native-elements'
 import _, { map } from 'underscore';
-import { getNullableType } from 'graphql';
-import { SliderBox } from "react-native-image-slider-box";
-import RNRestart from 'react-native-restart';
+import {getfilteredBusiness, emptyBusiness} from '../../redux/actions/Business';
 var {width, height} = Dimensions.get('window');
 let count = 0;
 
@@ -135,10 +133,13 @@ class MyVibe extends React.Component{
     else{
       console.log("in updating vibe")
       const updateVibe = await this.props.updateVibe(vibeData);
-      if(updateVibe){
-        this.setState({ showIndicator: false })
-        // navigation.navigate('Screen 1');
-        navigation.popToTop()
+        
+        if(updateVibe){
+          this.setState({ showIndicator: false })
+        await this.props.emptyBusiness()
+        this.props.getfilteredBusiness(null);  
+        navigation.navigate('Screen 1');
+        // navigation.popToTop()
       }
     }
     
@@ -419,7 +420,9 @@ const mapDispatchToProps = dispatch => (
   bindActionCreators({
     submitVibe,
     updateVibe,
-    getAllCategories
+    getAllCategories,
+    getfilteredBusiness,
+    emptyBusiness
   }, dispatch)
 );
 

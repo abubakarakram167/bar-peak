@@ -46,21 +46,22 @@ export const getAllBusiness = () => async (dispatch, getState) => {
   }
 };
 
-export const getfilteredBusiness = (data, location, category) => async (dispatch, getState) => {
+export const getfilteredBusiness = ( category) => async (dispatch, getState) => {
 
-  const { vibe, user } = getState();
-  const actualUser = user.user.user;
-  const actualVibe = vibe.vibe.vibe
-  const { latitude, longitude } = location;
-  // console.log("the location here", latitude);
-  // console.log("the location here", longitude);
+  const { vibe, user, business } = getState();
+  const data = business.business.businesses;
+  const { radius } = user.user.user;
+  const actualVibe = vibe.vibe.vibe;
+  const { latitude, longitude } = user.user.location;
+  
+  console.log("the radius", radius)
+
   // For Testing
   // const latitude = 32.7970465;
   // const longitude = -117.2545220;
   // const latitude =   31.4737;
   // const longitude =  74.3834;
   let selectedCategory = '' 
-
   let whatPlace = '';
   if(actualVibe.nightLife){
     whatPlace = "nightLife";
@@ -69,9 +70,7 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
   else{
     selectedCategory = actualVibe.barType;
     whatPlace = "bar"
-  }
-   console.log(`the selectedCategory ${selectedCategory} and whatplace is ${whatPlace} and category is ${category}`);
-   console.log(`the actual user radius is`, actualUser.radius);   
+  } 
   if(category !== null){
     if(category === "nightLife"){
       selectedCategory = category
@@ -83,31 +82,14 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
     }
   }
     
-
-  // For Production
-  // const { latitude, longitude } = location;
-  // console.log("the actual vibe", actualVibe);
-  console.log("the lotitude", latitude.toFixed(4));
-  console.log("the longitude", longitude.toFixed(4));
-  // console.log("the axios url", process.env.NODE_ENV);
-  console.log("the actual vibe", actualVibe);
   try{ 
     
-    // console.log(`radius is ${actualUser.radius} and place is ${whatPlace} `)
-    // const res = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude.toFixed(4)},${longitude.toFixed(4)}&radius=${actualUser.radius}&type=${whatPlace}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`);
-    const res = await axios.get(`getGoogleMapsResults?business_type=${whatPlace}&lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}&radius=${actualUser.radius}`);
-    console.log("the res length ", res.data.length);
-    
+    const res = await axios.get(`getGoogleMapsResults?business_type=${whatPlace}&lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}&radius=${radius}`); 
     let specificPlaces = data.map(business => business.placeId);
     
-    // console.log("the specific places", specificPlaces);
-    // let googlePlaces = res.data.results.map(business => business.place_id);
-    // console.log("the places in google", googlePlaces);
     const filteredBusiness = res.data.filter((business)=>{
       return(specificPlaces.includes(business.place_id));
     })
-  
-    // console.log("the filtered busines", filteredBusiness);
     
     let filterCategoryBusinessVibe = {
       goodSpots: [],
@@ -116,11 +98,8 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
     };
     
     filteredBusiness.map((googleBusiness)=>{
-      // console.log("the googleBusiness", googleBusiness);
       data.map(business => {
-        // console.log("the business", business);
         if(googleBusiness.place_id === business.placeId && business.ageInterval === actualVibe.ageInterval && selectedCategory === business.category.title){
-          // console.log("geting.......", business)
           if(actualVibe.crowdedPlace){
             if(business.rating.crowd > 7.1 && business.rating.crowd < 10){
               filterCategoryBusinessVibe.goodSpots.push(googleBusiness)
@@ -146,10 +125,6 @@ export const getfilteredBusiness = (data, location, category) => async (dispatch
         }
       })
     })
-    // console.log("the filtered business we want", filteredBusiness);
-
-   
-  
     dispatch({
       type: FILTERED_BUSINESS,
       payload: filterCategoryBusinessVibe,

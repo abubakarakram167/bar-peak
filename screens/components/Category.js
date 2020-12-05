@@ -9,16 +9,16 @@ import {
 class Category extends Component {
     render() {
         return (
-            <View style={[styles.categoryItem, { width: this.props.width * 0.65, height: this.props.height * 0.5 }]}>
-                <View style={{ flex:1 }}>
-                    <Image 
-                      source={ { uri: this.props.imageUri }}
-                      style = {styles.categoryImage}
-                    />
-                </View>
-                <View style={{ flex: 1, paddingLeft: 0, paddingTop: 10 }}>
-                    <Text style = {{ fontWeight:'700' }} >{this.props.name}</Text>
-                </View>
+            <View style={[styles.categoryItem, { width: this.props.width * 0.65, height: this.props.height * 0.32 }]}>
+              <View style = {{ paddingHorizontal: 0 }}>
+                  <Image 
+                    source={ { uri: this.props.imageUri }}
+                    style = {[styles.categoryImage, {width: this.props.width *0.65, height: this.props.height * 0.25 }]}
+                  />
+              </View>
+              <View style={{ paddingLeft: 0, paddingTop: 10 }}>
+                  <Text style = {{ fontWeight:'700' }} >{this.props.name}</Text>
+              </View>
             </View>
         );
     }
@@ -33,12 +33,9 @@ const styles = StyleSheet.create({
     },
     categoryItem: { 
       marginLeft: 10, 
-      borderColor: '#dddddd',
+      borderColor: '#dddddd'
     },
     categoryImage: { 
-      flex: 1,
-      width: null,
-      height: null, 
       resizeMode: 'cover',
       borderRadius:8,
       borderWidth:1 

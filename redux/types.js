@@ -7,3 +7,4 @@ export const Update_Radius = 'Update_Radius';
 export const Fetch_User = 'Fetch_User';
 export const Fetch_Category = 'Fetch_Category';
 export const ADD_Rating = 'ADD_Rating';
+export const SET_LOCATION = 'SET_LOCATION'

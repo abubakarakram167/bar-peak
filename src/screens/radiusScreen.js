@@ -15,7 +15,8 @@ import {
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
+import Spinner from 'react-native-loading-spinner-overlay';
+import {getfilteredBusiness, emptyBusiness} from '../../redux/actions/Business';
 const milesArray = [0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8];
 
 class radiusScreen extends React.Component{
@@ -25,7 +26,8 @@ class radiusScreen extends React.Component{
     super(props);
     this.state = {
       choosenLabel: 0,
-      chooseIndex: 500
+      chooseIndex: 500,
+      spinner: false
     }
   }
 
@@ -38,8 +40,8 @@ class radiusScreen extends React.Component{
 
   render(){
     const { navigation } = this.props;
-    const { user } = this.props.user.user;
-    console.log("the user", user)
+    const { user, radius } = this.props.user.user;
+    console.log("the radius", radius)
     return(
       <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
@@ -51,7 +53,7 @@ class radiusScreen extends React.Component{
             The Radius ensures that in how much km you gonna see your results.
           </Text>
           <Picker
-            selectedValue={this.state.choosenLabel === 0 ? user.radius : this.state.choosenLabel }
+            selectedValue={this.state.choosenLabel === 0 ? radius : this.state.choosenLabel }
             onValueChange={(itemValue, itemIndex) => {
               console.log("the item value", itemValue);
               this.setState(
@@ -92,7 +94,7 @@ class radiusScreen extends React.Component{
             <Picker.Item label="15" value = { this.getMilesintoMeters(15)}  />
           </Picker>
           <Text style={[styles.text, { fontWeight: '600' }]}>
-            Your Radius: {this.state.choosenLabel === 0 ?  this.getMetersIntoMiles(user.radius).toFixed(2) : this.getMetersIntoMiles(this.state.choosenLabel) } miles
+            Your Radius: {this.state.choosenLabel === 0 ?  this.getMetersIntoMiles(radius).toFixed(2) : this.getMetersIntoMiles(this.state.choosenLabel) } miles
           </Text>
           <Text style={[styles.text, {marginTop: '10%'}]}>
             Max Selection is 7.5 miles
@@ -100,13 +102,26 @@ class radiusScreen extends React.Component{
         </View>
         <View style= {{flex:1}} >
           <TouchableOpacity 
-            onPress = {async ()=>{ 
-              const data =   await this.props.updateRadius(this.state.choosenLabel)
+            onPress = {async ()=>{
+              this.setState({ spinner: true }) 
+              await this.props.updateRadius(this.state.choosenLabel)
+              await this.props.emptyBusiness()
+              this.setState({ spinner: false }) 
               navigation.navigate("Screen 1") 
+              this.props.getfilteredBusiness(null);  
+              
+              // navigation.popToTop()
             }}
           >
             <Text style = {{ alignSelf: 'center' , fontSize: 25, color: '#3fa1bf'}} >Done</Text>
           </TouchableOpacity>
+        </View>
+        <View style={styles.spinnerContainer}>
+          <Spinner
+            visible={this.state.spinner}
+            textContent={'Loading...'}
+            textStyle={styles.spinnerTextStyle}
+          />
         </View>
         {/*Text to show selected picker value*/}
         </View>
@@ -194,6 +209,9 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
     fontSize: 20,
     textAlign: 'center'
+  },
+  spinnerTextStyle: {
+    color: '#FFF'
   }
 });
 
@@ -206,6 +224,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
     updateRadius,
+    emptyBusiness,
+    getfilteredBusiness
   }, dispatch)
 );
 

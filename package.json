@@ -91,6 +91,7 @@
     "redux-thunk": "^2.3.0",
     "rn-bottom-drawer": "^1.4.3",
     "rn-sliding-up-panel": "^2.4.3",
+    "sharp-cli": "^1.14.1",
     "underscore": "^1.11.0",
     "yup": "^0.29.3"
   },

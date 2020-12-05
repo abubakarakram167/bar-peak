@@ -26,6 +26,7 @@ import {getfilteredBusiness} from '../../redux/actions/Business';
 import {getVibe} from '../../redux/actions/Vibe';
 import {emptyBusiness} from '../../redux/actions/Business';
 import { getAllCategories } from '../../redux/actions/Category';
+import { setUserLocation } from '../../redux/actions/User';
 import { removeStorageItem } from '../components/localStorage'; 
 import * as Location from 'expo-location';
 import ShowPopupModal from '../components/popUpModal';
@@ -51,28 +52,23 @@ class HomeScreen extends Component {
   }
 
   async componentDidMount(){
-    this.props.navigation.addListener('focus', async () => {
-      await this.props.emptyBusiness()
-      this.setState({ spinner: true })
-      const { coords } = await this.getCurrentLocation();
-      const getBusiness =  await this.props.getAllBusiness();
-      const getVibe = await this.props.getVibe();
-      this.setState({ spinner: false })
-      const isVibeEmpty = _.isEmpty(getVibe);  
-      if(isVibeEmpty)
-        this.setState({ showModal: true })    
-      const getfilteredBusiness = await this.props.getfilteredBusiness(getBusiness, coords, null);
-      
-      await this.props.getAllCategories();
-    })
+    await this.props.emptyBusiness()
+    this.setState({ spinner: true })
+    const [location, getBusiness, getVibe] = await Promise.all([this.getCurrentLocation(), this.props.getAllBusiness(), this.props.getVibe()])
+    const { coords } = location;
+    await this.props.setUserLocation(coords);
+    this.setState({ spinner: false })
+    const isVibeEmpty = _.isEmpty(getVibe);  
+    if(isVibeEmpty)
+      this.setState({ showModal: true })    
+    await this.props.getfilteredBusiness(null);
+    await this.props.getAllCategories();
   }
 
   getBusinessByCategory = async(category) => {
     this.setState({ spinner: true })
     const { navigation } = this.props;
-    const { coords } = await this.getCurrentLocation();
-    const getBusiness =  await this.props.getAllBusiness();
-    await this.props.getfilteredBusiness(getBusiness, coords, category);
+    await this.props.getfilteredBusiness(category);
     this.setState({ spinner: false })
     navigation.navigate('MapScreen',{
       category
@@ -209,7 +205,7 @@ class HomeScreen extends Component {
                           <View style  = {{ borderRadius:10, borderWidth:1 , backgroundColor: 'white'}} >
                             <TouchableOpacity 
                               onPress = {()=> navigation.navigate('MapScreen',{
-                                businessData: vibe.crowdedPlace ? filterBusinesses.crowded : filterBusinesses.unCrowded,
+                                businessData: filterBusinesses.goodSpots,
                                 showGreen:true
                               })} 
                             > 
@@ -281,7 +277,7 @@ class HomeScreen extends Component {
                       </View>
                     }
                   </View>
-                  <View style={{ marginTop: 40 }}>
+                  <View style={{ marginTop: 20 }}>
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
                       <View style = {{flex: 4}} >
                         <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
@@ -329,15 +325,15 @@ class HomeScreen extends Component {
                     </View>
                     }
                   </View>  
-                  <View style={{ flex: 1, paddingTop: 20 }}>
+                  <View style={{  paddingTop: 20 }}>
                     <Text style={{ fontSize: 22, fontWeight: '700', paddingHorizontal: 18 }}>
                       What can we help you find, {user.firstName}
                     </Text>
-                    <View style={{ marginTop: 15 }}>    
+                    <View style={{ marginTop: 15}}>    
                       <ScrollView
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
-                        style = {{ marginLeft:20 }}
+                        style = {{ marginLeft:20, borderWidth: 0 }}
                       >          
                         { mainCategories && mainCategories.map(category => {
                           return(
@@ -380,7 +376,8 @@ const mapDispatchToProps = dispatch => (
     getfilteredBusiness,
     getVibe,
     emptyBusiness,
-    getAllCategories
+    getAllCategories,
+    setUserLocation
   }, dispatch)
 );
 

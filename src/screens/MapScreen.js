@@ -144,7 +144,7 @@ class MapScreen extends React.Component{
 
   render(){
     const route = this.props.route;
-    const {category} = route.params;
+    const {category} = route.params
     // console.log("the category", category);
     return(
       <View style={styles.container}>

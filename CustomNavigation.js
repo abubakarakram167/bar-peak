@@ -60,7 +60,7 @@ function HomeApp() {
         return{
           tabBarVisible: true,
           tabBarLabel: 'Home',
-          unmountOnBlur: true,
+          unmountOnBlur: false,
           tabBarIcon: ({ tintColor }) => (
             <Icon
              name='ios-home'
@@ -96,6 +96,7 @@ function HomeApp() {
       {
         {
           tabBarLabel: 'My Vibe',
+          unmountOnBlur: true,
           tabBarIcon: ({ tintColor }) => (
             <Icon 
               name="ios-settings"

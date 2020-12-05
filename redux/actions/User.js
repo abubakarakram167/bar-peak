@@ -1,4 +1,4 @@
-import { Update_Radius, Fetch_User } from '../types'; 
+import { Update_Radius, Fetch_User, SET_LOCATION } from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
@@ -25,7 +25,7 @@ export const updateRadius = (radius) => async (dispatch, getState) => {
     } });
     dispatch({
       type: Update_Radius,
-      payload: res.data.data.updateRadius,
+      payload: res.data.data.updateRadius.radius,
     })
     return Promise.resolve('ok');
   }catch(err){
@@ -61,4 +61,11 @@ export const getUser = () => async (dispatch, getState) => {
   }catch(err){
     console.log("hte errorsss", err.response.data)
   }
+}
+
+export const setUserLocation = (data) => async (dispatch, getState) => {
+  dispatch({
+    type: SET_LOCATION,
+    payload: data,
+  })
 }
