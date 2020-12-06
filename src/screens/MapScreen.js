@@ -91,7 +91,7 @@ class MapScreen extends React.Component{
       averageSpotMarkers,
       badSpotMarkers,  
       allMarkers: goodSpotMarkers.concat(averageSpotMarkers, badSpotMarkers)
-    }, ()=>{ console.log(" the state concat ",this.state ) })
+    })
   }
 
   renderDollar = (priceLevel) => {
@@ -116,10 +116,8 @@ class MapScreen extends React.Component{
     const item = {
       place_id: marker.placeId
     };
-    console.log("the marker before", marker)
     const { businesses } = this.props.business.business;
     const selectedBusiness = businesses.filter( (business) => business.placeId === item.place_id )[0]
-    console.log("the selected Business", selectedBusiness);
     this.setState({ selectedItem: item, showProfileModal: true, selectedBusiness });
   }
 
@@ -130,7 +128,6 @@ class MapScreen extends React.Component{
   }
 
   markerClick = (marker, index) => {
-     console.log("the marker selected", marker)
     let selectedMarker = {
       image: marker.image,
       rating: marker.rating,
@@ -145,7 +142,6 @@ class MapScreen extends React.Component{
   render(){
     const route = this.props.route;
     const {category} = route.params
-    // console.log("the category", category);
     return(
       <View style={styles.container}>
         <MapView

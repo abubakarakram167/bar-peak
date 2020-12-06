@@ -52,13 +52,11 @@ export const getfilteredBusiness = ( category) => async (dispatch, getState) => 
   const data = business.business.businesses;
   const { radius } = user.user.user;
   const actualVibe = vibe.vibe.vibe;
-  const { latitude, longitude } = user.user.location;
+  let { latitude, longitude } = user.user.location;
   
-  console.log("the radius", radius)
-
   // For Testing
-  // const latitude = 32.7970465;
-  // const longitude = -117.2545220;
+  //  latitude = 32.7970465;
+  //  longitude = -117.2545220;
   // const latitude =   31.4737;
   // const longitude =  74.3834;
   let selectedCategory = '' 
@@ -83,7 +81,6 @@ export const getfilteredBusiness = ( category) => async (dispatch, getState) => 
   }
     
   try{ 
-    
     const res = await axios.get(`getGoogleMapsResults?business_type=${whatPlace}&lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}&radius=${radius}`); 
     let specificPlaces = data.map(business => business.placeId);
     

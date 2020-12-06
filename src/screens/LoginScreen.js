@@ -58,7 +58,6 @@ import AlertComponent from '../components/AlertComponent';
 
     
     axios.post(`graphql?`,body).then((res)=>{
-      console.log("in login", res.data.data.login)
       if(res.data.data.login){
         storeUserData(res.data.data.login).then(async() => {
           this.setState({ spinner: false });
@@ -68,7 +67,6 @@ import AlertComponent from '../components/AlertComponent';
         })
       }
     }).catch(err => {
-        console.log("the login error", err.response.data)
         const {errors} =  err.response.data; 
         const { message } = errors[0]; 
         this.setState({ spinner: false, message, showError: true })

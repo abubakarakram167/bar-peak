@@ -15,6 +15,17 @@ import {
     TouchableOpacity,
     ActivityIndicator 
 } from "react-native";
+import {
+  BallIndicator,
+  BarIndicator,
+  DotIndicator,
+  MaterialIndicator,
+  PacmanIndicator,
+  PulseIndicator,
+  SkypeIndicator,
+  UIActivityIndicator,
+  WaveIndicator,
+} from 'react-native-indicators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -54,10 +65,12 @@ class HomeScreen extends Component {
   async componentDidMount(){
     await this.props.emptyBusiness()
     this.setState({ spinner: true })
-    const [location, getBusiness, getVibe] = await Promise.all([this.getCurrentLocation(), this.props.getAllBusiness(), this.props.getVibe()])
+    const [location, getBusiness, getVibe] = await Promise.all([this.getCurrentLocation(), this.props.getAllBusiness(), this.props.getVibe()]) 
     const { coords } = location;
     await this.props.setUserLocation(coords);
-    this.setState({ spinner: false })
+    setTimeout(()=> {  
+      this.setState({ spinner: false })
+    }, 2000)
     const isVibeEmpty = _.isEmpty(getVibe);  
     if(isVibeEmpty)
       this.setState({ showModal: true })    
@@ -87,8 +100,9 @@ class HomeScreen extends Component {
       setErrorMsg('Permission to access location was denied');
     }
 
-    let location = await Location.getCurrentPositionAsync({});
-    console.log("he the location etting", location);
+    let location = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.Balanced
+    });
     return location;
   }
     
@@ -128,6 +142,7 @@ class HomeScreen extends Component {
     render() {
       const { navigation } = this.props;
       const { filterBusinesses } = this.props.business.business;
+      console.log("the filer Business", filterBusinesses)
       const { vibe } = this.props.vibe.vibe;
       const { category } = this.props.category.category;
       const { user } = this.props.user.user;
@@ -220,13 +235,17 @@ class HomeScreen extends Component {
                       </View>
                     </View>
                   </Animated.View>
-                  <View style={styles.spinnerContainer}>
-                    <Spinner
-                      visible={this.state.spinner}
-                      textContent={'Loading...'}
-                      textStyle={styles.spinnerTextStyle}
-                    />
-                  </View>
+                    { this.state.spinner &&
+                    <View style={[styles.spinnerContainer, styles.overlaycontainer]}>
+                      {/* <Spinner
+                        visible={this.state.spinner}
+                        textStyle={styles.spinnerTextStyle}
+                        animation = {"fade"}
+                        color = "gray"
+                      /> */}
+                      <SkypeIndicator animationDuration = {1000} style = {{ zIndex:10 }} color='#e31743' size = {100} />
+                    </View>
+                    }             
                   <View style={{ marginTop: 40 }}>
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
                       <View style = {{flex: 4}} >
@@ -300,7 +319,6 @@ class HomeScreen extends Component {
                         <FlatList
                           data={ filterBusinesses.badSpots }
                           renderItem={({item}) => {
-                            console.log("the render item", item);
                             return(
                               <TouchableOpacity
                                 onPress = {()=>{ 
@@ -424,5 +442,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333333',
     marginBottom: 5
+  },
+  spinnerContainer: {
+    position: 'absolute',
+    top: '15%',
+    left: '35%'
+  },
+  overlaycontainer:{
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+    opacity:0.4,
+    justifyContent:"center",
+    alignItems:"center",
+    zIndex: 3 
   }
 });
