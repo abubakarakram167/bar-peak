@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { Update_Radius, Fetch_User, SET_LOCATION } from '../types'; 
+import { Update_Radius, Fetch_User, SET_LOCATION , update_User} from '../types'; 
 
 const INITIAL_STATE = {
   user:{},
@@ -20,6 +20,11 @@ const userReducer = (state = INITIAL_STATE, action) => {
         user: action.payload,
         radius: action.payload.radius
       }
+    case update_User:
+      return{
+        ...state,
+        user: action.payload
+      }  
     case SET_LOCATION:
       return{
         ...state,

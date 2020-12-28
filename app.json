@@ -6,8 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/barPeakLogo.png",
     "splash": {
-      "image": "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png",
-      "backgroundColor": "#1e2c31"
+      "image": "./assets/splashtest.png",
+      "backgroundColor": "white",
+      "resizeMode": "cover"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -20,15 +21,19 @@
       "config": {
         "googleMapsApiKey": "AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM"
       },
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.3",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "This app use the user gallery to access their photos so you can upload their photo to your profile account.",
+        "NSLocationWhenInUseUsageDescription": "This allow us to use your location to suggest you the best bars and night spots you could entertain yourself. Through this you can get the accurate results."
+      }
     },
     "android": {
-      "package": "com.ultrastream.ultrastream"
+      "package": "com.BarPeak"
     },
     "web": {
       "favicon": "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png"
     },
-    "description": "",
+    "description": "Bar Peak is for you to find places like bars and night clubs near around you . No matter you gonna do party with your girl or boy . You can always have the pleasure of nightclubs, bars, and restaurants just using your location without hassle-free.",
     "platforms": [
       "ios",
       "android",

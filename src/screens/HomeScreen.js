@@ -16,15 +16,7 @@ import {
     ActivityIndicator 
 } from "react-native";
 import {
-  BallIndicator,
-  BarIndicator,
-  DotIndicator,
-  MaterialIndicator,
-  PacmanIndicator,
-  PulseIndicator,
   SkypeIndicator,
-  UIActivityIndicator,
-  WaveIndicator,
 } from 'react-native-indicators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -32,18 +24,16 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import Category from '../../screens/components/Category'
 import Home from '../../screens/components/Home'
 import Tag from '../../screens/components/Tag'
-import {getAllBusiness} from '../../redux/actions/Business';
+import { getNearLocationBusiness } from '../../redux/actions/Business';
 import {getfilteredBusiness} from '../../redux/actions/Business';
 import {getVibe} from '../../redux/actions/Vibe';
 import {emptyBusiness} from '../../redux/actions/Business';
 import { getAllCategories } from '../../redux/actions/Category';
 import { setUserLocation } from '../../redux/actions/User';
-import { removeStorageItem } from '../components/localStorage'; 
 import * as Location from 'expo-location';
 import ShowPopupModal from '../components/popUpModal';
 import _, { map } from 'underscore';
 import Modal from '../components/Modal';
-import Spinner from 'react-native-loading-spinner-overlay';
 
 const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
@@ -65,12 +55,12 @@ class HomeScreen extends Component {
   async componentDidMount(){
     await this.props.emptyBusiness()
     this.setState({ spinner: true })
-    const [location, getBusiness, getVibe] = await Promise.all([this.getCurrentLocation(), this.props.getAllBusiness(), this.props.getVibe()]) 
+    const location = await this.getCurrentLocation() 
     const { coords } = location;
-    await this.props.setUserLocation(coords);
+    const [getVibe] = await Promise.all([ this.props.getVibe(), this.props.getNearLocationBusiness(coords), this.props.setUserLocation(coords)]) 
     setTimeout(()=> {  
       this.setState({ spinner: false })
-    }, 2000)
+    }, 1000)
     const isVibeEmpty = _.isEmpty(getVibe);  
     if(isVibeEmpty)
       this.setState({ showModal: true })    
@@ -142,7 +132,6 @@ class HomeScreen extends Component {
     render() {
       const { navigation } = this.props;
       const { filterBusinesses } = this.props.business.business;
-      console.log("the filer Business", filterBusinesses)
       const { vibe } = this.props.vibe.vibe;
       const { category } = this.props.category.category;
       const { user } = this.props.user.user;
@@ -186,6 +175,17 @@ class HomeScreen extends Component {
 
                     </Animated.View>
                 </Animated.View>
+                { this.state.spinner &&
+                    <View style={[styles.spinnerContainer, styles.overlaycontainer]}>
+                      {/* <Spinner
+                        visible={this.state.spinner}
+                        textStyle={styles.spinnerTextStyle}
+                        animation = {"fade"}
+                        color = "gray"
+                      /> */}
+                      <SkypeIndicator animationDuration = {1000} style = {{ zIndex:10 }} color='#f50202' size = {100} />
+                    </View>
+                    }    
                 <ScrollView
                   scrollEventThrottle={16}
                   style = {{flex: 1}}
@@ -227,25 +227,14 @@ class HomeScreen extends Component {
                               <Text
                                 style = {{ textAlign: 'center' ,paddingLeft: 18, paddingRight: 18 ,paddingTop:8, paddingBottom:8, fontSize:14, fontWeight: '600'}} 
                               >
-                                Explore Nearby 
+                                Explore's Nearby
                               </Text>
                             </TouchableOpacity>
                           </View>
                         </View>
                       </View>
                     </View>
-                  </Animated.View>
-                    { this.state.spinner &&
-                    <View style={[styles.spinnerContainer, styles.overlaycontainer]}>
-                      {/* <Spinner
-                        visible={this.state.spinner}
-                        textStyle={styles.spinnerTextStyle}
-                        animation = {"fade"}
-                        color = "gray"
-                      /> */}
-                      <SkypeIndicator animationDuration = {1000} style = {{ zIndex:10 }} color='#e31743' size = {100} />
-                    </View>
-                    }             
+                  </Animated.View>         
                   <View style={{ marginTop: 40 }}>
                     <View style = {{ flex: 1, flexDirection: 'row' }} >
                       <View style = {{flex: 4}} >
@@ -390,7 +379,7 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
-    getAllBusiness,
+    getNearLocationBusiness,
     getfilteredBusiness,
     getVibe,
     emptyBusiness,
@@ -444,14 +433,15 @@ const styles = StyleSheet.create({
     marginBottom: 5
   },
   spinnerContainer: {
-    position: 'absolute',
-    top: '15%',
+    position: 'relative',
+    top: '0%',
+    bottom:'40%',
     left: '35%'
   },
   overlaycontainer:{
     ...StyleSheet.absoluteFillObject,
     backgroundColor: '#000',
-    opacity:0.4,
+    opacity:0.3,
     justifyContent:"center",
     alignItems:"center",
     zIndex: 3 

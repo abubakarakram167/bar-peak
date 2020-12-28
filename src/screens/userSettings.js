@@ -29,7 +29,9 @@ class UserSettings extends React.Component{
         <View style = {{ marginTop: 50}} >
           <View style ={{ flexDirection: 'row'}} >
             <View style = {{ flex: 5 }} >
-              <Text style = {styles.headingText} > Personal Information </Text>
+              <TouchableOpacity onPress = {()=> { navigation.navigate('editProfileScreen') }} >
+                <Text style = {styles.headingText} > Edit Profile </Text>
+              </TouchableOpacity> 
             </View>
             <View style ={{ flex:1 }} >
               <Icon 

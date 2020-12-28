@@ -64,7 +64,7 @@ import { bindActionCreators } from 'redux';
         <Image
           style = { styles.imageStyle }
           resize = "contain"
-          source = {{ uri: "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png" }}
+          source = { require('../../assets/splashtest.png') }
         />
         <View >
           <ActivityIndicator size="large" color="#7D837D" />

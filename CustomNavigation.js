@@ -11,10 +11,13 @@ import Screen2 from "./screens/Screen2";
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import vibeInfoComponent from "./src/screens/vibeInfoScreen";
 import radiusScreen from "./src/screens/radiusScreen";
+import editProfileScreen from "./src/screens/EditProfile";
+import AnimatingScreen from './src/screens/AnimatedText';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import { Icon } from 'react-native-elements'
 import { Image } from 'react-native'
 import RadiusScreen from "./src/screens/radiusScreen";
+import EditProfile from "./src/screens/EditProfile";
 const Tab = createBottomTabNavigator();
 
 
@@ -72,7 +75,7 @@ function HomeApp() {
         }      
       }}
     />
-    <Tab.Screen
+    {/* <Tab.Screen
       name="Screen 2"
       component={SecondScreenNavigator}  // Replaced Screen 2
       options = 
@@ -88,7 +91,7 @@ function HomeApp() {
           )
         }
       }
-    />
+    /> */}
     <Tab.Screen
       name="vibeTabNavigator"
       component={MyVibeTab}  // Replaced Screen 3
@@ -243,6 +246,15 @@ const HomeTabScreen = () => {
           component={radiusScreen}
           options = {
           { title: "Select Radius",
+            headerShown: true,
+           
+          }}
+        />
+        <Stack.Screen
+          name="editProfileScreen"
+          component={editProfileScreen}
+          options = {
+          { title: "Edit Profile",
             headerShown: true,
            
           }}

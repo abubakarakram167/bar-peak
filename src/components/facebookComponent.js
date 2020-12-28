@@ -72,6 +72,8 @@ export default function App(props) {
                       lastName
                       email
                       dob
+                      gender
+                      accountType
                     }
                   }
                 }

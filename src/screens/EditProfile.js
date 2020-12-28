@@ -3,16 +3,14 @@ import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text, KeyboardAvo
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment';
 import Spinner from 'react-native-loading-spinner-overlay';
-import axios from '../api/axios';
-import {storeUserData} from '../components/localStorage';
-import { showMessage, hideMessage } from "react-native-flash-message";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import RNPickerSelect from 'react-native-picker-select';  
-import { getUser } from '../../redux/actions/User';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AlertComponent from '../components/AlertComponent';
-import DatePicker from './DatePicker';
+import { removeStorageItem } from '../components/localStorage';
+import { updateUser } from '../../redux/actions/User';
+import ImageUploader from '../components/ImageUploader';
 
 const shadowOpt = {
   width:160,
@@ -52,21 +50,31 @@ class SignUpComponent extends React.Component {
       lastName: "",
       showAlert: true,
       message: "",
-      showError: false
+      showError: false,
+      gender: "",
+      password: ""
     }
 	}
 
 	componentDidMount(){
-    console.log("the passing data", this.props.user );
-
-    if(this.props.user){
-      const {email, name } = this.props.user;
-      this.setState({ email, firstName: name.split(' ')[0], lastName: name.split(' ')[1] })
-    }
+    const { user } = this.props.user.user;
+    console.log("the user", user);
+    this.setState({
+      date: user.dob,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      gender: user.gender
+    })
   }
   
   onChangeText = (key, val) => {
     this.setState({ [key]: val })
+  }
+
+  makeLogout = () => {
+    const { navigation } = this.props
+    removeStorageItem(navigation);
   }
 
   changeDate = (date) => {
@@ -75,68 +83,38 @@ class SignUpComponent extends React.Component {
     console.log("the date", moment(date).format("YYYY-MM-DD"))
   }
 
-  signUp = () => {
+  updateUser = async() => {
     this.setState({ spinner: true })
-    const {navigation} = this.props;
-    let password = this.props.user ? "asdfg" : this.state.password;
-    let accountType = this.props.user ? 'social' : "app";
-    console.log("the date", this.state.date)
-    console.log("on sigunup", this.state);
-    
-    const body = {
-      query: `
-      mutation{
-        createUser(userInput: {email: "${this.state.email}",
-        firstName: "${this.state.firstName}", lastName: "${this.state.lastName}", 
-        password: "${password}", dob: "${this.state.date}", accountType: "${accountType}"})
-        {
-          token
-          user{
-            _id
-            firstName
-            radius
-            lastName
-            email
-            dob
-          }
-        }
-      }
-      `
+    const {navigation} = this.props;    
+    console.log("this.state", this.state)
+   try{
+    const isPasswordChange =  await this.props.updateUser(this.state)
+    console.log("is passwordChange", isPasswordChange)
+    if(isPasswordChange)
+      this.makeLogout()
+    else{
+      navigation.navigate('Screen 1')  
     }
-    
-    axios.post('graphql?',body).then( async (res)=>{
-      console.log("after sign up", res.data.data);
-      if(res.data.data.createUser){
-        storeUserData(res.data.data.createUser)
-        this.setState({ spinner: false })
-        this.props.closeModal();
-        const user = await this.props.getUser();
-        if(user === 'ok')
-          navigation.navigate('HomeApp');
-      }
-      
-    }).catch(err =>{
-      const { errors } = err.response.data;
-      const { message } = errors[0]; 
-      this.setState({ spinner: false, message, showError: true })
-    })
+     
+   }catch(err){
+     console.log("the eroorrr", err)
+    this.setState({ spinner: false, message: err, showError: true })
+   }
   }
-
   
 	render(){
+    const { user } = this.props.user.user;
+    console.log("the useringggg", user)
 		return (
       <View style = {styles.container} >
-        <Image style = { styles.ImageLogo }  source = {{ uri: "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png" }}  />
+        <ImageUploader profilePic = {user.profilePic} onUpload = {(url)=>{  this.setState({ profilePic: url })  }} />
         { this.state.showError && <AlertComponent 
             showError = {this.state.showError}  
             message = {this.state.message} 
             closeModal = { ()=> this.setState({ showError: false  }) }  
         />}
         <View style = {styles.inputForm} >
-          
-          {/* <ScrollView   style = {{flex:1, backgroundColor: 'white', width: '100%'}}>
-            <KeyboardAvoidingView  style = {{ flex:1 }} behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}>         */}
-            <KeyboardAwareScrollView style ={{ flex:1 }} >  
+            <KeyboardAwareScrollView showsVerticalScrollIndicator={false} style ={{ flex:1 }} >  
               <View style={styles.inputView} >
                 <TextInput
                   style={[styles.inputText]}
@@ -156,7 +134,7 @@ class SignUpComponent extends React.Component {
                 />
               </View>
               <View style={styles.inputView} >
-                {/* <DateTimePickerModal
+                <DateTimePickerModal
                   isVisible={this.state.showPicker}
                   mode="date"
                   onConfirm = {(date)=> this.changeDate(date)}
@@ -175,58 +153,40 @@ class SignUpComponent extends React.Component {
                   // onChange = {()=> this.setState({ showPicker: true })}
                   defaultValue = "SelectBirday(MM/DD/YYYY)"
                   value = { this.state.date && this.state.date }
-                /> */}
-                <DatePicker onChange = { (date)=> { this.setState({ date: date }) } } />
-                
-              </View>
-              <Text style = {{lineHeight: 14, marginTop: 5, color: 'gray', alignSelf: 'center'}} >Age must be 21 or greater.</Text>
-              {/* <View style={styles.inputView} >
-                <TextInput
-                  style={styles.inputText}
-                  placeholder="Last Name"
-                  placeholderTextColor="#003f5c"
-                  onChangeText={val => this.onChangeText('lastName', val)}
-                  value = {this.state.lastName}
-                />
-              </View> */}
-              <View style={styles.inputView} >
-                <TextInput
-                  style={ styles.inputText }
-                  placeholder="Email"
-                  ref= "email"
-                  placeholderTextColor="#003f5c"
-                  value = {this.state.email}
-                  onChangeText={val => this.onChangeText('email', val)}
                 />
               </View>
-              { this.props.user &&
-                (<View > 
-                  <Text style = {{lineHeight: 14, marginTop: 10}} >This info came from facebook and not editable.</Text>
-                </View>
-                )
-              }
-              { !this.props.user &&(
+            { user.accountType === "app" &&
+              <View>
+                <View style={styles.inputView} >
+                  <TextInput
+                    style={ styles.inputText }
+                    placeholder="Email"
+                    ref= "email"
+                    placeholderTextColor="#003f5c"
+                    value = {this.state.email}
+                    onChangeText={val => this.onChangeText('email', val)}
+                  />
+                </View>         
                 <View style = {[ styles.inputView, { marginBottom: 20 }] } >
                   <View  >
                     <TextInput
                       style={styles.inputText}
                       placeholder="Password"
                       placeholderTextColor="#003f5c"
+                      value = {this.state.password}
                       onChangeText={val => this.onChangeText('password', val)}
                       secureTextEntry
                     />
-                   <Text style = {{lineHeight: 14, marginTop: 15, color: 'gray'}} >Password must be atleast 5 key words</Text>
+                    <Text style = {{lineHeight: 14, marginTop: 15, color: 'gray'}} >Password must be atleast 5 key words</Text>
                   </View>
                 </View>
-                
-              )
-              }
+              </View>
+            }
               <View style = { [styles.inputView, { padding: 0, paddingLeft: 20 }] } >
                 <RNPickerSelect
                   style={[styles.inputText ]}
-                  onValueChange={(value) => console.log(value)}
                   placeholderTextColor="black"
-
+                  value = {this.state.gender}
                   placeholder = {
                     { label: 'Female', value: 'female', color: 'black' }
                   }
@@ -239,8 +199,8 @@ class SignUpComponent extends React.Component {
                   }}
                 />
               </View>
-              <TouchableOpacity style={{ width: '40%',alignSelf: 'center' ,backgroundColor: 'black', marginTop: '10%', borderRadius: '10%' }} onPress = { ()=>{this.signUp()} } >
-                <Text style={styles.SignUpText}>Signup</Text>
+              <TouchableOpacity style={{ width: '40%',alignSelf: 'center' ,backgroundColor: 'black', marginTop: '10%', borderRadius: '10%' }} onPress = { ()=>{this.updateUser()} } >
+                <Text style={styles.SignUpText}>Update</Text>
               </TouchableOpacity>
             {/* </KeyboardAvoidingView>
           </ScrollView> */} 
@@ -256,13 +216,20 @@ class SignUpComponent extends React.Component {
 	}
 }
 
+const mapStateToProps = (state) => {
+  const { user} = state
+  return { 
+    user
+  }
+};
+
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
-    getUser
+    updateUser
   }, dispatch)
 );
 
-export default connect(null, mapDispatchToProps)(SignUpComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(SignUpComponent);
 
 const styles = StyleSheet.create({
   SignUpText: {
@@ -289,13 +256,7 @@ const styles = StyleSheet.create({
     height: '53%'
     
   },
-  // disabledInputStyle:
-  // {  shadowOpacity: 1,
-  //   fontSize: 14,
-  //   shadowRadius: 1,
-  //   shadowColor: 'gray',
-  //   shadowOffset: { height: 0, width: 0 },
-  // },
+ 
   ImageLogo:{
     width: '35%',
     height: '15%',

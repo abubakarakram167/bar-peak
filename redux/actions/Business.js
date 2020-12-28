@@ -1,46 +1,68 @@
-import {Fetch_All_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating} from '../types'; 
+import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating} from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
 
-export const getAllBusiness = () => async (dispatch, getState) => {
+export const getNearLocationBusiness = ({ latitude, longitude }) => async (dispatch, getState) => {
+  const { user } = getState();
+  let { radius } = user.user.user;
   const { token } = await getUserData();
+
+  latitude = 32.7970465;
+  longitude = -117.254522;
+  radius = 20000;
+
   const body = {
       query:`
       query{
-        allBusinesses{
-               placeId,
-               category{
-                   title
-                   type
-                   imageUrl
-               },
-               shortDescription,
-               longDescription,
-               title,
-               ageInterval,
-               rating{
-                   fun,
-                   crowd,
-                   girlToGuyRatio,
-                   difficultyGettingIn,
-                   difficultyGettingDrink
-               },
-               totalUserCountRating
-           }
-      }
+        getNearByLocationBusiness(locationInput: { latitude: ${latitude}, longitude: ${longitude}, radius: ${radius} }){
+        _id
+        placeId
+        category{
+            title
+            _id
+        }    
+        name
+        rating{
+          fun,
+          crowd,
+          ratioInput,
+          difficultyGettingIn,
+          difficultyGettingDrink
+        }
+        totalUserCountRating
+        ageInterval
+        ratioType
+        customData{
+          address
+          phoneNo
+          rating
+        }
+        uploadedPhotos{
+          secure_url
+        }
+        googleBusiness{
+          formatted_address
+          formatted_phone_number
+          name
+          place_id
+          user_ratings_total
+          rating
+          url
+          types
+        }
+        }}
       `
   }
   try{  
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-    //  console.log("the data in our database", res.data.data.allBusinesses)
     dispatch({
-      type: Fetch_All_Business,
-      payload: res.data.data.allBusinesses,
+      type: Near_Location_Business,
+      payload: res.data.data.getNearByLocationBusiness,
     })
-    return Promise.resolve(res.data.data.allBusinesses);
+    return Promise.resolve(res.data.data.getNearByLocationBusiness);
   }catch(err){
     console.log("hte errorsss", err.response.data)
   }
@@ -53,10 +75,12 @@ export const getfilteredBusiness = ( category) => async (dispatch, getState) => 
   const { radius } = user.user.user;
   const actualVibe = vibe.vibe.vibe;
   let { latitude, longitude } = user.user.location;
-  
-  // For Testing
-  //  latitude = 32.7970465;
-  //  longitude = -117.2545220;
+  // console.log(" the radius ", radius);
+  console.log(`the latitude ${latitude} and longitude ${longitude}`)
+  // console.log("the vibe", actualVibe);
+   //For Testing
+    //  latitude = 32.7970465;
+    //  longitude = -117.2545220;
   // const latitude =   31.4737;
   // const longitude =  74.3834;
   let selectedCategory = '' 
@@ -122,6 +146,7 @@ export const getfilteredBusiness = ( category) => async (dispatch, getState) => 
         }
       })
     })
+    // console.log("the filtered", filterCategoryBusinessVibe);
     dispatch({
       type: FILTERED_BUSINESS,
       payload: filterCategoryBusinessVibe,

@@ -1,7 +1,7 @@
-import { Update_Radius, Fetch_User, SET_LOCATION } from '../types'; 
+import { Update_Radius, Fetch_User, SET_LOCATION, update_User } from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
-import { getUserData } from '../../src/components/localStorage'; 
+import { getUserData , storeUserData} from '../../src/components/localStorage'; 
 
 export const updateRadius = (radius) => async (dispatch, getState) => {
   const { token } = await getUserData();
@@ -44,6 +44,9 @@ export const getUser = () => async (dispatch, getState) => {
             email
             dob
             radius
+            profilePic
+            gender
+            accountType
         }
       }
     ` 
@@ -59,6 +62,56 @@ export const getUser = () => async (dispatch, getState) => {
     return Promise.resolve('ok');
   }catch(err){
     console.log("hte errorsss", err.response.data)
+  }
+}
+
+export const updateUser = ({email, firstName, lastName, password, date, gender, profilePic}) => async (dispatch, getState) => {
+  const { token } = await getUserData();
+  console.log(`${email}, ${firstName}, ${lastName}, ${password}, ${date}, ${gender}`);
+    
+  const body = {
+    query: `
+    mutation{
+      updateUser(userInput: {email: "${email}",
+      profilePic: "${profilePic}",
+      firstName: "${firstName}", lastName: "${lastName}", 
+      password: "${password}", dob: "${date}",  gender: "${gender}"})
+      {
+        user{
+          _id
+          firstName
+          radius
+          lastName
+          email
+          dob
+          accountType
+          profilePic
+          gender
+        }
+        isPasswordChange
+      }
+    }
+    `
+  }
+  try{
+  const res = await axios.post('graphql?',body,{ headers: {
+    'Authorization': `Bearer ${token}`
+  }})
+    console.log("after update", res.data.data);
+    if(res.data.data.updateUser){
+      dispatch({
+        type: update_User,
+        payload: res.data.data.updateUser.user,
+      })
+      console.log("the is paswword chane", res.data.data.updateUser.isPasswordChange)
+    }
+    return (res.data.data.updateUser.isPasswordChange) 
+  }
+  catch(err){
+    console.log("the erororr", err.response.data)
+    const { errors } = err.response.data;
+    const { message } = errors[0];
+    return Promise.reject(message) 
   }
 }
 

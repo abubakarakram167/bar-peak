@@ -32,10 +32,10 @@ class radiusScreen extends React.Component{
   }
 
   getMilesintoMeters = (miles)=>{
-    return miles * 1609.344;
+    return miles * 1609;
   }
   getMetersIntoMiles(meters){
-    return meters/1609.344;
+    return meters/1609;
   }
 
   render(){
@@ -53,7 +53,7 @@ class radiusScreen extends React.Component{
             The Radius ensures that in how much km you gonna see your results.
           </Text>
           <Picker
-            selectedValue={this.state.choosenLabel === 0 ? radius : this.state.choosenLabel }
+            selectedValue={this.state.choosenLabel === 0 ? Math.round(this.getMetersIntoMiles(radius) * 2) / 2 : this.state.choosenLabel }
             onValueChange={(itemValue, itemIndex) => {
               console.log("the item value", itemValue);
               this.setState(
@@ -97,7 +97,7 @@ class radiusScreen extends React.Component{
             Your Radius: {this.state.choosenLabel === 0 ?  this.getMetersIntoMiles(radius).toFixed(2) : this.getMetersIntoMiles(this.state.choosenLabel) } miles
           </Text>
           <Text style={[styles.text, {marginTop: '10%'}]}>
-            Max Selection is 7.5 miles
+            Max Selection is 15 miles
           </Text>
         </View>
         <View style= {{flex:1}} >

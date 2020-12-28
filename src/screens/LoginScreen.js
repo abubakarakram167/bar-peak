@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, AsyncStorage, ActivityIndicator, Modal, Button } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ScrollView, ActivityIndicator, Modal, Button } from 'react-native';
 import { withNavigation } from 'react-navigation';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,6 +10,8 @@ import { getUser } from '../../redux/actions/User';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AlertComponent from '../components/AlertComponent';
+import * as Animatable from 'react-native-animatable';
+import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
  class LoginScreen extends React.Component {
   constructor(props){
@@ -18,8 +20,10 @@ import AlertComponent from '../components/AlertComponent';
       username:"",
       password:"",
       spinner: false,
-      showModal: false,
-      showError: false
+      showModal: true,
+      showError: false,
+      showAnimatedTextFadeIn: true,
+      showAnimatedTextFadeOut: false 
     }
   }
 
@@ -50,6 +54,9 @@ import AlertComponent from '../components/AlertComponent';
             lastName
             email
             dob
+            profilePic
+            gender
+            accountType
           }
         }
       }
@@ -59,6 +66,7 @@ import AlertComponent from '../components/AlertComponent';
     
     axios.post(`graphql?`,body).then((res)=>{
       if(res.data.data.login){
+        console.log("the data", res.data.data.login)
         storeUserData(res.data.data.login).then(async() => {
           this.setState({ spinner: false });
           const user = await this.props.getUser();
@@ -72,6 +80,18 @@ import AlertComponent from '../components/AlertComponent';
         this.setState({ spinner: false, message, showError: true })
     })
       
+  }
+
+  componentDidMount(){
+    setTimeout(()=>{
+      this.setState({ showAnimatedTextFadeIn: false },()=>{
+        this.setState({ showAnimatedTextFadeOut: true }, ()=>{
+          setTimeout(()=>{
+            this.setState({ showModal: false })
+          }, 2000)
+        })
+      })
+    }, 2000)
   }
 
   static options = {
@@ -91,68 +111,61 @@ import AlertComponent from '../components/AlertComponent';
         >
           <View style={ styles.modal }>
             <View style={styles.modalContainer}>
-              <TouchableOpacity
-                onPress={() => this.setState({  showModal: false  })}
-                style={{ position: 'absolute', right: 5, top: 10, zIndex: 4 }} >
-                <Icon
-                  name={'close'}
-                  color={'black'}
-                  size={30}
-                />
-              </TouchableOpacity>
-              <View style={styles.inputForgotPasswordView} >
-                <TextInput
-                  style={styles.inputText }
-                  placeholder="Email or Username"
-                  placeholderTextColor="#003f5c"
-                  onChangeText={username => this.setState({username: username})}
-                />
-              </View>
-              <View style = {styles.emailView} >
-                <TouchableOpacity style={styles.sendEmailBtn} onPress={() => this.sendEmail() } >
-                  <Text style = {{ textAlign: 'center' }}>Send Email</Text>
-                </TouchableOpacity>
+              <View style = {{ justifyContent: 'center', alignItems: 'center' }} >
+                { this.state.showAnimatedTextFadeIn && <Animatable.Text duration = {3000} style = {{ fontSize: 30,fontWeight: '700', color: "#3c6e55" }} animation="fadeInLeftBig">Welcome to BarPeak</Animatable.Text> }
+                { this.state.showAnimatedTextFadeOut && <Animatable.Text duration = {3000} style = {{ fontSize: 30,fontWeight: '700', color: "#3c6e55" }}  animation="fadeOut">Welcome to BarPeak</Animatable.Text> }
               </View>
             </View>
           </View>
         </Modal> 
        
         <Image style = { styles.ImageLogo }  source = {{ uri: "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png" }}  />
-        <View style={styles.inputView} >
-          <TextInput
-            style={styles.inputText}
-            placeholder="Email or Username"
-            placeholderTextColor="#003f5c"
-            onChangeText={username => this.setState({username: username})}
-          />
-        </View>
-        <View style={styles.inputView} >
-          <TextInput
-            style={styles.inputText}
-            placeholder="Password..."
-            placeholderTextColor="#003f5c"
-            onChangeText={password => this.setState({password: password})}
-            secureTextEntry
-          />
-        </View>
-        <TouchableOpacity style={styles.loginBtn} onPress = {()=>{ this.authenticateUser() } } >
-          <Text style={styles.loginText}>LOGIN</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress = { ()=>{ this.sendEmail() } } >
+
+        <KeyboardAwareView animated={true}>
+          <View style={{flex: 2}}>
+            <ScrollView style={{flex: 2}}> 
+              <View style={[styles.inputView, { marginTop: 30, width: 300 }]} >
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="Email or Username"
+                  placeholderTextColor="#003f5c"
+                  onChangeText={username => this.setState({username: username})}
+                />
+              </View>
+              <View style={styles.inputView} >
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="Password..."
+                  placeholderTextColor="#003f5c"
+                  onChangeText={password => this.setState({password: password})}
+                  secureTextEntry
+                />
+              </View>
+            </ScrollView> 
+          </View>
+        </KeyboardAwareView>
+       
+        {/* <TouchableOpacity onPress = { ()=>{ this.sendEmail() } } >
           <Text style={styles.forgot}>Forgot Password?</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.SignUpBtn} onPress = { ()=>{ this.props.navigation.navigate("SignUpScreen") } } >
-          <Text style={styles.SignUpText}>Signup</Text>
-        </TouchableOpacity>
-        <View style={{flexDirection: 'row', alignItems: 'center', width: '80%'}}>
+        </TouchableOpacity> */}
+        
+        <View style = {styles.loginContainer} >
+          <TouchableOpacity style={styles.SignUpBtn} onPress = { ()=>{ this.props.navigation.navigate("SignUpScreen") } } >
+            <Text style={styles.SignUpText}>Signup</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.loginBtn} onPress = {()=>{ this.authenticateUser() } } >
+            <Text style={styles.loginText}>LOGIN</Text>
+          </TouchableOpacity>
+        </View>
+        {/* <View style={{flexDirection: 'row', alignItems: 'center', width: '80%'}}>
           <View style={{flex: 1, height: 1, backgroundColor: 'black'}} />
           <View>
             <Text style={{width: 50, textAlign: 'center'}}>or</Text>
           </View>
           <View style={{flex: 1, height: 1, backgroundColor: 'black'}} />
-        </View>
+        </View> */}
   
-        <FaceBookComponent navigation = {navigation} />
+        {/* <FaceBookComponent navigation = {navigation} /> */}
         <Spinner
           visible={this.state.spinner}
           textContent={'Loading...'}
@@ -178,6 +191,13 @@ export default connect(null, mapDispatchToProps)(LoginScreen);
 
 const styles = StyleSheet.create({
   
+  loginContainer:{ 
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0,
+    flex:1
+  },
   socialIcons: {
     flexDirection: 'row',
     justifyContent: 'center', 
@@ -232,10 +252,8 @@ const styles = StyleSheet.create({
     marginBottom:40
   },
   inputView:{
-    width:"80%",
     backgroundColor:"white",
     borderWidth: 1,
-    height:'6%',
     marginBottom:10,
     borderColor: '#C5C3C2',
     justifyContent:"center",
@@ -252,31 +270,34 @@ const styles = StyleSheet.create({
   },
   loginBtn:{
     width:"80%",
-    backgroundColor:"#D83F68",
+    backgroundColor:"#5ED666",
     height:40,
     color:'white',
     alignItems:"center",
     justifyContent:"center",
-    marginTop:20,
+    marginTop:10,
     marginBottom:10,
     borderRadius: 6
   },
   SignUpBtn: {
     width:"80%",
-    height:50,
     alignItems:"center",
     justifyContent:"center",
-    marginBottom:10,
+    height: 40,
+    marginBottom:0,
+    marginTop: 40,
+    color:'white',
     backgroundColor:"white",
-    borderRadius: 6
+    borderRadius: 6,
+    backgroundColor:"#D83F68"
   },
   SignUpText: {
-    color:"#D83F68",
+    color:"white",
     fontSize: 17
   },
   ImageLogo:{
     width: '100%',
-    height: '35%',
+    height: '45%',
     marginBottom: "10%",
     backgroundColor: 'white',
     marginTop: 0
@@ -294,7 +315,8 @@ const styles = StyleSheet.create({
   modalContainer : {
     backgroundColor : 'white',
     width : '100%',
-    height : '30%'
+    height : '30%',
+    justifyContent: 'center'
   },
   ActivityIndicatorStyle: {
     flex: 1,

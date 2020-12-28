@@ -1,4 +1,4 @@
-export const Fetch_All_Business = 'Fetch_All_Business';
+export const Near_Location_Business = 'Near_Location_Business';
 export const FILTERED_BUSINESS = 'Filter_Business';
 export const Set_Vibe = 'Set_Vibe';
 export const Update_Vibe = 'Update_Vibe';
@@ -8,3 +8,4 @@ export const Fetch_User = 'Fetch_User';
 export const Fetch_Category = 'Fetch_Category';
 export const ADD_Rating = 'ADD_Rating';
 export const SET_LOCATION = 'SET_LOCATION'
+export const update_User = 'updateUser'

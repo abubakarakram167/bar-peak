@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import {Fetch_All_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating} from '../types'; 
+import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating} from '../types'; 
 
 const INITIAL_STATE = {
   businesses: [],
@@ -10,7 +10,7 @@ const INITIAL_STATE = {
 const businessReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
 
-    case Fetch_All_Business:
+    case Near_Location_Business:
       return{
         ...state,
         businesses: action.payload
