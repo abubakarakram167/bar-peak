@@ -63,6 +63,7 @@
     "react-native-loading-spinner-overlay": "^1.1.0",
     "react-native-maps": "0.27.1",
     "react-native-modal-datetime-picker": "^9.0.0",
+    "react-native-orientation-loading-overlay": "^0.1.6",
     "react-native-phone-call": "^1.0.9",
     "react-native-picker-select": "^8.0.2",
     "react-native-popup-dialog": "^0.18.3",

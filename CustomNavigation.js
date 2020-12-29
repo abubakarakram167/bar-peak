@@ -68,6 +68,7 @@ function HomeApp() {
             <Icon
              name='ios-home'
              type = 'ionicon'
+             size={35}
              color = {tintColor}  
             />
             // <Icon name="heart"  color = {tintColor} size = {24} ></Icon>
@@ -75,23 +76,24 @@ function HomeApp() {
         }      
       }}
     />
-    {/* <Tab.Screen
+    <Tab.Screen
       name="Screen 2"
       component={SecondScreenNavigator}  // Replaced Screen 2
       options = 
       {
         {
-          tabBarLabel: 'Recents',
+          tabBarLabel: 'My Favourites',
           tabBarIcon: ({ tintColor }) => (
             <Icon 
-              name="list-thumbnails"
-              type = 'foundation'  
+              name="ios-heart"
+              type = 'ionicon'
+              size = {35}  
               color = {tintColor} 
             />
           )
         }
       }
-    /> */}
+    />
     <Tab.Screen
       name="vibeTabNavigator"
       component={MyVibeTab}  // Replaced Screen 3
@@ -102,9 +104,10 @@ function HomeApp() {
           unmountOnBlur: true,
           tabBarIcon: ({ tintColor }) => (
             <Icon 
-              name="ios-settings"
+              name="ios-thermometer"
               type = 'ionicon'  
               color = {tintColor} 
+              size = {35}
             />
           )
         }
@@ -122,7 +125,8 @@ function HomeApp() {
             <Icon 
               name="ios-person"
               type = 'ionicon'  
-              color = {tintColor} 
+              color = {tintColor}
+              size = {35} 
             />
           )
         }

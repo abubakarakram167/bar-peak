@@ -70,47 +70,33 @@ export const getNearLocationBusiness = ({ latitude, longitude }) => async (dispa
 
 export const getfilteredBusiness = ( category) => async (dispatch, getState) => {
 
-  const { vibe, user, business } = getState();
+  const { vibe, business } = getState();
   const data = business.business.businesses;
-  const { radius } = user.user.user;
   const actualVibe = vibe.vibe.vibe;
-  let { latitude, longitude } = user.user.location;
-  // console.log(" the radius ", radius);
-  console.log(`the latitude ${latitude} and longitude ${longitude}`)
-  // console.log("the vibe", actualVibe);
-   //For Testing
-    //  latitude = 32.7970465;
-    //  longitude = -117.2545220;
-  // const latitude =   31.4737;
-  // const longitude =  74.3834;
+
+  console.log("the data", data)
   let selectedCategory = '' 
   let whatPlace = '';
   if(actualVibe.nightLife){
     whatPlace = "nightLife";
-    selectedCategory = "nightLife"
+    selectedCategory = "Night Clubs"
   }
   else{
     selectedCategory = actualVibe.barType;
-    whatPlace = "bar"
+    whatPlace = "Bar"
   } 
   if(category !== null){
-    if(category === "nightLife"){
+    if(category === "Night Clubs"){
       selectedCategory = category
       whatPlace = category
     }
     else{
       selectedCategory = actualVibe.barType;
-      whatPlace = "bar"
+      whatPlace = "Bar"
     }
   }
     
   try{ 
-    const res = await axios.get(`getGoogleMapsResults?business_type=${whatPlace}&lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}&radius=${radius}`); 
-    let specificPlaces = data.map(business => business.placeId);
-    
-    const filteredBusiness = res.data.filter((business)=>{
-      return(specificPlaces.includes(business.place_id));
-    })
     
     let filterCategoryBusinessVibe = {
       goodSpots: [],
@@ -118,7 +104,7 @@ export const getfilteredBusiness = ( category) => async (dispatch, getState) => 
       badSpots: []
     };
     
-    filteredBusiness.map((googleBusiness)=>{
+    
       data.map(business => {
         if(googleBusiness.place_id === business.placeId && business.ageInterval === actualVibe.ageInterval && selectedCategory === business.category.title){
           if(actualVibe.crowdedPlace){
@@ -145,8 +131,7 @@ export const getfilteredBusiness = ( category) => async (dispatch, getState) => 
           }   
         }
       })
-    })
-    // console.log("the filtered", filterCategoryBusinessVibe);
+   
     dispatch({
       type: FILTERED_BUSINESS,
       payload: filterCategoryBusinessVibe,
