@@ -1,22 +1,41 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
 import { connect } from 'react-redux';
-
+import haversine from 'haversine-distance'
 class ListComponent extends React.Component{
 
   constructor(props){
     super(props);
-   
+    this.state = {
+      renderList: []
+    }
   }
 
+  getMiles = (i) => {
+    return i*0.000621371192;
+  }
 
- 
+  sortSpotsByDistanceAway = (markerList) => {
+    return markerList.sort(function(a, b) {
+      return parseFloat(a.distanceAway) - parseFloat(b.distanceAway);
+    });
+  }
 
   componentDidMount(){
-   
+    const { allSpots } = this.props.business;
+    // let { latitude, longitude } = this.props.location;
+    latitude = 32.7970465;
+    longitude = -117.254522;
+    var userLocation = { lat: latitude.toFixed(5) , lng: longitude.toFixed(5) }
+    var destinationLocation = {};
+    const markerList = allSpots.map((marker)=>{
+      destinationLocation = { lat: marker.latitude.toFixed(5) , lng: marker.longitude.toFixed(5) }
+      return {...marker, distanceAway:  this.getMiles(haversine(userLocation, destinationLocation)).toFixed(2)}
+    })
+    console.log("the markerss in list", this.sortSpotsByDistanceAway(markerList));
+    this.setState({ renderList: markerList })
   }
 
-  
   render(){
     return(
       <View style={styles.container}>
@@ -55,38 +74,27 @@ class ListComponent extends React.Component{
             </View>
             <View style = {{ flex:1, borderWidth: 0 }} >
               <ScrollView >
-                <View style = { styles.listElement } >
-                  <View style = {styles.listIcon} >
-                  </View>
-                  <View style = {{ flex:2 }}>
-                    <Text
-                      style = {styles.listElementName}
-                    >
-                      the tavern at beach
-                    </Text>
-                  </View>
-                  <View style = {{ flex:1 }}>
-                    <Text>
-                      .1 miles away
-                    </Text>
-                  </View>
-                </View>
-                <View style = {styles.listElement} >
-                  <View style = {styles.listIcon} >
-                  </View>
-                  <View style = {{ flex:2 }}>
-                    <Text
-                      style = {styles.listElementName}
-                    >
-                      the tavern at beach
-                    </Text>
-                  </View>
-                  <View style = {{ flex:1 }}>
-                    <Text>
-                      .1 miles away
-                    </Text>
-                  </View>
-                </View>
+                { this.state.renderList.map((marker)=>{
+                    return(
+                      <View style = { styles.listElement } >
+                        <View style = {styles.listIcon} >
+                        </View>
+                        <View style = {{ flex:2 }}>
+                          <Text
+                            style = {styles.listElementName}
+                          >
+                            { marker.name }
+                          </Text>
+                        </View>
+                        <View style = {{ flex:1 }}>
+                          <Text>
+                            { marker.distanceAway }
+                          </Text>
+                        </View>
+                      </View>
+                    )
+                  })
+                }
               </ScrollView>   
             </View>
           </View>
@@ -139,9 +147,10 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const { business } = state
+  const { business, user } = state
   return { 
-    business: business
+    business: business.business.filterBusinesses,
+    location: user.user.location
   }
 };
 

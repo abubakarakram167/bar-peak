@@ -33,6 +33,7 @@
     "fontisto": "^3.0.4",
     "formik": "^2.2.1",
     "graphql": "^15.4.0",
+    "haversine-distance": "^1.2.1",
     "lodash": "^4.17.19",
     "lottie-react-native": "^3.5.0",
     "moment": "^2.27.0",

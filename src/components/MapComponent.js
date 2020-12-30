@@ -33,60 +33,9 @@ class MapScreen extends React.Component{
       showProfileModal: false,
       selectedItem: {},
       selectedBusiness: {},
-      currentView: 'map'
+      currentView: 'map',
+      defaultCategory: 'food'
     }
-  }
-
-  getAllMarkers = (filterBusinesses, vibe) => {
-    
-    const { goodSpots, badSpots, averageSpots } = filterBusinesses;
-
-    const goodSpotMarkers = goodSpots.map((marker)=>{
-      return {
-        placeId: marker.place_id,
-        latitude: marker.geometry.location.lat,
-        longitude: marker.geometry.location.lng,
-        image:  marker.hasOwnProperty('photos') ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${ marker.photos[0].photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`: 'https://c8.alamy.com/comp/P2D5P1/photo-not-available-vector-icon-isolated-on-transparent-background-photo-not-available-logo-concept-P2D5P1.jpg',
-        rating: marker.rating,
-        types: marker.types[0],
-        name: marker.name,
-        priceLevel: marker.price_level
-      }
-    });
-
-    const averageSpotMarkers = averageSpots.map((marker)=>{
-      return {
-        placeId: marker.place_id,
-        latitude: marker.geometry.location.lat,
-        longitude: marker.geometry.location.lng,
-        image: marker.hasOwnProperty('photos') ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${ marker.photos[0].photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`: 'https://c8.alamy.com/comp/P2D5P1/photo-not-available-vector-icon-isolated-on-transparent-background-photo-not-available-logo-concept-P2D5P1.jpg',
-        rating: marker.rating,
-        types: marker.types[0],
-        name: marker.name,
-        priceLevel: marker.price_level
-      }
-    });
-
-    const badSpotMarkers = badSpots.map((marker)=>{
-      return {
-        placeId: marker.place_id,
-        latitude: marker.geometry.location.lat,
-        longitude: marker.geometry.location.lng,
-        image: marker.hasOwnProperty('photos') ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${ marker.photos[0].photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`: 'https://c8.alamy.com/comp/P2D5P1/photo-not-available-vector-icon-isolated-on-transparent-background-photo-not-available-logo-concept-P2D5P1.jpg',
-        rating: marker.rating,
-        types: marker.types[0],
-        name: marker.name,
-        priceLevel: marker.price_level
-      }
-    });
-    
-    
-    this.setState({ 
-      goodSpotMarkers,
-      averageSpotMarkers,
-      badSpotMarkers,  
-      allMarkers: goodSpotMarkers.concat(averageSpotMarkers, badSpotMarkers)
-    })
   }
 
   renderDollar = (priceLevel) => {
@@ -95,10 +44,6 @@ class MapScreen extends React.Component{
       dollar = dollar + '$'; 
     }
     return dollar;
-  }
-
-  componentDidMount(){
-    // this.getAllMarkers(filterBusinesses, vibe)
   }
 
   selectSpecificBusiness = () => {
@@ -129,7 +74,35 @@ class MapScreen extends React.Component{
     this.setState({ selectedMarker })
   }
 
+  showSpecificCategoryMarkers = (category) => {
+    this.setState({ defaultCategory: category })
+    let categories  = [];
+    let allCategories = this.props.category;
+    if(category === 'food'){
+      categories = allCategories.filter((category)=>{
+       return category.title === "Restaurant"
+      }).map((category) => category._id)
+    }
+    else if(category === 'drinks'){
+      categories = allCategories.filter((category)=>{
+        return ["Night Clubs", "Bar"].includes(category.title)
+      }).map((category) => category._id)
+    }
+    else if(category === 'food+drinks'){
+      categories = allCategories.filter((category)=>{
+        return category.type === "main_category"
+      }).map((category) => category._id)
+    }
+    console.log("on change select category", categories);
+    
+    this.props.getfilteredBusiness(categories);
+  }
+
   render(){
+    const { filterBusinesses } = this.props.business.business;
+    const { goodSpots, averageSpots, badSpots } = filterBusinesses;
+    const vibe = this.props.vibe;
+    
     return(
       <View style={styles.container}>
         <View 
@@ -175,11 +148,11 @@ class MapScreen extends React.Component{
           <View style = {{ marginLeft: 10, flex:4, flexDirection: 'row', alignItems: 'flex-end', marginBottom: 5 }} >
             <View style = {{ flex:1 }} >
               <TouchableOpacity
-                onPress = {()=>{  }}
+                onPress = {()=>{ this.showSpecificCategoryMarkers("food") }}
                 style = {styles.categoryButtons}
               >
                 <Text
-                  style = {styles.activeCategoryButtonTextColor }
+                  style = { [  this.state.defaultCategory === 'food' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor, { color: 'black' }] }
                 >
                   FOOD
                 </Text>
@@ -187,21 +160,23 @@ class MapScreen extends React.Component{
             </View>
             <View style = {{ flex:1 }} >
               <TouchableOpacity
-              style = {[styles.categoryButtons, {backgroundColor: 'white'}]}
+                onPress = {()=>{ this.showSpecificCategoryMarkers("drinks") }}
+                style = {[styles.categoryButtons]}
               >
                 <Text
-                  style = {[styles.categoryButtonTextColor, { color: 'black' }]}
+                  style = {[ this.state.defaultCategory === 'drinks' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor, { color: 'black' }]}
                 >
                   DRINKS
                 </Text>       
               </TouchableOpacity>
             </View>
             <View style = {{ flex: 2 }} >
-            <TouchableOpacity
-              style = {[styles.categoryButtons, {backgroundColor: 'white', marginRight: 5}]}
+              <TouchableOpacity
+                onPress = {()=>{ this.showSpecificCategoryMarkers("food+drinks") }}
+                style = {[styles.categoryButtons, { marginRight: 5}]}
               >
                 <Text
-                  style = {[styles.categoryButtonTextColor, { color: 'black' }]}
+                  style = {[ this.state.defaultCategory === 'food+drinks' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor,  { color: 'black' }]}
                 >
                   FOOD + DRINKS
                 </Text>       
@@ -227,76 +202,82 @@ class MapScreen extends React.Component{
             customMapStyle = {CustomMapData}
             showsCompass = {true}
             showsMyLocationButton={true}
-          >     
-            <MapView.Marker
-              coordinate={{ 
-                latitude: 32.7970465,
-                longitude: -117.2545220,
-                }}
-              pinColor = "black" 
-            
-              
-              // onCalloutPress={()=>this.markerClick(marker)}
-              // title={marker.title}
-              // description={marker.description}
-              image = { require('../../assets/testingFour.png') }
-              >
-                <MapView.Callout tooltip style={styles.customView}>
-                  <TouchableHighlight underlayColor='#dddddd'>
-                    <View style={styles.calloutText}>
-                      <Text>asdasd</Text>
-                    </View>
-                  </TouchableHighlight>
-                </MapView.Callout>
-            </MapView.Marker>         
-          { 
-            this.state.averageSpotMarkers.map((marker)=>{
-              return( 
-                <MapView.Marker
-                  coordinate={{ 
-                    latitude: marker.latitude,
-                    longitude: marker.longitude,
-                  }}
-                  pinColor = "orange" 
-                  onPress={e => this.markerClick(marker)}
-                  // onCalloutPress={()=>this.markerClick(marker)}
-                  title={marker.title}
-                  description={marker.description}>
+          > 
+            {  
+              goodSpots && goodSpots.length> 0 && goodSpots.map((marker)=> {
+                return(
+                  <MapView.Marker
+                    coordinate={{ 
+                      latitude: marker.latitude,
+                      longitude: marker.longitude,
+                      }}
+                    // onCalloutPress={()=>this.markerClick(marker)}
+                    title={marker.name}
+                    description = "this is marker description"
+                    image = { require('../../assets/greenWhite.png') }
+                  >
                     <MapView.Callout tooltip style={styles.customView}>
-                      <TouchableHighlight onPress= {()=>this.markerClick(marker)} underlayColor='#dddddd'>
-                          <View style={styles.calloutText}>
-                            <Text>{marker.title}{"\n"}{marker.description}</Text>
-                          </View>
+                      <TouchableHighlight underlayColor='#dddddd'>
+                        <View style={styles.calloutText}>
+                          <Text>{marker.name}</Text>
+                        </View>
                       </TouchableHighlight>
                     </MapView.Callout>
-                </MapView.Marker>
-              );
-            })
-          }
-          { 
-            this.state.badSpotMarkers.map((marker)=>{
-              return( 
-                <MapView.Marker
-                  coordinate={{ 
-                    latitude: marker.latitude,
-                    longitude: marker.longitude,
-                  }}
-                  pinColor = "red" 
-                  onPress={e => this.markerClick(marker)}
-                  // onCalloutPress={()=>this.markerClick(marker)}
-                  title={marker.title}
-                  description={marker.description}>
+                  </MapView.Marker> 
+                )
+              })   
+            }
+
+            {  
+                averageSpots && averageSpots.length> 0 && averageSpots.map((marker)=> {
+                return(
+                  <MapView.Marker
+                    coordinate={{ 
+                      latitude: marker.latitude,
+                      longitude: marker.longitude,
+                      }}
+                    // onCalloutPress={()=>this.markerClick(marker)}
+                    title={marker.name}
+                    description = "this is marker description"
+                    image = { require('../../assets/yellowTest.png') }
+                  >
                     <MapView.Callout tooltip style={styles.customView}>
-                      <TouchableHighlight onPress= {()=>this.markerClick(marker)} underlayColor='#dddddd'>
-                          <View style={styles.calloutText}>
-                              <Text>{marker.title}{"\n"}{marker.description}</Text>
-                          </View>
+                      <TouchableHighlight underlayColor='#dddddd'>
+                        <View style={styles.calloutText}>
+                          <Text>{marker.name}</Text>
+                        </View>
                       </TouchableHighlight>
                     </MapView.Callout>
-                </MapView.Marker>
-              );
-            })
-          }    
+                  </MapView.Marker> 
+                )
+              })   
+            }
+
+            {  
+              badSpots && badSpots.length> 0 &&  badSpots.map((marker)=> {
+                return(
+                  <MapView.Marker
+                    coordinate={{ 
+                      latitude: marker.latitude,
+                      longitude: marker.longitude,
+                      }}
+                    // onCalloutPress={()=>this.markerClick(marker)}
+                    title={marker.name}
+                    description = "this is marker description"
+                    image = { require('../../assets/redWhite.png') }
+                  >
+                    <MapView.Callout tooltip style={styles.customView}>
+                      <TouchableHighlight underlayColor='#dddddd'>
+                        <View style={styles.calloutText}>
+                          <Text>{marker.name}</Text>
+                        </View>
+                      </TouchableHighlight>
+                    </MapView.Callout>
+                  </MapView.Marker> 
+                )
+              })   
+            }        
+         
           </MapView>
           <View
             style={{
@@ -432,6 +413,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800'
   },
+  categoryButtonTextColor: {
+    color: 'black',
+    textAlign:'center',
+    fontSize: 8,
+    fontWeight: '200'
+  },
   searchBar:{
     flexDirection: 'row', 
     padding: 10,
@@ -545,9 +532,11 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const { business } = state
+  const { business, vibe, category} = state
   return { 
-    business: business
+    business: business,
+    vibe: vibe.vibe.vibe,
+    category: category.category.category
   }
 };
 const mapDispatchToProps = dispatch => (
@@ -556,4 +545,4 @@ const mapDispatchToProps = dispatch => (
   }, dispatch)
 );
 
-export default connect(mapStateToProps, null)(MapScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(MapScreen);
