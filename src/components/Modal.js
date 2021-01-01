@@ -107,17 +107,18 @@ class ProfileModal extends Component {
   } 
 
   async componentDidMount(){
-    const { item } = this.props;
-    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`;
-    const {data} =  await axios.post(url);
-    const photos = data.result.photos;
-    const { placeId } = this.props.businessData;
-    this.getBusinessRating(placeId)
-    // this.setState({ rating })
-    const AllPhotos = photos.map((photo)=>{
-      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`;
-    })
-    this.setState({ businessProfile: data.result, images: AllPhotos  })
+    // const { businessData } = this.props;
+    // console.log("the business Data", businessData)
+    // const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`;
+    // const {data} =  await axios.post(url);
+    // const photos = data.result.photos;
+    // const { placeId } = this.props.businessData;
+    // this.getBusinessRating(placeId)
+    // // this.setState({ rating })
+    // const AllPhotos = photos.map((photo)=>{
+    //   return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`;
+    // })
+    // this.setState({ businessProfile: data.result, images: AllPhotos  })
   }
 
   getCaseColor = (value) => {
@@ -134,8 +135,9 @@ class ProfileModal extends Component {
     const { businessProfile } = this.state;
     const { businessData } = this.props;  
     const { vibe } = this.props.vibe.vibe;
-    const { rating } = this.state;
-    console.log("the vibe", vibe);
+    const { rating } = businessData
+    const allPhotos = businessData.images.map((photo)=> photo.secure_url);
+    console.log("the buseinesss data in modal", businessData);
 
     return (
       <View style={styles.centeredView}>
@@ -153,7 +155,7 @@ class ProfileModal extends Component {
             <ScrollView style={styles.container}>
               <View style = {{ top: '2%',width: '100%' ,position: 'relative',flex:1, borderWidth: 0, alignSelf: 'center', borderRadius: 10}} >
                 <SliderBox               
-                  images={this.state.images}
+                  images={allPhotos}
                   sliderBoxHeight={200}
                   onCurrentImagePressed={index => console.warn(`image ${index} pressed`)}
                   dotColor="white"
@@ -198,7 +200,7 @@ class ProfileModal extends Component {
               </View>
               <View style={[styles.modalView]}>
                 
-                <Text style={styles.modalText}>{businessProfile.name}</Text>
+                <Text style={styles.modalText}>{businessData.name}</Text>
                 <View 
                   style = {styles.detailSection} 
                 >
@@ -211,13 +213,13 @@ class ProfileModal extends Component {
                       starStyle = {{ color: 'red' }}
                     />
                   </View>
-                  <View style = {{ flex:1 }} >
-                    <Text style = {{ fontWeight: '300', color: 'gray' }} >5.0 ({  !_.isEmpty(businessProfile) && businessProfile.reviews.length })</Text>
+                  <View style = {{ flex:2 }} >
+                    <Text style = {{ fontWeight: '300', color: 'gray' }} >5.0 ({  !_.isEmpty(businessData) && businessData.businessGoogleRating })</Text>
                   </View>
                   <View
                     style = {{ flex: 5}}
                   >
-                    <Text style = {{ alignSelf: 'center', fontSize: 14, textDecorationLine: 'underline' }}>{  !_.isEmpty(businessProfile) && this.getFormattedAddress(businessProfile.formatted_address) }</Text>
+                    <Text style = {{ alignSelf: 'center', fontSize: 14, textDecorationLine: 'underline' }}>{  !_.isEmpty(businessData) && businessData.address }</Text>
                   </View>
                   
                 </View>
@@ -231,7 +233,7 @@ class ProfileModal extends Component {
                   }}
                 />
 
-                <View style = {[styles.detailSection, { flex:2 }]} >
+                {/* <View style = {[styles.detailSection, { flex:2 }]} >
                   <View style = {{ flex: 2, borderWidth: 0 }} >
                     <Text 
                       style = {{ fontSize: 18, textAlign: 'left', fontWeight: '500' }}
@@ -247,11 +249,11 @@ class ProfileModal extends Component {
                       style = {{ height: 30, width: 40, position: 'relative', bottom: 7 }}
                     />
                   </View>
-                </View>
-                <View
+                </View> */}
+                {/* <View
                   style={styles.divider}
-                />
-                { !_.isEmpty(businessProfile) && businessProfile.types.map((type)=>{
+                /> */}
+                { !_.isEmpty(businessData) && businessData.types.map((type)=>{
                     return (
                       <View style ={[{ borderWidth:0, width: '100%', marginTop: '8%' }]} >
                         <View style={{ flexDirection: 'row' }}>
@@ -271,7 +273,7 @@ class ProfileModal extends Component {
                 <View
                   style={styles.divider}
                 />
-                <View style = {[styles.detailSection, { flex: 2 }]} >  
+                {/* <View style = {[styles.detailSection, { flex: 2 }]} >  
                   <View style = {{ flex: 1 }} >
                     <Text 
                       style = {styles.largeDescription}
@@ -279,12 +281,12 @@ class ProfileModal extends Component {
                         { businessData.longDescription } 
                     </Text>
                   </View>
-                </View>
+                </View> */}
                 <TouchableOpacity
                   style = {{ borderRadius: 10, marginTop: '5%', borderWidth:1, width: '100%' }}
                   onPress = {() => {  
                     const args = {
-                      number: "4824789274892",
+                      number: businessData.phoneNo,
                       prompt: true,
                     };
                     // Make a call
@@ -307,11 +309,11 @@ class ProfileModal extends Component {
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={rating.crowd/2}
+                      rating={rating.crowd}
                       starSize={15}
                       starStyle = {{ color: this.getCaseColor(rating.crowd) }}
                     />
-                    <Text>10/{rating.crowd}</Text>
+                    <Text>5/{rating.crowd}</Text>
                   </View>
                   <View 
                     style = {styles.starComponent} 
@@ -320,11 +322,11 @@ class ProfileModal extends Component {
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={rating.fun/2}
+                      rating={rating.fun}
                       starSize={15}
                       starStyle = {{ color: this.getCaseColor(rating.fun) }}
                     />
-                    <Text>10/{rating.fun && rating.fun.toFixed(2)}</Text>
+                    <Text>5/{rating.fun && rating.fun.toFixed(1)}</Text>
                   </View>
                   <View 
                     style = {styles.starComponent} 
@@ -333,11 +335,11 @@ class ProfileModal extends Component {
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={ rating.girlToGuyRatio/2}
+                      rating={ rating.ratioInput}
                       starSize={15}
-                      starStyle = {{ color: this.getCaseColor(rating.girlToGuyRatio) }}
+                      starStyle = {{ color: this.getCaseColor(rating.ratioInput) }}
                     />
-                    <Text>10/{rating.girlToGuyRatio && rating.girlToGuyRatio.toFixed(2)}</Text>
+                    <Text>5/{rating.ratioInput && rating.ratioInput.toFixed(1)}</Text>
                   </View>
                   <View 
                     style = {styles.starComponent} 
@@ -346,11 +348,11 @@ class ProfileModal extends Component {
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={rating.difficultyGettingIn/2}
+                      rating={rating.difficultyGettingIn}
                       starSize={15}
                       starStyle = {{ color: this.getCaseColor(rating.difficultyGettingIn) }}
                     />
-                    <Text>10/{rating.difficultyGettingIn && rating.difficultyGettingIn.toFixed(2)}</Text>
+                    <Text>5/{rating.difficultyGettingIn && rating.difficultyGettingIn.toFixed(1)}</Text>
                   </View>
                   <View 
                     style = {styles.starComponent} 
@@ -359,11 +361,11 @@ class ProfileModal extends Component {
                     <StarRatings
                       disable={true}
                       maxStars={5}
-                      rating={rating.difficultyGettingDrink/2}
+                      rating={rating.difficultyGettingDrink}
                       starSize={15}
                       starStyle = {{ color: this.getCaseColor(rating.difficultyGettingDrink) }}
                     />
-                    <Text>10/{rating.difficultyGettingDrink && rating.difficultyGettingDrink.toFixed(2)}</Text>
+                    <Text>5/{rating.difficultyGettingDrink && rating.difficultyGettingDrink.toFixed(1)}</Text>
                   </View>        
                 </View>
                 
@@ -407,13 +409,13 @@ class ProfileModal extends Component {
               <View style = {{ flex:1, flexDirection: 'row' }} >
                 <View style = {{ flex:2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }} >
                   <View style = {{ flex:1, alignItems : 'center' }} >  
-                      <StarRatings
+                      {/* <StarRatings
                         disable={true}
                         maxStars={1}
                         rating={2}
                         starSize={15}
                         starStyle = {{ color: 'red' }}
-                      />
+                      /> */}
                   </View>
                   <View style = {{ flex:2 }} >
                     <Text style = {{ fontWeight: '300', color: 'gray' }} >5.0 ({  !_.isEmpty(businessProfile) && businessProfile.reviews.length })</Text>
@@ -568,7 +570,7 @@ class RateModal extends React.Component{
           animationType="fade"
           transparent={true}
           presentationStyle = "fullScreen"
-          visible={this.props.show}
+          visible={this.props.show }
           onRequestClose={() => {
             Alert.alert("Modal has been closed.");
           }}

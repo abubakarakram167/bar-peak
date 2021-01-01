@@ -102,8 +102,7 @@ class HomeScreen extends Component {
           >
           <View>
             <Image
-              source={require('../../assets/loadingTwo.gif')}
-              style  = {{ width: 120, height: 150 }}
+              source={require('../../assets/loadingFive.gif')}
             />
           </View>
         </OrientationLoadingOverlay>         

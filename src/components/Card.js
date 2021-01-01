@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   thumbnail: {
     width: width,
-    height: height * 0.35,
+    height: height * 0.8,
     position: 'relative'
   },
   noMoreCards: {

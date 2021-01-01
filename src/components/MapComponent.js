@@ -8,8 +8,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import StarRating from 'react-native-star-rating'
 import Modal from '../components/Modal';
-import Icon from 'react-native-vector-icons/Ionicons'
+import ProfileModalIcon from 'react-native-vector-icons/Ionicons'
+import { Icon } from 'react-native-elements';
 import ListComponent from './ListComponent';
+import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
 
 
 const { width, height } = Dimensions.get("window");
@@ -35,7 +37,9 @@ class MapScreen extends React.Component{
       selectedBusiness: {},
       currentView: 'map',
       defaultCategory: 'food',
-      searchValue: ''
+      searchValue: '',
+      showCard: true,
+      spinner: false
     }
   }
 
@@ -48,13 +52,15 @@ class MapScreen extends React.Component{
   }
 
   selectSpecificBusiness = () => {
-    const marker = this.state.selectedMarker.image ? this.state.selectedMarker : this.state.allMarkers[0]
-    const item = {
-      place_id: marker.placeId
-    };
-    const { businesses } = this.props.business.business;
-    const selectedBusiness = businesses.filter( (business) => business.placeId === item.place_id )[0]
-    this.setState({ selectedItem: item, showProfileModal: true, selectedBusiness });
+    const { filterBusinesses } = this.props.business.business;
+    const { allSpots } = filterBusinesses;
+    const marker = this.state.selectedMarker ? this.state.selectedMarker : allSpots[0]
+    // const item = {
+    //   id: marker.markerId
+    // };
+    // const { businesses } = this.props.business.business;
+    // const selectedBusiness = businesses.filter( (business) => business.placeId === item.place_id )[0]
+    this.setState({showProfileModal: true, selectedBusiness: marker });
   }
 
 
@@ -63,16 +69,8 @@ class MapScreen extends React.Component{
     this.animation = new Animated.Value(0);
   }
 
-  markerClick = (marker, index) => {
-    let selectedMarker = {
-      image: marker.image,
-      rating: marker.rating,
-      name: marker.name,
-      types: marker.types,
-      priceLevel: marker.priceLevel,
-      placeId: marker.placeId
-    }
-    this.setState({ selectedMarker })
+  markerClick = (marker) => {
+    this.setState({ selectedMarker: marker, showCard: true })
   }
 
   showSpecificCategoryMarkers = (category) => {
@@ -100,13 +98,39 @@ class MapScreen extends React.Component{
   }
 
   getSearchResults = async() => {
+    this.setState({ spinner: true })
     await this.props.getSearchBusinesses(this.state.searchValue)
-    this.props.getfilteredBusiness(null,'search')
+    await this.props.getfilteredBusiness(null,'search')
+    this.setState({ spinner: false })
+  }
+
+  getImagePath = (types, whichSpot) => {
+    console.log("the typess", types)
+    console.log("the whichspot", whichSpot)
+    let fileName = '';
+    if(types.includes("Night Clubs") || types.includes("Bar")  ){
+      console.log("in night clubs")
+      if(whichSpot === 'red')
+        return  require('../../assets/redWhite.png')
+      else if(whichSpot === 'green')
+        return  require('../../assets/greenWhite.png')
+      else
+        return  require('../../assets/yellowMug.png')
+    }
+    else if(types.includes("Restaurant")){
+      if(whichSpot === 'red')
+        return  require('../../assets/redFood.png')
+      else if(whichSpot === 'green')
+        return  require('../../assets/greenFood.png')
+      else
+        return  require('../../assets/yellowFood.png')
+    }
+    
   }
 
   render(){
     const { filterBusinesses } = this.props.business.business;
-    const { goodSpots, averageSpots, badSpots } = filterBusinesses;
+    const { goodSpots, averageSpots, badSpots, allSpots } = filterBusinesses;
     const vibe = this.props.vibe;
     const {navigation} = this.props;
     
@@ -115,7 +139,7 @@ class MapScreen extends React.Component{
         <View 
           style={styles.searchBar}
         >
-          <Icon name="ios-beer" size={20} style={{ color: 'green',flex: 1, textAlign: 'right', marginRight: 10 }} />
+          <ProfileModalIcon name="ios-beer" size={20} style={{ color: 'green',flex: 1, textAlign: 'right', marginRight: 10 }} />
           <TextInput
             underlineColorAndroid="transparent"
             placeholder="Search For a Spot?"
@@ -133,7 +157,7 @@ class MapScreen extends React.Component{
               this.getSearchResults()
             }}
           >
-            <Icon 
+            <ProfileModalIcon
               name="ios-search" 
               size={20} 
               style={{ 
@@ -230,28 +254,34 @@ class MapScreen extends React.Component{
             showsUserLocation = {true}
             showsPointsOfInterest = {true}
             customMapStyle = {CustomMapData}
+            mapType = "standard"
             showsCompass = {true}
             showsMyLocationButton={true}
+            minZoomLevel = {5}
+            maxZoomLevel = {20}
+            loadingEnabled = {true}
           > 
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker)=> {
+                const url = this.getImagePath(marker.types, 'green')
+                console.log("hrer the url", url)
                 return(
                   <MapView.Marker
                     coordinate={{ 
                       latitude: marker.latitude,
                       longitude: marker.longitude,
                       }}
-                    // onCalloutPress={()=>this.markerClick(marker)}
+                    onPress={()=>this.markerClick(marker)}
                     title={marker.name}
                     description = "this is marker description"
-                    image = { require('../../assets/greenWhite.png') }
+                    image = {url }
                   >
                     <MapView.Callout tooltip style={styles.customView}>
-                      <TouchableHighlight underlayColor='#dddddd'>
-                        <View style={styles.calloutText}>
+                      {/* <TouchableHighlight underlayColor='#dddddd'>
+                        <View style={{ backgroundColor: '#cfd4d0', height: 70, width: 120 }}>
                           <Text>{marker.name}</Text>
                         </View>
-                      </TouchableHighlight>
+                      </TouchableHighlight> */}
                     </MapView.Callout>
                   </MapView.Marker> 
                 )
@@ -260,23 +290,24 @@ class MapScreen extends React.Component{
 
             {  
                 averageSpots && averageSpots.length> 0 && averageSpots.map((marker)=> {
+                  const url = this.getImagePath(marker.types, 'yellow')
                 return(
                   <MapView.Marker
                     coordinate={{ 
                       latitude: marker.latitude,
                       longitude: marker.longitude,
                       }}
-                    // onCalloutPress={()=>this.markerClick(marker)}
+                    onPress={()=>this.markerClick(marker)}
                     title={marker.name}
                     description = "this is marker description"
-                    image = { require('../../assets/yellowTest.png') }
+                    image = { url }
                   >
                     <MapView.Callout tooltip style={styles.customView}>
-                      <TouchableHighlight underlayColor='#dddddd'>
+                      {/* <TouchableHighlight underlayColor='#dddddd'>
                         <View style={styles.calloutText}>
                           <Text>{marker.name}</Text>
                         </View>
-                      </TouchableHighlight>
+                      </TouchableHighlight> */}
                     </MapView.Callout>
                   </MapView.Marker> 
                 )
@@ -285,23 +316,24 @@ class MapScreen extends React.Component{
 
             {  
               badSpots && badSpots.length> 0 &&  badSpots.map((marker)=> {
+                const url = this.getImagePath(marker.types, 'red')
                 return(
                   <MapView.Marker
                     coordinate={{ 
                       latitude: marker.latitude,
                       longitude: marker.longitude,
                       }}
-                    // onCalloutPress={()=>this.markerClick(marker)}
+                    onPress={()=>this.markerClick(marker)}
                     title={marker.name}
                     description = "this is marker description"
-                    image = { require('../../assets/redWhite.png') }
+                    image = { url }
                   >
                     <MapView.Callout tooltip style={styles.customView}>
-                      <TouchableHighlight underlayColor='#dddddd'>
+                      {/* <TouchableHighlight underlayColor='#dddddd'>
                         <View style={styles.calloutText}>
                           <Text>{marker.name}</Text>
                         </View>
-                      </TouchableHighlight>
+                      </TouchableHighlight> */}
                     </MapView.Callout>
                   </MapView.Marker> 
                 )
@@ -354,37 +386,64 @@ class MapScreen extends React.Component{
           contentContainerStyle={styles.endPadding}
         >
           
-            { this.state.allMarkers.length > 0 &&
+            { allSpots && allSpots.length > 0 && this.state.currentView === "map" && this.state.showCard &&
               <TouchableOpacity
                 onPress = {()=>{ 
                 this.selectSpecificBusiness()
                 }
               }>
                 <View style={[styles.card, {  flexDirection: 'row',alignItems: 'center' ,width: width * 0.9, height: height * 0.15 }]}>
-                  <View style={{ flex: 1 , height: '100%', borderWidth: 1}}>
+                  <View style={{ flex: 2 , height: '100%', borderWidth: 1}}>
                     <Image
                       style={styles.cardImage}
-                      source={ { uri: this.state.selectedMarker.image ? this.state.selectedMarker.image : this.state.allMarkers[0].image } } 
+                      source={ { uri: this.state.selectedMarker.images ? this.state.selectedMarker.images[0].secure_url: allSpots[0].images[0].secure_url } } 
                     />
                   </View>
-                  <View style={{ flex: 1, alignItems: 'flex-start', paddingLeft: 10, paddingTop: 10 }}>
-                    <Text style={[{ fontSize: 20, color: '#b63838', marginBottom: 2 }, styles.textInfo]}>{this.state.selectedMarker.types ? this.state.selectedMarker.types : this.state.allMarkers[0].types }</Text> 
-                    <Text style={[{ fontSize: 16, fontWeight: 'bold' }, styles.textInfo]}>{this.state.selectedMarker.name ? this.state.selectedMarker.name : this.state.allMarkers[0].name }</Text>
-                    <Text style={[{ fontSize: 12,  marginBottom: 4 }, styles.textInfo]} >{this.state.selectedMarker.priceLevel > 0 || this.state.allMarkers[0].priceLevel > 0 ?  this.renderDollar(this.state.selectedMarker.priceLevel ? this.state.selectedMarker.priceLevel : this.state.allMarkers[0].priceLevel) : "Price not available" }</Text> 
+                  <View style={{ flex: 2, alignItems: 'flex-start', paddingLeft: 10, paddingTop: 10 }}>
+                    <Text style={[{ fontSize: 20, color: '#b63838', marginBottom: 2 }, styles.textInfo]}>{this.state.selectedMarker.types ? this.state.selectedMarker.types[0] : allSpots[0].types[0] }</Text> 
+                    <Text style={[{ fontSize: 16, fontWeight: 'bold' }, styles.textInfo]}>{this.state.selectedMarker.name ? this.state.selectedMarker.name : allSpots[0].name }</Text>
+                    {/* <Text style={[{ fontSize: 12,  marginBottom: 4 }, styles.textInfo]} >{this.state.selectedMarker.priceLevel > 0 || this.state.allMarkers[0].priceLevel > 0 ?  this.renderDollar(this.state.selectedMarker.priceLevel ? this.state.selectedMarker.priceLevel : this.state.allMarkers[0].priceLevel) : "Price not available" }</Text>  */}
                     <StarRating
                       disable={true}
                       maxStars={5}
-                      rating={this.state.selectedMarker.rating ? this.state.selectedMarker.rating : this.state.allMarkers[0].rating }
+                      rating={this.state.selectedMarker.businessGoogleRating ? this.state.selectedMarker.businessGoogleRating : allSpots[0].businessGoogleRating }
                       starSize={10}
                       starStyle = {{ color:'#ffbf00' }}
                     />
                   </View>
+                  <View style = {{ flex:1, alignSelf: 'flex-start' }}  >
+                    <TouchableOpacity
+                      onPress = {()=> {
+                        console.log("called")
+                        this.setState({ showCard: false })
+                      }}
+                    >
+                      <Icon
+                        name="x"
+                        type = 'foundation'
+                        size = {20}
+                        color = "black"  
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </TouchableOpacity>
             }  
-        </Animated.ScrollView> 
-        {/* <BottomDrawer category = {category}  /> */}
-        { this.state.showProfileModal && <Modal  item  = {this.state.selectedItem}  businessData = {this.state.selectedBusiness}  show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  } 
+        </Animated.ScrollView>
+        <OrientationLoadingOverlay
+            visible={this.state.spinner}
+            message = "Loading..."
+            color="white"
+            indicatorSize="large"
+            messageFontSize={24}
+          >
+          <View>
+            <Image
+              source={require('../../assets/loadingFive.gif')}
+            />
+          </View>
+        </OrientationLoadingOverlay>  
+        { this.state.showProfileModal && <Modal   businessData = {this.state.selectedMarker} currentView = {this.state.currentView} show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  } 
       </View>
     )
   }

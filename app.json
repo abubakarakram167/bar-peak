@@ -6,8 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/barPeakLogo.png",
     "splash": {
-      "image": "./assets/splashtest.png",
-      "backgroundColor": "white",
+      "image": "./assets/welcomeScreen.png",
+      "backgroundColor": "#000000",
       "resizeMode": "cover"
     },
     "updates": {
