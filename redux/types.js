@@ -9,3 +9,4 @@ export const Fetch_Category = 'Fetch_Category';
 export const ADD_Rating = 'ADD_Rating';
 export const SET_LOCATION = 'SET_LOCATION'
 export const update_User = 'updateUser'
+export const Search_Results = "Search_Results";

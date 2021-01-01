@@ -3,7 +3,7 @@ import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import { View, Text, StyleSheet, Dimensions, Animated,Image,AppRegistry, ScrollView, TouchableHighlight, TouchableOpacity , TextInput} from 'react-native';
 import BottomDrawer from '../components/BottomDarawer';
 import CustomMapData from './CustomMapData';
-import {getfilteredBusiness} from '../../redux/actions/Business';
+import {getfilteredBusiness, getSearchBusinesses } from '../../redux/actions/Business';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import StarRating from 'react-native-star-rating'
@@ -34,7 +34,8 @@ class MapScreen extends React.Component{
       selectedItem: {},
       selectedBusiness: {},
       currentView: 'map',
-      defaultCategory: 'food'
+      defaultCategory: 'food',
+      searchValue: ''
     }
   }
 
@@ -75,6 +76,7 @@ class MapScreen extends React.Component{
   }
 
   showSpecificCategoryMarkers = (category) => {
+    console.log("the default on search", category)
     this.setState({ defaultCategory: category })
     let categories  = [];
     let allCategories = this.props.category;
@@ -93,15 +95,20 @@ class MapScreen extends React.Component{
         return category.type === "main_category"
       }).map((category) => category._id)
     }
-    console.log("on change select category", categories);
     
-    this.props.getfilteredBusiness(categories);
+    this.props.getfilteredBusiness(categories, null);
+  }
+
+  getSearchResults = async() => {
+    await this.props.getSearchBusinesses(this.state.searchValue)
+    this.props.getfilteredBusiness(null,'search')
   }
 
   render(){
     const { filterBusinesses } = this.props.business.business;
     const { goodSpots, averageSpots, badSpots } = filterBusinesses;
     const vibe = this.props.vibe;
+    const {navigation} = this.props;
     
     return(
       <View style={styles.container}>
@@ -114,7 +121,30 @@ class MapScreen extends React.Component{
             placeholder="Search For a Spot?"
             placeholderTextColor="black"
             style={styles.searchBarInput}
+            onChangeText = {(text)=> {
+              if(text.length === 0 )
+                this.showSpecificCategoryMarkers(this.state.defaultCategory)
+              this.setState({ searchValue: text })
+            }}
+           
           />
+          <TouchableOpacity
+            onPress = {()=>{ 
+              this.getSearchResults()
+            }}
+          >
+            <Icon 
+              name="ios-search" 
+              size={20} 
+              style={{ 
+                color: 'green',
+                flex: 1, 
+                textAlign: 'right', 
+                marginRight: 10 
+              }}
+            />
+          </TouchableOpacity>
+          
         </View>
         <View
           style = {{ flex: 1, flexDirection: 'row' }}
@@ -289,6 +319,7 @@ class MapScreen extends React.Component{
           >
             <TouchableOpacity
               style = {styles.setVibeButton}
+              onPress = {() => navigation.navigate('vibeTabNavigator')}
             >
             <Text
               style = {styles.setVibeButtonText}
@@ -299,7 +330,7 @@ class MapScreen extends React.Component{
           </View>
         </View>
         :
-        <ListComponent />
+        <ListComponent navigation = {navigation} />
 
         }
         <Animated.ScrollView
@@ -410,8 +441,8 @@ const styles = StyleSheet.create({
   activeCategoryButtonTextColor: {
     color: 'black',
     textAlign:'center',
-    fontSize: 11,
-    fontWeight: '800'
+    fontSize: 10,
+    fontWeight: '900'
   },
   categoryButtonTextColor: {
     color: 'black',
@@ -542,6 +573,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
     getfilteredBusiness,
+    getSearchBusinesses
   }, dispatch)
 );
 

@@ -1,10 +1,11 @@
 import { combineReducers } from 'redux';
-import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating} from '../types'; 
+import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results} from '../types'; 
 
 const INITIAL_STATE = {
   businesses: [],
   filterBusinesses: {},
-  rating: {}
+  rating: {},
+  searchResults: []
 };
 
 const businessReducer = (state = INITIAL_STATE, action) => {
@@ -15,6 +16,11 @@ const businessReducer = (state = INITIAL_STATE, action) => {
         ...state,
         businesses: action.payload
       }
+    case Search_Results: 
+      return {
+       ...state,
+        searchResults: action.payload
+      }  
     case FILTERED_BUSINESS:
       return{
         ...state,

@@ -7,36 +7,46 @@ class ListComponent extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      renderList: []
+      renderList: [],
+      currentPageNumber : 0
     }
   }
 
-  getMiles = (i) => {
-    return i*0.000621371192;
-  }
-
-  sortSpotsByDistanceAway = (markerList) => {
-    return markerList.sort(function(a, b) {
-      return parseFloat(a.distanceAway) - parseFloat(b.distanceAway);
-    });
-  }
-
   componentDidMount(){
-    const { allSpots } = this.props.business;
-    // let { latitude, longitude } = this.props.location;
-    latitude = 32.7970465;
-    longitude = -117.254522;
-    var userLocation = { lat: latitude.toFixed(5) , lng: longitude.toFixed(5) }
-    var destinationLocation = {};
-    const markerList = allSpots.map((marker)=>{
-      destinationLocation = { lat: marker.latitude.toFixed(5) , lng: marker.longitude.toFixed(5) }
-      return {...marker, distanceAway:  this.getMiles(haversine(userLocation, destinationLocation)).toFixed(2)}
+
+  }
+
+  getColor = ({ markerId }) => {
+    const { averageSpots, goodSpots } = this.props.business;
+    let color = '' 
+    if(averageSpots.map(spot => spot.markerId).includes(markerId))
+      color = '#f5ef56';
+    else if(goodSpots.map(spot => spot.markerId).includes(markerId))
+      color = '#0bb53e'
+    else
+      color = 'red'
+    return {
+      backgroundColor: color
+    }    
+  }
+
+  changePageNumber = (pageNumber) => {
+    this.setState({ currentPageNumber: pageNumber }, ()=> {
+      console.log("the state", this.state.currentPageNumber)
     })
-    console.log("the markerss in list", this.sortSpotsByDistanceAway(markerList));
-    this.setState({ renderList: markerList })
+  }
+
+  getMarkerCategoryName = (category) => {
+    console.log("here the category", category)
+    if(category.types.includes("Night Clubs") || category.types.includes("Bar"))
+      return 'drinks';
+    else if(category.types.includes("Restaurant"))
+      return 'food';
   }
 
   render(){
+    const { allSpots } = this.props.business;
+    const {navigation} = this.props;
     return(
       <View style={styles.container}>
         <View style = {{ flex: 1, flexDirection: 'column' }} >
@@ -58,6 +68,7 @@ class ListComponent extends React.Component{
               >
                 <TouchableOpacity
                   style = {styles.setVibeButton}
+                  onPress = {() => navigation.navigate('vibeTabNavigator')}
                 >
                   <Text
                     style = {styles.setVibeButtonText}
@@ -69,17 +80,24 @@ class ListComponent extends React.Component{
             </View>
           </View>
           <View style = {{ flex: 6 }}>
+            <View style = {{ flexDirection: 'row',justifyContent: 'flex-end', flex:1 }} >
+              <Text style = {styles.column} >Type</Text>
+              <Text style = {styles.column} >Distance Away</Text>
+            </View>
+            {/* <View style = {{  alignSelf: 'flex-end', marginRight: '5%'}}>
+              
+            </View>
             <View style = {{  alignSelf: 'flex-end', marginRight: '5%'}}>
               <Text style = {{ fontSize: 14, fontWeight: '700' }} >Distance Away</Text>
-            </View>
-            <View style = {{ flex:1, borderWidth: 0 }} >
+            </View> */}
+            <View style = {{ flex:10, borderWidth: 0 }} >
               <ScrollView >
-                { this.state.renderList.map((marker)=>{
+                {  allSpots && allSpots.slice(this.state.currentPageNumber * 10, this.state.currentPageNumber * 10 + 10).map((marker)=>{
                     return(
                       <View style = { styles.listElement } >
-                        <View style = {styles.listIcon} >
+                        <View style = {[styles.listIcon, this.getColor(marker)  ]} >
                         </View>
-                        <View style = {{ flex:2 }}>
+                        <View style = {{ flex:1 }}>
                           <Text
                             style = {styles.listElementName}
                           >
@@ -87,8 +105,16 @@ class ListComponent extends React.Component{
                           </Text>
                         </View>
                         <View style = {{ flex:1 }}>
+                          <Text
+                            style = {styles.listElementName}
+                          >
+                            { this.getMarkerCategoryName(marker) }
+                          </Text>
+                        </View>
+                        <View style = {{ flex:1 }}>
                           <Text>
-                            { marker.distanceAway }
+                            { marker.distanceAway + " " }
+                            <Text style = {{ fontWeight: '400' }} >miles</Text>
                           </Text>
                         </View>
                       </View>
@@ -97,6 +123,31 @@ class ListComponent extends React.Component{
                 }
               </ScrollView>   
             </View>
+            <View style = {{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
+             { this.state.currentPageNumber >0  &&
+              (<TouchableOpacity
+                style = {styles.paginationButton}
+                onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber - 1) }}
+              >
+                <Text
+                  style = {{ fontWeight: '700' }}
+                >Previous Page</Text>
+              </TouchableOpacity>)
+            }
+            { allSpots && allSpots.slice(this.state.currentPageNumber * 10 ).length > 10 &&
+              (<TouchableOpacity
+                style = {[styles.paginationButton, { marginRight: 30 }]}
+                onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber + 1) }}
+              >
+                <Text
+                  style = {{ 
+                    fontWeight: '700' 
+                  }}
+                >Next Page</Text>
+              </TouchableOpacity>)
+            }
+            </View>
+            
           </View>
         </View>
       </View>
@@ -106,23 +157,38 @@ class ListComponent extends React.Component{
 }
 
 const styles = StyleSheet.create({
+  column: { 
+    fontSize: 14,
+    fontWeight: '700',
+    marginRight: 35,
+    textAlign: 'right'
+  },
+  paginationButton: { 
+    marginTop: 10,
+    marginBottom: 5,
+    marginRight: 10 
+  },
   container: {
     flex: 12,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    backgroundColor: '#f5f5f5'
   },
   listElement:{
     flex:1,
     flexDirection: 'row',
-    marginTop: 10 
+    marginTop: 20 
   },
   listElementName:{ 
-    fontSize: 12, 
-    marginLeft: 20 
+    fontSize: 13, 
+    marginLeft: 20,
+    width: '80%',
+    color: 'gray',
+    fontWeight: '500'
   },
   listIcon:{ 
     width: 25,
     marginLeft: 20,
-    backgroundColor: 'green' 
+    height: 20 
   },
   setVibeButtonText: {
     color: 'white',

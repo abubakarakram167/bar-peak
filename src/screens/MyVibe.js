@@ -77,7 +77,6 @@ class MyVibe extends React.Component{
   }
 
   submitVibe = async() => {
-    // console.log("the answers", this.state.answers)
     const {navigation} = this.props;
     
     let vibeData = {
@@ -137,7 +136,7 @@ class MyVibe extends React.Component{
         if(updateVibe){
           this.setState({ showIndicator: false })
         await this.props.emptyBusiness()
-        this.props.getfilteredBusiness(null);  
+        this.props.getfilteredBusiness(null, null);  
         navigation.navigate('Screen 1');
         // navigation.popToTop()
       }

@@ -54,7 +54,7 @@ class HomeScreen extends Component {
     if(isVibeEmpty)
       this.setState({ showModal: true })    
     await this.props.getAllCategories();
-    await this.props.getfilteredBusiness(null);
+    await this.props.getfilteredBusiness(null, null);
    
   }
 
@@ -79,7 +79,6 @@ class HomeScreen extends Component {
     if (status !== 'granted') {
       setErrorMsg('Permission to access location was denied');
     }
-
     let location = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Balanced
     });
@@ -87,16 +86,11 @@ class HomeScreen extends Component {
   }
     
   render() {  
+    const {navigation} = this.props;
     return (
       <SafeAreaView style = {{ flex: 1 }} >
         <View style={{ flex: 1 }}>
-          {/* { this.state.spinner &&
-              <View style={[styles.spinnerContainer, styles.overlaycontainer]}>
-                <SkypeIndicator animationDuration = {1000} style = {{ zIndex:10 }} color='#f50202' size = {100} />
-              </View>
-          }     */}
-          <MapComponent />  
-                
+          <MapComponent navigation = {navigation}/>
           { this.state.showModal &&  <ShowPopupModal  closeModal = {()=> this.setState({ showModal: false })} navigation = {this.props.navigation} /> } 
           { this.state.showProfileModal && <Modal  item  = {this.state.selectedItem}  businessData = {this.state.selectedBusiness}  show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  }   
           <OrientationLoadingOverlay
