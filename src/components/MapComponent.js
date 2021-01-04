@@ -111,7 +111,7 @@ class MapScreen extends React.Component{
     if(types.includes("Night Clubs") || types.includes("Bar")  ){
       console.log("in night clubs")
       if(whichSpot === 'red')
-        return  require('../../assets/redWhite.png')
+        return  require('../../assets/foodTesters.png')
       else if(whichSpot === 'green')
         return  require('../../assets/greenWhite.png')
       else

@@ -44,7 +44,8 @@ class HomeScreen extends Component {
   async componentDidMount(){
     await this.props.emptyBusiness()
     this.setState({ spinner: true })
-    const location = await this.getCurrentLocation() 
+    const location = await this.getCurrentLocation()
+    await this.getNewChangedLocation(); 
     const { coords } = location;
     const [getVibe] = await Promise.all([ this.props.getVibe(), this.props.getNearLocationBusiness(coords), this.props.setUserLocation(coords)]) 
     setTimeout(()=> {  
@@ -72,6 +73,21 @@ class HomeScreen extends Component {
     const { businesses } = this.props.business.business;
     const selectedBusiness = businesses.filter( (business) => business.placeId === item.place_id )[0]
     this.setState({ selectedItem: item, showProfileModal: true, selectedBusiness });
+  }
+
+  getNewChangedLocation = async() => {
+    await Location.watchPositionAsync(
+      {
+        enableHighAccuracy: true,
+        distanceInterval: 1,
+        timeInterval: 5000
+      },
+      newLocation => {
+        let { coords } = newLocation;
+        this.props.setUserLocation(coords);
+      },
+      error => console.log(error)
+    );
   }
 
   getCurrentLocation = async() => {

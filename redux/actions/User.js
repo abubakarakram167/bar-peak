@@ -118,6 +118,9 @@ export const updateUser = ({email, firstName, lastName, password, date, gender, 
 export const setUserLocation = (data) => async (dispatch, getState) => {
   dispatch({
     type: SET_LOCATION,
-    payload: data,
+    payload: {...data,
+      latitude: data.latitude.toFixed(5),
+      longitude: data.longitude.toFixed(5) 
+    }
   })
 }

@@ -153,8 +153,8 @@ export const getfilteredBusiness = ( selectedMainCategory, search) => async (dis
   const actualVibe = vibe.vibe.vibe;
   const allCategories = category.category.category;
 
-  console.log("the search value", search)
-  console.log("the selected Main category", selectedMainCategory);
+  // console.log("the search value", search)
+  // console.log("the selected Main category", selectedMainCategory);
   // console.log("the search data", searchData)
   
   let selectedCategory = []

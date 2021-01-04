@@ -20,7 +20,7 @@ class MyVibe extends React.Component{
     super(props);
     this.state = {
       cards: [
-        {no: '1', image: require(`../../assets/imageOne.png`) ,question: " How hard are you trying to Party? "},
+        {no: '1', image: require(`../../assets/vibeTest.png`) ,question: " How hard are you trying to Party? "},
         {no: '2', image: require(`../../assets/imageFour.png`) ,question: "What type of Partying are you looking for?"},
         {no: '3', image: require(`../../assets/imageThree.png`) ,question: "What is Crowd Vibe You are looking for?"},
         {no: '4', image: require(`../../assets/imageTwo.png`) ,question: "What age demographic?"},

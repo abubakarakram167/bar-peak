@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   }
   ,
   card: {
-    justifyContent : 'flex-end',
+    justifyContent : 'flex-start',
     alignSelf: 'center',
     borderRadius: 15,
     overflow: 'hidden',
@@ -71,11 +71,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     elevation: 0,
     width: width * 0.97 ,
-    marginTop: 50
+    height: "100%",
+    marginTop: 0
   },
   thumbnail: {
     width: width,
-    height: height * 0.8,
+    height: height * 0.7,
     position: 'relative'
   },
   noMoreCards: {
