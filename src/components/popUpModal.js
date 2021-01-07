@@ -31,18 +31,8 @@ export default class App extends React.Component {
     const {showAlert} = this.state;
     const { navigation } = this.props;
     return (
-      <View style={styles.container}>
- 
-        {/* <Text>I'm AwesomeAlert</Text>
-        <TouchableOpacity onPress={() => {
-          this.showAlert();
-        }}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Try me!</Text>
-          </View>
-        </TouchableOpacity> */}
- 
-        <AwesomeAlert
+      <View style={styles.container}> 
+       <AwesomeAlert
           show={true}
           showProgress={false}
           title="Vibe Required"

@@ -4,14 +4,11 @@ import {
   Modal,
   StyleSheet,
   Text,
-  TouchableHighlight,
   View,
-  FlatList,
-  Image,
   TouchableOpacity,
   ScrollView,
   Dimensions,
-  Linking
+  Image
 } from "react-native";
 import { connect } from 'react-redux';
 import { SliderBox } from "react-native-image-slider-box";
@@ -19,16 +16,16 @@ import TimingModal from './TimingModal';
 import axios  from '../api/axios';
 import { Icon } from 'react-native-elements';
 import StarRatings from 'react-native-star-rating'
-import _, { map } from 'underscore';
+import _ from 'underscore';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-const { height, width } = Dimensions.get('window')
 import call from 'react-native-phone-call';
-import { Rating, AirbnbRating } from 'react-native-elements';
 import { getUserData } from './localStorage'; 
 import Spinner from 'react-native-loading-spinner-overlay';
 import AlertComponent from './AlertComponent';
 import ProgressionBar from './ProgressionBar';
 import haversine from 'haversine-distance';
+import SurveyComponent from './Survey';
+const { width, height } = Dimensions.get("window");
 
 const iconsList = [
   {
@@ -74,7 +71,21 @@ class ProfileModal extends Component {
   }
 
   getIconName = (icons) => {
-    const data =  iconsList.filter((icon) => icon.type === icons)[0]
+    const { category } = this.props;
+    let specificCategory = category.filter(category => category.title === icons)[0]
+    console.log("the specific category", specificCategory);
+    let data;
+    if(specificCategory.type === "sub_bar" ){
+      data =  iconsList.filter((icon) => icon.type === 'bar')[0]
+    }
+    else if(specificCategory.type === "main_category" ){
+      if(specificCategory.title === "Restaurant")
+        data =  iconsList.filter((icon) => icon.type === 'restaurant')[0]
+      else if(specificCategory.title === "Night Clubs")
+        data =  iconsList.filter((icon) => icon.type === 'point_of_interest')[0]
+    }
+    console.log("the sicon data", data);
+   
     return data ? data.iconName : ''
   
   }
@@ -192,7 +203,7 @@ class ProfileModal extends Component {
         if(value>=0 && value<=2)
           return "#ed4928"
         else if (value >=3 && value <= 5)
-          return "#14a843"  
+          return "#2bb552"  
       }
       else{
         if(value>=0 && value<=2)
@@ -217,7 +228,7 @@ class ProfileModal extends Component {
     // var destinationLocation = { lat: 31.45250, lng: 74.43324  };
     var DistanceInMiles  =  haversine(userLocation, destinationLocation).toFixed(2)
     console.log("the total distance distnce in meters", DistanceInMiles)
-    if(DistanceInMiles>=80) return false;
+    if(! DistanceInMiles>=80) return false;
     return true;
   }
 
@@ -285,7 +296,23 @@ class ProfileModal extends Component {
                     name="x"
                     type = 'foundation'
                     size = {20}
-                    color = "white"  
+                    color = "black"
+                    style = {styles.sliderImageIcons}  
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style = {styles.heartIcon}  >
+                <TouchableOpacity
+                  onPress = {()=> {
+                    this.addToFavourites()
+                  }}
+                >
+                  <Icon
+                    name="heart"
+                    type = 'foundation'
+                    size = {20}
+                    color = "#a8a8a8"
+                    style = {styles.sliderImageIcons}
                   />
                 </TouchableOpacity>
               </View>
@@ -332,7 +359,7 @@ class ProfileModal extends Component {
                             <FontAwesome5 name={this.getIconName(type)} light />
                           </View>
                           <View style ={ {flex: 6, alignItems: 'flex-start'}} >  
-                            <Text style = {{ paddingTop: 2 }} >
+                            <Text style = {{ fontSize: 16, fontWeight: "400" }} >
                               {type}
                             </Text>
                           </View>  
@@ -362,16 +389,16 @@ class ProfileModal extends Component {
                 />
                 <View style = {{ flex:2, borderWidth: 0, width: '100%', marginTop: 20}} >
                   <View style = {{ flex: 1, alignItems: 'flex-start', borderWidth:0 }} >
-                    <Text style = {{ textAlign: 'left', borderWidth:0, fontSize: 18, marginBottom:15 }} >Rating</Text>
+                    <Text style = {{ textAlign: 'left', borderWidth:0, fontSize: 20, marginBottom:15, fontWeight: '600' }} >Rating</Text>
                   </View>
                   <View 
                     style = {[styles.starComponent, { marginTop:0 }]} 
                   >
-                    <Text style = {styles.heading } > { vibe.crowdedPlace ? "Crowdy:" : "Quiet" } </Text>
+                    <Text style = {styles.heading } >{ vibe.crowdedPlace ? "Crowd Factor" : "Quiet Factor" } </Text>
                     <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: this.getVibeCaseColor('crowdy', 1.3)}]}
+                      style = {[styles.ratingButtonToggle, { backgroundColor: this.getVibeCaseColor('crowdy', rating.crowd)}]}
                     >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("crowd", 1.3) }</Text>
+                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("crowd", rating.crowd) }</Text>
                     </TouchableOpacity>
                     {/* <StarRatings
                       disable={true}
@@ -385,11 +412,11 @@ class ProfileModal extends Component {
                   <View 
                     style = {styles.starComponent} 
                   >
-                    <Text style = {styles.heading } >Fun Factor:</Text>
+                    <Text style = {styles.heading } >Fun Factor</Text>
                     <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: '#6fd3d6'}]}
+                      style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("fun", rating.fun) }</Text>
+                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("fun", 5) }</Text>
                     </TouchableOpacity>
                     {/* <StarRatings
                       disable={true}
@@ -403,9 +430,9 @@ class ProfileModal extends Component {
                   <View 
                     style = {styles.starComponent} 
                   >
-                    <Text style = {styles.heading }  >GenderBreakdown:</Text>
+                    <Text style = {styles.heading }  >Gender Breakdown</Text>
                     <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: '#6fd3d6'}]}
+                      style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
                       <Text style = {styles.ratingLabel} >{ this.getRatingCase("genderBreakdown", rating.ratioInput) }</Text>
                     </TouchableOpacity>
@@ -421,9 +448,9 @@ class ProfileModal extends Component {
                   <View 
                     style = {styles.starComponent} 
                   >
-                    <Text style = {styles.heading }  > Difficulty Getting in: </Text>
+                    <Text style = {styles.heading }  >Difficulty Getting in</Text>
                     <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: '#6fd3d6'}]}
+                      style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
                       <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingIn", rating.difficultyGettingIn) }</Text>
                     </TouchableOpacity>
@@ -439,9 +466,9 @@ class ProfileModal extends Component {
                   <View 
                     style = {styles.starComponent} 
                   >
-                    <Text style = {styles.heading }>  {vibe.crowdedPlace ? "Difficulty Getting Drink:" : " Easy Getting Drink  "} </Text>
+                    <Text style = {styles.heading }>{vibe.crowdedPlace ? "Difficulty Getting a Drink" : "Easy Getting Drink"} </Text>
                     <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: '#6fd3d6'}]}
+                      style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
                       <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingADrink", rating.difficultyGettingDrink) }</Text>
                     </TouchableOpacity>
@@ -538,10 +565,11 @@ class ProfileModal extends Component {
 }
 
 const mapStateToProps = (state) => {
-  const { vibe, user } = state
+  const { vibe, user, category } = state
   return { 
     vibe: vibe,
-    location: user.user.location
+    location: user.user.location,
+    category: category.category.category
   }
 };
 
@@ -559,7 +587,8 @@ class RateModal extends React.Component{
       difficultyGettingIn: 0,
       girlToGuyRatio:0,
       spinner: false,
-      showConfirmation: false
+      showConfirmation: false,
+      progress: 0
     }
   }
 
@@ -664,11 +693,25 @@ class RateModal extends React.Component{
             <View
               style = {{ flex: 1 }}
               >
-                <ProgressionBar />
-              </View>
+                <ProgressionBar  />
+            </View>
             <View style={styles.rateModal}>
-              <Text style = {{ fontSize: 16, textAlign: 'center', paddingLeft:10, paddingRight:10 }} >Please submit this seriously to help us imrove more next time.Thanks!</Text>
+              <Text style = {styles.surveyHeading} >Please submit this seriously to help us imrove more next time.Thanks!</Text>
               <View style = {{ flex:1, width: '100%', justifyContent: 'center', alignItems: 'center' }} >
+                
+                <View
+                  style = {{ flex: 1 }}
+                >
+                  <SurveyComponent  
+                    onNextQuestion = {(value)=> {
+                      setTimeout(()=> {
+                        this.setState({ progress: value }) 
+                      }, 500) 
+                    }
+                    } 
+                  />
+                </View>
+                
                 {/* <View 
                   style = {styles.ratingComponent}  
                 >
@@ -780,16 +823,40 @@ class RateModal extends React.Component{
 }
 
 const styles = StyleSheet.create({
+  sliderImageIcons:{ 
+    borderWidth: 1,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding:3,
+    paddingLeft: 5,
+    paddingRight: 5 
+  },
   ratingText: { 
     textAlign: 'center', 
     width: '30%',
     fontSize: 18,
     fontWeight: '600' 
   },
-  ratingLabel: {
-    fontSize: 15,
+  heartIcon:{ 
+    flex:1,
+    alignSelf: 'flex-end',
+    position: 'absolute',
+    right: 5,
+    top: "3%",
+    right: "3%" 
+  },
+  surveyHeading: { 
+    fontSize: 16,
     textAlign: 'center',
-    fontWeight: '500'
+    paddingLeft:10,
+    paddingRight:10,
+    marginBottom: 30 
+  },
+  ratingLabel: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: '600',
+    color: 'white'
   },
   ratingButtonToggle: {  
     padding: 10, 
@@ -797,10 +864,12 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
     maxWidth: 150,
     minWidth: 150,
-    minHeight: 50,
+    minHeight: 40,
     textAlign: 'center',
-    borderRadius: 10,
-    borderWidth:3
+    borderRadius: 4,
+    borderWidth:0,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   ratingComponent: {
     flex:1,
@@ -816,8 +885,8 @@ const styles = StyleSheet.create({
   },
   heading: {
     textAlign: 'left',
-    width: '30%',
-    fontSize: 20,
+    width: '35%',
+    fontSize: 14,
     fontWeight: '500'
   },
   starComponent: {

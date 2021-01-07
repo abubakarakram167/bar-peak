@@ -1,10 +1,11 @@
 import { combineReducers } from 'redux';
-import { Update_Radius, Fetch_User, SET_LOCATION , update_User} from '../types'; 
+import { Update_Radius, Fetch_User, SET_LOCATION , update_User, Progression_Bar} from '../types'; 
 
 const INITIAL_STATE = {
   user:{},
   location: {},
-  radius: 0
+  radius: 0,
+  progressBar: 0
 };
 
 const userReducer = (state = INITIAL_STATE, action) => {
@@ -29,7 +30,13 @@ const userReducer = (state = INITIAL_STATE, action) => {
       return{
         ...state,
         location: action.payload
-      }      
+      }
+    case Progression_Bar:
+      return{
+        ...state,
+        progressBar: action.payload
+      }
+
     default:
       return state
   }

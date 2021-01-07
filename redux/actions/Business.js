@@ -1,4 +1,4 @@
-import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results} from '../types'; 
+import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments } from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
@@ -9,10 +9,88 @@ let getMiles = (i) => {
   return i*0.000621371192;
 }
 
+
 let sortSpotsByDistanceAway = (markerList) => {
   return markerList.sort(function(a, b) {
     return parseFloat(a.distanceAway) - parseFloat(b.distanceAway);
   });
+}
+export const selectSpecifcCategoryEstablishmentsAction  = (categoryId) => async(dispatch, getState) => {
+  dispatch({
+    type: selectSpecifcCategoryEstablishments,
+    payload: categoryId
+  })
+  setTimeout(()=>{
+    return Promise.resolve('ok');
+  }, 500)
+}
+
+export const getFavouritesBusinessAction = () => async (dispatch, getState) => { 
+  const { token } = await getUserData();
+  const body = {
+    query:
+    ` 
+      query{
+        getFavouriteEstablishments 
+          {  _id
+            category{
+                title
+                _id
+                type
+            }    
+            name
+            rating{
+                fun,
+                crowd,
+                ratioInput,
+                difficultyGettingIn,
+                difficultyGettingDrink
+            }
+            name
+            totalUserCountRating
+            ageInterval
+            ratioType
+            customBusiness
+            customData{
+              address
+              phoneNo
+              rating
+            }
+            location{
+              type
+              coordinates
+            }
+            uploadedPhotos{
+                secure_url
+            }
+            googleBusiness{
+                formatted_address
+                formatted_phone_number
+                name
+                place_id
+                user_ratings_total
+                rating
+                url
+                types
+            }
+          }
+        }
+
+      `
+  }
+  try{  
+    const res = await axios.post(`graphql?`,body,{ headers: {
+      'Authorization': `Bearer ${token}`
+    } });
+    dispatch({
+      type: getFavouritesBusiness,
+      payload: res.data.data.getFavouriteEstablishments
+    })
+  }catch(err){
+    console.log("the err", err)
+  }
+
+
 }
 
 export const getSearchBusinesses = (searchValue) => async (dispatch, getState) => { 
@@ -145,14 +223,17 @@ export const getNearLocationBusiness = ({ latitude, longitude }) => async (dispa
   }
 };
 
-export const getfilteredBusiness = ( selectedMainCategory, search) => async (dispatch, getState) => {
+export const getfilteredBusiness = ( selectedMainCategory, search, favourite) => async (dispatch, getState) => {
 
   const { vibe, business, category, user } = getState();
   const data = business.business.businesses;
   const searchData = business.business.searchResults;
+  const favouriteEstablishments = business.business.favouriteBusiness;
   const actualVibe = vibe.vibe.vibe;
   const allCategories = category.category.category;
-
+  const favouriteEstablishmentCategory = business.business.selectedEstablishmentCategory
+  console.log("callerrrrrr")
+  console.log("the selected", favouriteEstablishmentCategory)
   // console.log("the search value", search)
   // console.log("the selected Main category", selectedMainCategory);
   // console.log("the search data", searchData)
@@ -170,7 +251,7 @@ export const getfilteredBusiness = ( selectedMainCategory, search) => async (dis
     }
   }
   
-  console.log("the selected category", selectedCategory);
+  // console.log("the selected category", selectedCategory);
     
   try{ 
     
@@ -180,36 +261,7 @@ export const getfilteredBusiness = ( selectedMainCategory, search) => async (dis
       badSpots: []
     };
 
-    if(! search){
-      data.map(business => {
-        if( business.ageInterval === actualVibe.ageInterval && business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
-          const { rating } = business;
-          if(actualVibe.crowdedPlace){
-            if(rating.crowd >= 4 && rating.crowd <= 5){
-              filterCategoryBusinessVibe.goodSpots.push(business)
-            }
-            else if(rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
-              filterCategoryBusinessVibe.averageSpots.push(business)
-            }
-            else if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
-              filterCategoryBusinessVibe.badSpots.push(business)
-            }
-          }
-          else{
-            if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
-              filterCategoryBusinessVibe.goodSpots.push(business)
-            }
-            else if(business.rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
-              filterCategoryBusinessVibe.averageSpots.push(business)
-            }
-            else if(business.rating.crowd >= 4 && business.rating.crowd <= 5){
-              filterCategoryBusinessVibe.badSpots.push(business)
-            }
-          }   
-        }
-      })
-    }
-    else{
+    if(search){
       searchData.map(business => {
         if( business.ageInterval === actualVibe.ageInterval  ){
           const { rating } = business;
@@ -238,7 +290,69 @@ export const getfilteredBusiness = ( selectedMainCategory, search) => async (dis
         }
       })
     }
-    
+    else if(favourite){
+      favouriteEstablishments.filter((business)=> {
+        return business.category.map(category=> category._id).includes(favouriteEstablishmentCategory)
+      }).map(business => {
+        if( business.ageInterval === actualVibe.ageInterval  ){
+          const { rating } = business;
+          if(actualVibe.crowdedPlace){
+            if(rating.crowd >= 4 && rating.crowd <= 5){
+              filterCategoryBusinessVibe.goodSpots.push(business)
+            }
+            else if(rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
+              filterCategoryBusinessVibe.averageSpots.push(business)
+            }
+            else if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
+              filterCategoryBusinessVibe.badSpots.push(business)
+            }
+          }
+          else{
+            if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
+              filterCategoryBusinessVibe.goodSpots.push(business)
+            }
+            else if(business.rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
+              filterCategoryBusinessVibe.averageSpots.push(business)
+            }
+            else if(business.rating.crowd >= 4 && business.rating.crowd <= 5){
+              filterCategoryBusinessVibe.badSpots.push(business)
+            }
+          }   
+        }
+      })
+    }
+    else{
+      data.map(business => {
+        if( business.ageInterval === actualVibe.ageInterval && business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
+          const { rating } = business;
+          if(actualVibe.crowdedPlace){
+            if(rating.crowd >= 4 && rating.crowd <= 5){
+              filterCategoryBusinessVibe.goodSpots.push(business)
+            }
+            else if(rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
+              filterCategoryBusinessVibe.averageSpots.push(business)
+            }
+            else if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
+              filterCategoryBusinessVibe.badSpots.push(business)
+            }
+          }
+          else{
+            if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
+              filterCategoryBusinessVibe.goodSpots.push(business)
+            }
+            else if(business.rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
+              filterCategoryBusinessVibe.averageSpots.push(business)
+            }
+            else if(business.rating.crowd >= 4 && business.rating.crowd <= 5){
+              filterCategoryBusinessVibe.badSpots.push(business)
+            }
+          }   
+        }
+      })
+    }
+    // console.log(`selected Min category ${selectedMainCategory} and search is ${search} and favourite is ${favourite} `)
+    // console.log("the filter business category", filterCategoryBusinessVibe)
+
     const { goodSpots, badSpots, averageSpots } = filterCategoryBusinessVibe;
 
     const goodSpotMarkers = goodSpots.map((marker)=>{

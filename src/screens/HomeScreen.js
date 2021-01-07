@@ -6,16 +6,11 @@ import {
     Dimensions,
     Image
 } from "react-native";
-import {
-  SkypeIndicator,
-} from 'react-native-indicators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import MapComponent from '../components/MapComponent';
-import { getNearLocationBusiness } from '../../redux/actions/Business';
-import {getfilteredBusiness} from '../../redux/actions/Business';
+import {getfilteredBusiness, getFavouritesBusinessAction, getNearLocationBusiness, emptyBusiness} from '../../redux/actions/Business';
 import {getVibe} from '../../redux/actions/Vibe';
-import {emptyBusiness} from '../../redux/actions/Business';
 import { getAllCategories } from '../../redux/actions/Category';
 import { setUserLocation } from '../../redux/actions/User';
 import * as Location from 'expo-location';
@@ -55,8 +50,8 @@ class HomeScreen extends Component {
     if(isVibeEmpty)
       this.setState({ showModal: true })    
     await this.props.getAllCategories();
-    await this.props.getfilteredBusiness(null, null);
-   
+    await this.props.getfilteredBusiness(null, null, null);
+    await this.props.getFavouritesBusinessAction();
   }
 
   getBusinessByCategory = async(category) => {
@@ -79,7 +74,7 @@ class HomeScreen extends Component {
     await Location.watchPositionAsync(
       {
         enableHighAccuracy: true,
-        distanceInterval: 1,
+        distanceInterval: 100,
         timeInterval: 5000
       },
       newLocation => {
@@ -118,7 +113,7 @@ class HomeScreen extends Component {
           >
           <View>
             <Image
-              source={require('../../assets/loadingFive.gif')}
+              source={require('../../assets/loadingIndicator.gif')}
             />
           </View>
         </OrientationLoadingOverlay>         
@@ -143,7 +138,8 @@ const mapDispatchToProps = dispatch => (
     getVibe,
     emptyBusiness,
     getAllCategories,
-    setUserLocation
+    setUserLocation,
+    getFavouritesBusinessAction
   }, dispatch)
 );
 

@@ -1,4 +1,4 @@
-import { Update_Radius, Fetch_User, SET_LOCATION, update_User } from '../types'; 
+import { Update_Radius, Fetch_User, SET_LOCATION, update_User, Progression_Bar, } from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData , storeUserData} from '../../src/components/localStorage'; 
@@ -124,3 +124,11 @@ export const setUserLocation = (data) => async (dispatch, getState) => {
     }
   })
 }
+export const setProgressionBar = (data) => async (dispatch, getState) => {
+  console.log("the bar", data)
+  dispatch({
+    type: Progression_Bar,
+    payload: data
+  })
+}
+

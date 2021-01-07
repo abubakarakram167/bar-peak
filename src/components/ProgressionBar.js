@@ -7,10 +7,10 @@ import {
   Alert,
   Text,
 } from 'react-native';
- 
+import { connect } from 'react-redux';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
  
-export default class App extends React.Component {
+class ProgressionBar extends React.Component {
  
   state = {
     progress: 20,
@@ -31,19 +31,21 @@ export default class App extends React.Component {
       borderRadius: 0,
       borderColor: 'orange',
     };
- 
+    console.log("the progressionBar", this.props.progressionBar)
     return (
+      
+
       <View style={styles.container}>
         <View>
           <ProgressBarAnimated
             width={barWidth}
-            value={this.state.progress}
+            value={this.props.progressionBar}
             backgroundColorOnComplete="#6CC644"
           />
           <View style={styles.buttonContainer}>
             <View style={styles.buttonInner}>
               <Text style = {{ textAlign: 'center', fontSize: 18, color: '#2f97d4', fontWeight: '500' }} >
-                Completion: { this.state.progress  }%
+                Completion: { this.props.progressionBar  }%
               </Text>
             </View>
           </View>
@@ -52,6 +54,20 @@ export default class App extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  const { user } = state
+  return { 
+    progressionBar: user.user.progressBar
+  }
+};
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    setProgressionBar,
+  }, dispatch)
+);
+
+export default connect(mapStateToProps, null)(ProgressionBar);
  
 const styles = StyleSheet.create({
   container: {

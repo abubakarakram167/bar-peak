@@ -10,3 +10,6 @@ export const ADD_Rating = 'ADD_Rating';
 export const SET_LOCATION = 'SET_LOCATION'
 export const update_User = 'updateUser'
 export const Search_Results = "Search_Results";
+export const Progression_Bar = "Progression_Bar";
+export const getFavouritesBusiness = "getFavouriteBusiness"
+export const selectSpecifcCategoryEstablishments = "selectSpecifcCategoryEstablishments";

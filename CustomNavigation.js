@@ -12,15 +12,12 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import vibeInfoComponent from "./src/screens/vibeInfoScreen";
 import radiusScreen from "./src/screens/radiusScreen";
 import editProfileScreen from "./src/screens/EditProfile";
-import AnimatingScreen from './src/screens/AnimatedText';
-// import Icon from 'react-native-vector-icons/FontAwesome';
+import MyFavouritesScreen from "./src/screens/MyFavourites";
+import SpecificCategoryScreen from "./src/screens/specificCategoryFavourite";
 import { Icon } from 'react-native-elements'
-import { Image } from 'react-native'
-import RadiusScreen from "./src/screens/radiusScreen";
-import EditProfile from "./src/screens/EditProfile";
+import {Text} from 'react-native'
+
 const Tab = createBottomTabNavigator();
-
-
 const Stack = createStackNavigator();  // creates object for Stack Navigator
 
 const screenOptions = {
@@ -83,6 +80,7 @@ function HomeApp() {
       {
         {
           tabBarLabel: 'My Favourites',
+          unmountOnBlur: true,
           tabBarIcon: ({ tintColor }) => (
             <Icon 
               name="ios-heart"
@@ -174,12 +172,18 @@ const SecondScreenNavigator = () => {
     return (
       <Stack.Navigator >
         <Stack.Screen
-          name="Screen 2"
-          component={Screen2}
+          name="MyFavourites"
+          component={MyFavouritesScreen}
+          options = { ()=> {return screenOptions} }
         />
          <Stack.Screen
-          name="NestedScreen2"
-          component={HomeScreen}
+          name="SpecificCategoryFavourites"
+          component={SpecificCategoryScreen}
+          options = { 
+            { title: "",
+              unmountInactiveRoutes: true 
+            }
+          }
         />
       </Stack.Navigator>
     );
@@ -212,7 +216,7 @@ const HomeTabScreen = () => {
           name="myVibe"
           component={MyVibeScreen}
           options = {
-          { title: " Setting My Vibe ",
+          { title: "Setting My Vibe",
             headerShown: true,
             headerLeft: () => {return null},
             unmountInactiveRoutes: true 
@@ -248,10 +252,9 @@ const HomeTabScreen = () => {
         <Stack.Screen
           name="radiusScreen"
           component={radiusScreen}
-          options = {
-          { title: "Select Radius",
-            headerShown: true,
-           
+          options = {{ 
+            title: "Select Radius",
+            headerShown: true,   
           }}
         />
         <Stack.Screen

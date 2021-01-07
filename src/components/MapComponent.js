@@ -1,18 +1,17 @@
 import React from 'react';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
-import { View, Text, StyleSheet, Dimensions, Animated,Image,AppRegistry, ScrollView, TouchableHighlight, TouchableOpacity , TextInput} from 'react-native';
-import BottomDrawer from '../components/BottomDarawer';
+import { View, Text, StyleSheet, Dimensions, Animated,Image, TouchableOpacity, TextInput} from 'react-native';
 import CustomMapData from './CustomMapData';
 import {getfilteredBusiness, getSearchBusinesses } from '../../redux/actions/Business';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import StarRating from 'react-native-star-rating'
-import Modal from '../components/Modal';
+import Modal from './Modal';
 import ProfileModalIcon from 'react-native-vector-icons/Ionicons'
 import { Icon } from 'react-native-elements';
 import ListComponent from './ListComponent';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
-
+import ShowVibeModal from "./showVibeModal";
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 3;
@@ -39,7 +38,8 @@ class MapScreen extends React.Component{
       defaultCategory: 'food',
       searchValue: '',
       showCard: true,
-      spinner: false
+      spinner: false,
+      showVibeModal: false
     }
   }
 
@@ -55,11 +55,6 @@ class MapScreen extends React.Component{
     const { filterBusinesses } = this.props.business.business;
     const { allSpots } = filterBusinesses;
     const marker = this.state.selectedMarker ? this.state.selectedMarker : allSpots[0]
-    // const item = {
-    //   id: marker.markerId
-    // };
-    // const { businesses } = this.props.business.business;
-    // const selectedBusiness = businesses.filter( (business) => business.placeId === item.place_id )[0]
     this.setState({showProfileModal: true, selectedBusiness: marker });
   }
 
@@ -74,7 +69,6 @@ class MapScreen extends React.Component{
   }
 
   showSpecificCategoryMarkers = (category) => {
-    console.log("the default on search", category)
     this.setState({ defaultCategory: category })
     let categories  = [];
     let allCategories = this.props.category;
@@ -94,38 +88,39 @@ class MapScreen extends React.Component{
       }).map((category) => category._id)
     }
     
-    this.props.getfilteredBusiness(categories, null);
+    this.props.getfilteredBusiness(categories, null, null);
   }
 
   getSearchResults = async() => {
     this.setState({ spinner: true })
     await this.props.getSearchBusinesses(this.state.searchValue)
-    await this.props.getfilteredBusiness(null,'search')
+    await this.props.getfilteredBusiness(null,'search', null)
     this.setState({ spinner: false })
   }
 
   getImagePath = (types, whichSpot) => {
-    console.log("the typess", types)
-    console.log("the whichspot", whichSpot)
     let fileName = '';
     if(types.includes("Night Clubs") || types.includes("Bar")  ){
-      console.log("in night clubs")
       if(whichSpot === 'red')
-        return  require('../../assets/foodTesters.png')
+        return  require('../../assets/redWhite.png')
       else if(whichSpot === 'green')
         return  require('../../assets/greenWhite.png')
       else
-        return  require('../../assets/yellowMug.png')
+        return  require('../../assets/yellowTest.png')
     }
     else if(types.includes("Restaurant")){
       if(whichSpot === 'red')
-        return  require('../../assets/redFood.png')
+        return  require('../../assets/redTransparent.png')
       else if(whichSpot === 'green')
-        return  require('../../assets/greenFood.png')
+        return  require('../../assets/greenTransparent.png')
       else
-        return  require('../../assets/yellowFood.png')
-    }
+        return  require('../../assets/yellowTransparent.png')
+    } 
+  }
+
+  addToFavourites = () => {
     
+
   }
 
   render(){
@@ -264,7 +259,6 @@ class MapScreen extends React.Component{
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker)=> {
                 const url = this.getImagePath(marker.types, 'green')
-                console.log("hrer the url", url)
                 return(
                   <MapView.Marker
                     coordinate={{ 
@@ -360,6 +354,28 @@ class MapScreen extends React.Component{
             </Text>
             </TouchableOpacity>
           </View>
+          <View
+            style={{
+              position: 'absolute',
+              top: '20%', 
+              right: '5%',
+              alignSelf: 'flex-end' 
+            }}
+          >
+            <TouchableOpacity
+              onPress = {() => {
+                
+                this.setState({ showVibeModal: true }) 
+              }}
+            >
+              <Icon
+                name="eye"
+                type = 'foundation'
+                size = {40}
+                color = "black"  
+              />
+            </TouchableOpacity>
+          </View>
         </View>
         :
         <ListComponent navigation = {navigation} />
@@ -398,6 +414,20 @@ class MapScreen extends React.Component{
                       style={styles.cardImage}
                       source={ { uri: this.state.selectedMarker.images ? this.state.selectedMarker.images[0].secure_url: allSpots[0].images[0].secure_url } } 
                     />
+                    <View style = {styles.heartIcon}  >
+                      <TouchableOpacity
+                        onPress = {()=> {
+                          this.addToFavourites()
+                        }}
+                      >
+                        <Icon
+                          name="heart"
+                          type = 'foundation'
+                          size = {20}
+                          color = "#dcddde"
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                   <View style={{ flex: 2, alignItems: 'flex-start', paddingLeft: 10, paddingTop: 10 }}>
                     <Text style={[{ fontSize: 20, color: '#b63838', marginBottom: 2 }, styles.textInfo]}>{this.state.selectedMarker.types ? this.state.selectedMarker.types[0] : allSpots[0].types[0] }</Text> 
@@ -414,7 +444,6 @@ class MapScreen extends React.Component{
                   <View style = {{ flex:1, alignSelf: 'flex-start' }}  >
                     <TouchableOpacity
                       onPress = {()=> {
-                        console.log("called")
                         this.setState({ showCard: false })
                       }}
                     >
@@ -439,11 +468,12 @@ class MapScreen extends React.Component{
           >
           <View>
             <Image
-              source={require('../../assets/loadingFive.gif')}
+              source={require('../../assets/loadingIndicator.gif')}
             />
           </View>
         </OrientationLoadingOverlay>  
         { this.state.showProfileModal && <Modal   businessData = {this.state.selectedMarker} currentView = {this.state.currentView} show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  } 
+         <ShowVibeModal show = {this.state.showVibeModal} onClose = {()=> { this.setState({ showVibeModal: false }) }} /> 
       </View>
     )
   }
@@ -451,6 +481,13 @@ class MapScreen extends React.Component{
 }
 
 const styles = StyleSheet.create({
+  heartIcon:{ 
+    flex:1,
+    alignSelf: 'flex-end',
+    position: 'absolute',
+    right: 5,
+    top: 5 
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -586,7 +623,7 @@ const styles = StyleSheet.create({
   cardImage: {
     flex: 1,
     width: "100%",
-    height: "50%"
+    height: "50%",
   },
   textContent: {
     flex: 1,
