@@ -1,4 +1,4 @@
-import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments } from '../types'; 
+import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments , add_Favourite} from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
@@ -15,6 +15,82 @@ let sortSpotsByDistanceAway = (markerList) => {
     return parseFloat(a.distanceAway) - parseFloat(b.distanceAway);
   });
 }
+
+export const addToFavourite = (id) => async (dispatch, getState) => {
+  const { business } = getState();
+  const { token } = await getUserData();
+  const {  favouriteBusiness } = business.business;
+  let addOrRemove = "";
+  if(favouriteBusiness.map((business)=> business._id ).includes(id) )
+    addOrRemove = "remove";
+  else
+    addOrRemove = "add";
+
+  const body = {
+    query:
+    ` mutation{
+        addToFavourites(id: "${id}", addOrRemove: "${addOrRemove}") {  
+          _id
+          category{
+              title
+              _id
+              type
+          }    
+          name
+          rating{
+              fun,
+              crowd,
+              ratioInput,
+              difficultyGettingIn,
+              difficultyGettingDrink
+          }
+          name
+          totalUserCountRating
+          ageInterval
+          ratioType
+          customBusiness
+          customData{
+            address
+            phoneNo
+            rating
+          }
+          location{
+            type
+            coordinates
+          }
+          uploadedPhotos{
+              secure_url
+          }
+          googleBusiness{
+              formatted_address
+              formatted_phone_number
+              name
+              place_id
+              user_ratings_total
+              rating
+              url
+              types
+          }
+      }
+    }
+    `
+  }
+  
+  try{  
+    const res = await axios.post(`graphql?`,body,{ headers: {
+      'Authorization': `Bearer ${token}`
+    } });
+    dispatch({
+      type: getFavouritesBusiness,
+      payload: res.data.data.addToFavourites
+    })
+    return Promise.resolve(addOrRemove);
+  }catch(err){
+    console.log("the err", err.response.data)
+  }
+
+}
+
 export const selectSpecifcCategoryEstablishmentsAction  = (categoryId) => async(dispatch, getState) => {
   dispatch({
     type: selectSpecifcCategoryEstablishments,
@@ -232,12 +308,7 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
   const actualVibe = vibe.vibe.vibe;
   const allCategories = category.category.category;
   const favouriteEstablishmentCategory = business.business.selectedEstablishmentCategory
-  console.log("callerrrrrr")
-  console.log("the selected", favouriteEstablishmentCategory)
-  // console.log("the search value", search)
-  // console.log("the selected Main category", selectedMainCategory);
-  // console.log("the search data", searchData)
-  
+ 
   let selectedCategory = []
   if(!search){  
     if(selectedMainCategory !== null){
@@ -350,8 +421,6 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
         }
       })
     }
-    // console.log(`selected Min category ${selectedMainCategory} and search is ${search} and favourite is ${favourite} `)
-    // console.log("the filter business category", filterCategoryBusinessVibe)
 
     const { goodSpots, badSpots, averageSpots } = filterCategoryBusinessVibe;
 

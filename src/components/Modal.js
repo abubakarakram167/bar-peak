@@ -75,7 +75,7 @@ class ProfileModal extends Component {
     let specificCategory = category.filter(category => category.title === icons)[0]
     console.log("the specific category", specificCategory);
     let data;
-    if(specificCategory.type === "sub_bar" ){
+    if(specificCategory.type === "sub_bar" || specificCategory.title === "Bar"){
       data =  iconsList.filter((icon) => icon.type === 'bar')[0]
     }
     else if(specificCategory.type === "main_category" ){
@@ -99,7 +99,7 @@ class ProfileModal extends Component {
         rating{
           fun,
           crowd,
-          girlToGuyRatio,
+          ratioInput,
           difficultyGettingIn,
           difficultyGettingDrink
         }
@@ -109,27 +109,15 @@ class ProfileModal extends Component {
   try{  
     const res = await axios.post(`graphql?`,body);
     this.setState( { rating: res.data.data.getSingleBusiness.rating } )
-    // console.log("the response in business", res.data.data.getSingleBusiness);
-    
   }catch(err){
     console.log("hte errorsss", err.response.data)
   }
   } 
 
   async componentDidMount(){
-    // const { businessData } = this.props;
-    // console.log("the business Data", businessData)
-    // const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`;
-    // const {data} =  await axios.post(url);
-    // const photos = data.result.photos;
-    // const { placeId } = this.props.businessData;
-    // this.getBusinessRating(placeId)
-    // // this.setState({ rating })
-    // const AllPhotos = photos.map((photo)=>{
-    //   return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyD9CLs9poEBtI_4CHd5Y8cSHklQPoCi6NM`;
-    // })
-    // this.setState({ businessProfile: data.result, images: AllPhotos  })
+
   }
+
   getRatingCase = (ratingCase, value) => {
     console.log(`the rating case ${ratingCase} and value is ${value}`)
     if(ratingCase === "crowd"){
@@ -232,15 +220,24 @@ class ProfileModal extends Component {
     return true;
   }
 
+  getFavouriteEstablishmentColor = (marker) => {
+    const { favouriteBusiness } = this.props.business.business;
+    const allEstablishmentIds = favouriteBusiness.map(business => business._id)
+    console.log("the allEstablishments", allEstablishmentIds)
+    if(allEstablishmentIds.includes(marker))
+      return "red"
+    else
+      return "gray";
+  }
+
   render() {
     const { show } = this.props;
     const { businessProfile } = this.state;
     const { businessData } = this.props;  
     const { vibe } = this.props.vibe.vibe;
     const { rating } = businessData
-    const allPhotos = businessData.images.map((photo)=> photo.secure_url);
-    console.log("the buseinesss data in modal", businessData);
-
+    const allPhotos = businessData && businessData.images.map((photo)=> photo.secure_url);
+   
     return (
       <View style={styles.centeredView}>
         <Modal
@@ -311,7 +308,7 @@ class ProfileModal extends Component {
                     name="heart"
                     type = 'foundation'
                     size = {20}
-                    color = "#a8a8a8"
+                    color = {this.getFavouriteEstablishmentColor(businessData.markerId)}
                     style = {styles.sliderImageIcons}
                   />
                 </TouchableOpacity>
@@ -489,12 +486,12 @@ class ProfileModal extends Component {
                 {  this.checkUserRatingAvailableDistance() &&
                   (<View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
                     <TouchableOpacity
-                        style = {{ borderRadius: 6, borderWidth:1,height: '100%', width: '40%',backgroundColor: '#E56060' }}
-                        onPress = {() => {  
-                          this.setState({ showRatingModal: true })
-                        }}
-                      >
-                        <Text style = {{ textAlign: 'center', fontSize: 12,color: 'white', fontWeight: '700',paddingTop: 18, paddingBottom: 18 }} > Rate It! </Text>
+                      style = {{ borderRadius: 6, borderWidth:1,height: '100%', width: '40%',backgroundColor: '#050505' }}
+                      onPress = {() => {  
+                        this.setState({ showRatingModal: true })
+                      }}
+                    >
+                      <Text style = {styles.rateButtonStyling} > Rate It! </Text>
                     </TouchableOpacity>
                   </View>)
                 }
@@ -526,13 +523,7 @@ class ProfileModal extends Component {
               <View style = {{ flex:1, flexDirection: 'row' }} >
                 <View style = {{ flex:2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }} >
                   <View style = {{ flex:1, alignItems : 'center' }} >  
-                      {/* <StarRatings
-                        disable={true}
-                        maxStars={1}
-                        rating={2}
-                        starSize={15}
-                        starStyle = {{ color: 'red' }}
-                      /> */}
+                  
                   </View>
                   <View style = {{ flex:2 }} >
                     <Text style = {{ fontWeight: '300', color: 'gray' }} >5.0 ({  !_.isEmpty(businessProfile) && businessProfile.reviews.length })</Text>
@@ -565,11 +556,12 @@ class ProfileModal extends Component {
 }
 
 const mapStateToProps = (state) => {
-  const { vibe, user, category } = state
+  const { vibe, user, category, business } = state
   return { 
     vibe: vibe,
     location: user.user.location,
-    category: category.category.category
+    category: category.category.category,
+    business
   }
 };
 
@@ -617,43 +609,34 @@ class RateModal extends React.Component{
     })
   }
 
-  saveRating = async() => {
+  saveRating = async(answers) => {
+    let FinalAnswers = answers.map((answer)=> answer.value )
+    const rating = {
+      fun: FinalAnswers[0].value,
+      crowd: FinalAnswers[1].value,
+      difficultyGettingIn: FinalAnswers[2].value,
+      ratioInput: FinalAnswers[3].value,
+      difficultyGettingADrink: FinalAnswers[4].value
+    }
     const { vibe } = this.props;
     this.setState({ spinner: true })
-    let {
-      fun,
-      crowd,
-      difficultyGettingDrink,
-      difficultyGettingIn,
-      girlToGuyRatio
-    } = this.state;
-    
-
-    console.log("here", this.props)
-    console.log("the vibe in save rating", vibe)
-    if(!vibe.crowdedPlace){
-      crowd =  10 - crowd;
-      difficultyGettingDrink = 10 - difficultyGettingDrink;
-      girlToGuyRatio = 10 - girlToGuyRatio;
-    }
     const { token } = await getUserData();
     const { data } = this.props;
-    console.log("place id", data.placeId);
     const body = {
         query:`
         mutation{
           addRating(rating:{
-              fun: ${fun.toFixed(2)},
-              crowd: ${crowd.toFixed(2)},
-              girlToGuyRatio: ${girlToGuyRatio.toFixed(2)},
-              difficultyGettingIn: ${difficultyGettingIn.toFixed(2)},
-              difficultyGettingDrink: ${difficultyGettingDrink.toFixed(2)}    
+              fun: ${rating.fun.toFixed(2)},
+              crowd: ${rating.crowd.toFixed(2)},
+              ratioInput: ${rating.ratioInput.toFixed(2)},
+              difficultyGettingIn: ${rating.difficultyGettingIn.toFixed(2)},
+              difficultyGettingDrink: ${rating.difficultyGettingADrink.toFixed(2)}    
           },
-          businessId: "${data.placeId}"
+          businessId: "${data.markerId}"
           ){
               fun,
               crowd,
-              girlToGuyRatio,
+              ratioInput,
               difficultyGettingDrink,
               difficultyGettingIn
           }
@@ -665,9 +648,10 @@ class RateModal extends React.Component{
         'Authorization': `Bearer ${token}`
       } });
       console.log("the response in Rating", res.data.data.addRating);
-      this.props.updateRating(res.data.data.addRating);
-      this.setState({ spinner: false, showConfirmation: true })
-      this.props.closeModal()
+      // this.props.updateRating(res.data.data.addRating);
+      this.setState({ spinner: false, showConfirmation: true },()=>{
+        setTimeout(()=> this.props.closeModal(), 2000)
+      })
     }catch(err){
       console.log("hte errorsss", err.response.data)
     }
@@ -696,9 +680,7 @@ class RateModal extends React.Component{
                 <ProgressionBar  />
             </View>
             <View style={styles.rateModal}>
-              <Text style = {styles.surveyHeading} >Please submit this seriously to help us imrove more next time.Thanks!</Text>
-              <View style = {{ flex:1, width: '100%', justifyContent: 'center', alignItems: 'center' }} >
-                
+              <View style = {{ flex:1, width: '100%', justifyContent: 'center', alignItems: 'center' }} >      
                 <View
                   style = {{ flex: 1 }}
                 >
@@ -707,87 +689,14 @@ class RateModal extends React.Component{
                       setTimeout(()=> {
                         this.setState({ progress: value }) 
                       }, 500) 
-                    }
-                    } 
+                    }}
+                    onFinishSurvey = {(answer)=> {
+                      this.saveRating(answer)
+                    }} 
                   />
                 </View>
-                
-                {/* <View 
-                  style = {styles.ratingComponent}  
-                >
-                  <Text style = { styles.ratingText } >Fun:</Text>
-                  <Rating 
-                    showRating 
-                    fractions={0.1} 
-                    startingValue={fun && fun}
-                    imageSize = {25}
-                    ratingCount = {10}
-                    onFinishRating = {(rating)=>{ this.setState({ fun: rating }) }} 
-                  />  
-                </View> */}
-                {/* <View 
-                  style = {styles.ratingComponent} 
-                >
-                  <Text style = { styles.ratingText } >{ vibe.crowdedPlace ? "Crowdy:" : "Quiet" }</Text>
-                  <Rating 
-                    showRating 
-                    fractions={0.1} 
-                    startingValue={crowd && crowd}
-                    imageSize = {25}
-                    ratingCount = {10}
-                    onFinishRating = {(rating)=>{ this.setState({ crowd: rating}) }} 
-                  /> 
-                </View>
-                <View 
-                  style = {styles.ratingComponent} 
-                >
-                  <Text style = { styles.ratingText } > {vibe.crowdedPlace ? "Difficulty Getting Drink:" : " Easy Getting Drink  "}</Text>
-                  <Rating 
-                    showRating 
-                    fractions={0.1} 
-                    startingValue={difficultyGettingDrink && difficultyGettingDrink}
-                    imageSize = {25}
-                    ratingCount = {10}
-                    onFinishRating = {(rating)=>{ this.setState({ difficultyGettingDrink: rating }) }} 
-                  /> 
-                </View>
-                <View 
-                  style = {styles.ratingComponent} 
-                >
-                  <Text style = { styles.ratingText }  > Girl To Guy Ratio </Text>
-                  <Rating 
-                    showRating 
-                    fractions={0.1} 
-                    startingValue={girlToGuyRatio && girlToGuyRatio}
-                    imageSize = {25}
-                    ratingCount = {10}
-                    onFinishRating = {(rating)=>{ this.setState({ girlToGuyRatio: rating })  }} 
-                  /> 
-                </View>
-                <View 
-                  style = {styles.ratingComponent} 
-                >
-                  <Text style = { styles.ratingText }  >{vibe.crowdedPlace ? "Difficulty Getting in:" : " Easy Getting In  "}</Text>
-                  <Rating 
-                    showRating 
-                    fractions={0.1} 
-                    startingValue={ difficultyGettingIn && difficultyGettingIn }
-                    imageSize = {25}
-                    ratingCount = {10}
-                    onFinishRating = {(rating)=>{ this.setState({ difficultyGettingIn: rating})  }} 
-                  /> 
-                </View>
-                <View style = {{ flex:1,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
-                  <TouchableOpacity
-                      style = {{ borderRadius: 6, borderWidth:1,height: '100%', width: '40%',backgroundColor: '#E56060' }}
-                      onPress = {() => {  
-                        this.saveRating()
-                      }}
-                    >
-                      <Text style = {{ textAlign: 'center', fontSize: 18,color: 'white', fontWeight: '700',paddingTop: 18, paddingBottom: 18,padding: 25 }} > Submit</Text>
-                    </TouchableOpacity>
-                </View> */}
               </View>
+              <Text style = {styles.surveyHeading} >Please submit this seriously to help us imrove more next time.Thanks!</Text>
             </View>
           </ScrollView>
           <View style = {{ alignSelf : "flex-start", position: 'absolute', top: '5%', left: '5%' }}  >
@@ -813,7 +722,7 @@ class RateModal extends React.Component{
             />
           </View>
           { this.state.showConfirmation &&
-          <AlertComponent closeModal = {()=>{ this.setState({ showConfirmation: false }) }} showError = {this.state.showConfirmation} message = "Rating Succesffully Submitted" />
+          <AlertComponent closeModal = {()=>{ this.setState({ showConfirmation: false }) }} rating = {true} showError = {this.state.showConfirmation} message = "Rating Succesffully Submitted" />
           }
           </Modal>
       </View>  
@@ -823,6 +732,14 @@ class RateModal extends React.Component{
 }
 
 const styles = StyleSheet.create({
+  rateButtonStyling: { 
+    textAlign: 'center',
+    fontSize: 16,
+    color: 'white',
+    fontWeight: '700',
+    paddingTop: 15, 
+    paddingBottom: 15 
+  },
   sliderImageIcons:{ 
     borderWidth: 1,
     backgroundColor: 'white',
@@ -846,11 +763,13 @@ const styles = StyleSheet.create({
     right: "3%" 
   },
   surveyHeading: { 
-    fontSize: 16,
+    fontSize: 18,
     textAlign: 'center',
+    fontWeight: "400",
+    color: 'black',
     paddingLeft:10,
     paddingRight:10,
-    marginBottom: 30 
+    marginTop: 30 
   },
   ratingLabel: {
     fontSize: 12,
@@ -878,10 +797,10 @@ const styles = StyleSheet.create({
     alignItems: 'center' 
   },
   rateModal: {
-    flex:2,
-    justifyContent: 'center',
+    flex:3,
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    marginTop: 40
+    marginTop: 20
   },
   heading: {
     textAlign: 'left',

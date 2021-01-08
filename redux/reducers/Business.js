@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments } from '../types'; 
+import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments, add_Favourite } from '../types'; 
 
 const INITIAL_STATE = {
   businesses: [],
@@ -7,7 +7,8 @@ const INITIAL_STATE = {
   rating: {},
   searchResults: [],
   favouriteBusiness: [],
-  selectedEstablishmentCategory: ''
+  selectedEstablishmentCategory: '',
+  addToFavourite: ''
 };
 
 const businessReducer = (state = INITIAL_STATE, action) => {
@@ -18,6 +19,11 @@ const businessReducer = (state = INITIAL_STATE, action) => {
         ...state,
         businesses: action.payload
       }
+    case add_Favourite:
+      return {
+        ...state,
+        favoutiteBusiness: state.favouriteBusiness.concat(action.payload)
+      }  
     case selectSpecifcCategoryEstablishments:
       return{
         ...state,
@@ -34,7 +40,6 @@ const businessReducer = (state = INITIAL_STATE, action) => {
         searchResults: action.payload
       }  
     case FILTERED_BUSINESS:
-      console.log("in reducer filter", action.payload)
       return{
         ...state,
         filterBusinesses: action.payload

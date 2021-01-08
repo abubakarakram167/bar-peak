@@ -7,7 +7,7 @@ export default class App extends React.Component {
  
   constructor(props) {
     super(props);
-    this.state = { showAlert: false };
+    this.state = { showAlert: true };
   };
  
   showAlert = () => {
@@ -30,36 +30,25 @@ export default class App extends React.Component {
   render() {
     const {showAlert} = this.state;
     const { navigation } = this.props;
-    console.log("the props", this.props.showError)
     return (
-      <View style={styles.container}>
- 
-        {/* <Text>I'm AwesomeAlert</Text>
-        <TouchableOpacity onPress={() => {
-          this.showAlert();
-        }}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Try me!</Text>
-          </View>
-        </TouchableOpacity> */}
- 
-        <AwesomeAlert
-          show={this.props.showError}
-          title="SuccessFul"
+      <View style={styles.container}> 
+       <AwesomeAlert
+          show={this.props.show}
+          showProgress={false}
+          title="Vibe Required"
           titleStyle ={{ fontWeight: '700', fontSize: 20 }}
-          messageStyle = {{ textAlign: 'center', fontWeight: '500', fontSize: 16, color: '#f0357c' }}
-          message= {this.props.message ? this.props.message : "This is testing error messag etext"}
+          messageStyle = {{ textAlign: 'center', fontWeight: '500', fontSize: 16 }}
+          message="Please set your vibe to access your app Completely"
           closeOnTouchOutside={false}
-          contentContainerStyle = {{ minWidth: 250, maxWidth: 250 }}
           closeOnHardwareBackPress={false}
           showCancelButton={false}
-          showConfirmButton={ !this.props.rating}
-          confirmText="ok"
-          confirmButtonColor="#29adc4"
-          confirmButtonStyle = {{ minWidth: 100, maxWidth: 100 , textAlign: 'center'}}
-          confirmButtonTextStyle = {{ fontSize: 25 , textAlign: 'center'}}
+          showConfirmButton={true}
+          confirmText="Set Vibe"
+          confirmButtonColor="#6bcacf"
+          confirmButtonTextStyle = {{ fontSize: 15 }}
           onConfirmPressed={() => {
             this.props.closeModal()
+            navigation.navigate("vibeTabNavigator")
           }}
         />
       </View>

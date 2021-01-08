@@ -13,3 +13,4 @@ export const Search_Results = "Search_Results";
 export const Progression_Bar = "Progression_Bar";
 export const getFavouritesBusiness = "getFavouriteBusiness"
 export const selectSpecifcCategoryEstablishments = "selectSpecifcCategoryEstablishments";
+export const add_Favourite = "add_Favourite";

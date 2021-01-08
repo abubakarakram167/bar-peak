@@ -6,14 +6,14 @@ import {setProgressionBar} from '../../redux/actions/User';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-const GREEN = 'rgba(141,196,63,1)';
+const GREEN = 'rgba(32, 168, 68,1)';
 const PURPLE = 'rgba(108,48,237,1)';
 
 const survey = [
     {
         questionType: 'SelectionGroup',
         questionText:
-            'Fun?',
+            'What level of Fun you found?',
         questionId: 'fun',
         options: [
             {
@@ -40,8 +40,7 @@ const survey = [
     },
     {
       questionType: 'SelectionGroup',
-      questionText:
-          'Crowd Factor?',
+      questionText:'How much Crowd is present?',
       questionId: 'crowd',
       options: [
           {
@@ -65,12 +64,76 @@ const survey = [
               value: 5
           }
       ]
-    }
-    ,
-    {
-        questionType: 'Info',
-        questionText: 'That is all for the demo, tap finish to see your results!'
     },
+    {
+      questionType: 'SelectionGroup',
+      questionText:'Do you find Difficulty Getting In?',
+      questionId: 'difficultyGettingIn',
+      options: [
+        {
+          optionText: 'No Problem',
+          value: 1
+        },
+        {
+          optionText: 'Less than 5-minute wait ',
+          value: 2
+        },
+        {
+          optionText: '5 - 15-Minute Wait',
+          value: 3
+        },
+        {
+          optionText: '15 - 30-Minute Wait',
+          value: 4
+        },
+        {
+          optionText: 'Over 30-Minute Wait ',
+          value: 5
+        }
+      ]   
+    },
+    {
+      questionType: 'SelectionGroup',
+      questionText:'Which Gender composition you find Best?',
+      questionId: 'genderComposition',
+      options: [
+        {
+          optionText: 'Equal Girls and Guys ',
+          value: 1
+        },
+        {
+          optionText: 'More Guys than Girls',
+          value: 2
+        },
+        {
+          optionText: 'More Girls than Guys',
+          value: 3
+        }
+      ]   
+    },
+    {
+      questionType: 'SelectionGroup',
+      questionText:' Do you find Difficulty Getting a Drink?',
+      questionId: 'difficultyGettingADrink',
+      options: [
+        {
+          optionText: 'No Problem',
+          value: 1
+        },
+        {
+          optionText: 'A Little Slow',
+          value: 2
+        },
+        {
+          optionText: 'Starting to Get Annoying',
+          value: 3
+        },
+        {
+          optionText: 'Forget About It',
+          value: 4
+        }
+      ]   
+    }
 ];
 
 export class SurveyComponent extends Component {
@@ -95,46 +158,11 @@ export class SurveyComponent extends Component {
     }
 
     onSurveyFinished(answers) {
-        /** 
-         *  By using the spread operator, array entries with no values, such as info questions, are removed.
-         *  This is also where a final cleanup of values, making them ready to insert into your DB or pass along
-         *  to the rest of your code, can be done.
-         * 
-         *  Answers are returned in an array, of the form 
-         *  [
-         *  {questionId: string, value: any},
-         *  {questionId: string, value: any},
-         *  ...
-         *  ]
-         *  Questions of type selection group are more flexible, the entirity of the 'options' object is returned
-         *  to you.
-         *  
-         *  As an example
-         *  { 
-         *      questionId: "favoritePet", 
-         *      value: { 
-         *          optionText: "Dogs",
-         *          value: "dog"
-         *      }
-         *  }
-         *  This flexibility makes SelectionGroup an incredibly powerful component on its own. If needed it is a 
-         *  separate NPM package, react-native-selection-group, which has additional features such as multi-selection.
-         */
-
-        const infoQuestionsRemoved = [...answers];
-
-        // Convert from an array to a proper object. This won't work if you have duplicate questionIds
-        const answersAsObj = {};
-        for (const elem of infoQuestionsRemoved) { answersAsObj[elem.questionId] = elem.value; }
-
-        this.props.navigation.navigate('SurveyCompleted', { surveyAnswers: answersAsObj });
+      const infoQuestionsRemoved = [...answers];
+      const answersAsObj = {};
+      for (const elem of infoQuestionsRemoved) { answersAsObj[elem.questionId] = elem.value; }
+      this.props.onFinishSurvey(infoQuestionsRemoved)
     }
-
-    /**
-     *  After each answer is submitted this function is called. Here you can take additional steps in response to the 
-     *  user's answers. From updating a 'correct answers' counter to exiting out of an onboarding flow if the user is 
-     *  is restricted (age, geo-fencing) from your app.
-     */
     onAnswerSubmitted(answer) {
       this.setState({ answersSoFar: JSON.stringify(this.surveyRef.getAnswers(), 2) });
       switch (answer.questionId) {
@@ -194,13 +222,13 @@ export class SurveyComponent extends Component {
       return (
         <View
             key={`selection_button_view_${index}`}
-            style={{ marginTop: 5, marginBottom: 5, justifyContent: 'flex-start' }}
+            style={{ marginTop: 5, marginBottom: 5,borderRadius: 10 ,justifyContent: 'flex-start', backgroundColor: PURPLE }}
         >
           <Button
             title={data.optionText}
             onPress={onPress}
-            color={isSelected ? GREEN : PURPLE}
-            style={isSelected ? { fontWeight: 'bold' } : {}} 
+            color={isSelected ? GREEN : 'white'}
+            style={isSelected ? { fontWeight: 'bold', fontWeight: '700', backgroundColor: 'rgba(107, 115, 219, 1)' } : {}} 
             key={`button_${index}`}
           />
         </View>
@@ -209,35 +237,41 @@ export class SurveyComponent extends Component {
 
     renderQuestionText= (questionText)=> {
       console.log("the question text", questionText)
-      if(questionText === "Fun?")
-        this.props.setProgressionBar(0)
-      else if(questionText === "Crowd Factor?")
+      if(questionText === "What level of Fun you found?")
         this.props.setProgressionBar(20)
+      else if(questionText === "How much Crowd is present?")
+        this.props.setProgressionBar(40)
+      else if(questionText === "Do you find Difficulty Getting In?")
+        this.props.setProgressionBar(60)
+      else if (questionText === "Which Gender composition you find Best?")
+        this.props.setProgressionBar(80)
+      else 
+        this.props.setProgressionBar(100)
       return (
-          <View style={{ marginLeft: 10, marginRight: 10 }}>
-              <Text numLines={1} style={styles.questionText}>{questionText}</Text>
-          </View>
+        <View style={{ marginLeft: 10, marginRight: 10 }}>
+          <Text numLines={1} style={styles.questionText}>{questionText}</Text>
+        </View>
       );
     }
 
     renderTextBox(onChange, value, placeholder, onBlur) {
-        return (
-            <View>
-                <TextInput
-                  style={styles.textBox}
-                  onChangeText={text => onChange(text)}
-                  numberOfLines={1}
-                  underlineColorAndroid={'white'}
-                  placeholder={placeholder}
-                  placeholderTextColor={'rgba(184,184,184,1)'}
-                  value={value}
-                  multiline
-                  onBlur={onBlur}
-                  blurOnSubmit
-                  returnKeyType='done'
-                />
-            </View>
-        );
+      return (
+        <View>
+          <TextInput
+            style={styles.textBox}
+            onChangeText={text => onChange(text)}
+            numberOfLines={1}
+            underlineColorAndroid={'white'}
+            placeholder={placeholder}
+            placeholderTextColor={'rgba(184,184,184,1)'}
+            value={value}
+            multiline
+            onBlur={onBlur}
+            blurOnSubmit
+            returnKeyType='done'
+          />
+        </View>
+      );
     }
 
     renderNumericInput(onChange, value, placeholder, onBlur) {
@@ -264,29 +298,29 @@ export class SurveyComponent extends Component {
     }
 
     render() {
-        return (
-            <View style={[styles.background, { backgroundColor: this.state.backgroundColor }]}>
-              <View style={styles.container}>
-                <SimpleSurvey
-                  ref={(s) => { this.surveyRef = s; }}
-                  survey={survey}
-                  renderSelector={this.renderButton.bind(this)}
-                  containerStyle={styles.surveyContainer}
-                  selectionGroupContainerStyle={styles.selectionGroupContainer}
-                  navButtonContainerStyle={{ flexDirection: 'row', justifyContent: 'space-around' }}
-                  renderPrevious={this.renderPreviousButton.bind(this)}
-                  renderNext={this.renderNextButton.bind(this)}
-                  renderFinished={this.renderFinishedButton.bind(this)}
-                  renderQuestionText={ (question)=> this.renderQuestionText(question)}
-                  onSurveyFinished={(answers) => this.onSurveyFinished(answers)}
-                  onAnswerSubmitted={(answer) => this.onAnswerSubmitted(answer)}
-                  renderTextInput={this.renderTextBox}
-                  renderNumericInput={this.renderNumericInput}
-                  renderInfo={this.renderInfoText}
-                />
-              </View>    
-            </View>
-        );
+      return (
+        <View style={[styles.background, { backgroundColor: this.state.backgroundColor }]}>
+          <View style={styles.container}>
+            <SimpleSurvey
+              ref={(s) => { this.surveyRef = s; }}
+              survey={survey}
+              renderSelector={this.renderButton.bind(this)}
+              containerStyle={styles.surveyContainer}
+              selectionGroupContainerStyle={styles.selectionGroupContainer}
+              navButtonContainerStyle={{ flexDirection: 'row', justifyContent: 'space-around' }}
+              renderPrevious={this.renderPreviousButton.bind(this)}
+              renderNext={this.renderNextButton.bind(this)}
+              renderFinished={this.renderFinishedButton.bind(this)}
+              renderQuestionText={ (question)=> this.renderQuestionText(question)}
+              onSurveyFinished={(answers) => this.onSurveyFinished(answers)}
+              onAnswerSubmitted={(answer) => this.onAnswerSubmitted(answer)}
+              renderTextInput={this.renderTextBox}
+              renderNumericInput={this.renderNumericInput}
+              renderInfo={this.renderInfoText}
+            />
+          </View>    
+        </View>
+      );
     }
 }
 
@@ -309,8 +343,8 @@ const styles = StyleSheet.create({
       alignItems: 'center'
     },
     container: {
-        minWidth: '90%',
-        maxWidth: '90%',
+        minWidth: '95%',
+        maxWidth: '95%',
         alignItems: 'stretch',
         justifyContent: 'center',
         marginTop: 20,
@@ -330,7 +364,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     surveyContainer: {
-        width: 'auto',
+        width: '95%',
         alignSelf: 'center',
         backgroundColor: 'white',
         borderBottomLeftRadius: 5,
@@ -374,7 +408,7 @@ const styles = StyleSheet.create({
     },
     questionText: {
         marginBottom: 20,
-        fontSize: 24,
+        fontSize: 20,
         textAlign: 'center'
     },
     textBox: {

@@ -79,7 +79,7 @@ function HomeApp() {
       options = 
       {
         {
-          tabBarLabel: 'My Favourites',
+          tabBarLabel: 'My Favorites',
           unmountOnBlur: true,
           tabBarIcon: ({ tintColor }) => (
             <Icon 

@@ -2,7 +2,7 @@ import React from 'react';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import { View, Text, StyleSheet, Dimensions, Animated,Image, TouchableOpacity, TextInput} from 'react-native';
 import CustomMapData from './CustomMapData';
-import {getfilteredBusiness, getSearchBusinesses } from '../../redux/actions/Business';
+import {getfilteredBusiness, getSearchBusinesses, addToFavourite } from '../../redux/actions/Business';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import StarRating from 'react-native-star-rating'
@@ -12,6 +12,7 @@ import { Icon } from 'react-native-elements';
 import ListComponent from './ListComponent';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
 import ShowVibeModal from "./showVibeModal";
+import CategoryAddModal from './CategoryAddOrRemoveAlert';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 3;
@@ -26,11 +27,7 @@ class MapScreen extends React.Component{
       badSpotMarkers:[],
       averageSpotMarkers: [],
       allMarkers: [],
-      selectedMarker: {
-        image: '',
-        title: '',
-        rating: ''
-      },
+      selectedMarker: null,
       showProfileModal: false,
       selectedItem: {},
       selectedBusiness: {},
@@ -39,7 +36,9 @@ class MapScreen extends React.Component{
       searchValue: '',
       showCard: true,
       spinner: false,
-      showVibeModal: false
+      showVibeModal: false,
+      showCategoryAddPopUp: false,
+      totalCategoriesName: ''
     }
   }
 
@@ -118,9 +117,29 @@ class MapScreen extends React.Component{
     } 
   }
 
-  addToFavourites = () => {
-    
+  getFavouriteEstablishmentColor = (marker) => {
+    const { favouriteBusiness } = this.props.business.business;
+    const allEstablishmentIds = favouriteBusiness.map(business => business._id)
+    if(allEstablishmentIds.includes(marker))
+      return "red"
+    else
+      return "gray";
+  }
 
+  addToFavourite = async() => {
+    const { category } = this.props;
+    const { allSpots } = this.props.business.business.filterBusinesses;
+    const selectedMarker = this.state.selectedMarker? this.state.selectedMarker: allSpots[0];
+    const addOrRemove = await this.props.addToFavourite(selectedMarker.markerId);
+    let TotalCategoriesName = category.filter(category => {
+      return selectedMarker.types.includes(category.title) && category.type === "main_category"
+    }).map(category => category.title)
+    let totalMessage = addOrRemove.toUpperCase() + " to " + TotalCategoriesName.map(name => name + " ")
+    this.setState({ showCategoryAddPopUp: true , totalCategoriesName: totalMessage }, ()=>{
+      setTimeout(()=>{ 
+        this.setState({ showCategoryAddPopUp: false })
+      }, 5000)
+    })
   }
 
   render(){
@@ -128,7 +147,7 @@ class MapScreen extends React.Component{
     const { goodSpots, averageSpots, badSpots, allSpots } = filterBusinesses;
     const vibe = this.props.vibe;
     const {navigation} = this.props;
-    
+   
     return(
       <View style={styles.container}>
         <View 
@@ -241,8 +260,8 @@ class MapScreen extends React.Component{
             provider = {PROVIDER_GOOGLE}
             style={styles.mapStyle} 
             initialRegion={{
-            latitude: this.state.allMarkers.length > 0 ? this.state.allMarkers[0].latitude: 32.7970465,
-            longitude: this.state.allMarkers.length > 0 ? this.state.allMarkers[0].longitude: -117.2545220,
+            latitude:  allSpots && allSpots.length> 0 ? allSpots[0].latitude: 32.7970465,
+            longitude: allSpots && allSpots.length > 0 ? allSpots[0].longitude: -117.2545220,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
             }}
@@ -412,31 +431,29 @@ class MapScreen extends React.Component{
                   <View style={{ flex: 2 , height: '100%', borderWidth: 1}}>
                     <Image
                       style={styles.cardImage}
-                      source={ { uri: this.state.selectedMarker.images ? this.state.selectedMarker.images[0].secure_url: allSpots[0].images[0].secure_url } } 
+                      source={ { uri: this.state.selectedMarker?  this.state.selectedMarker.images[0].secure_url: allSpots[0].images[0].secure_url } } 
                     />
                     <View style = {styles.heartIcon}  >
                       <TouchableOpacity
-                        onPress = {()=> {
-                          this.addToFavourites()
-                        }}
+                        onPress = {()=> { this.addToFavourite()  }}
                       >
                         <Icon
                           name="heart"
                           type = 'foundation'
-                          size = {20}
-                          color = "#dcddde"
+                          size = {25}
+                          color = {this.getFavouriteEstablishmentColor(this.state.selectedMarker? this.state.selectedMarker.markerId: allSpots[0].markerId)}
                         />
                       </TouchableOpacity>
                     </View>
                   </View>
                   <View style={{ flex: 2, alignItems: 'flex-start', paddingLeft: 10, paddingTop: 10 }}>
-                    <Text style={[{ fontSize: 20, color: '#b63838', marginBottom: 2 }, styles.textInfo]}>{this.state.selectedMarker.types ? this.state.selectedMarker.types[0] : allSpots[0].types[0] }</Text> 
-                    <Text style={[{ fontSize: 16, fontWeight: 'bold' }, styles.textInfo]}>{this.state.selectedMarker.name ? this.state.selectedMarker.name : allSpots[0].name }</Text>
+                    <Text style={[{ fontSize: 20, color: '#b63838', marginBottom: 2 }, styles.textInfo]}>{this.state.selectedMarker ? this.state.selectedMarker.types[0] : allSpots[0].types[0] }</Text> 
+                    <Text style={[{ fontSize: 16, fontWeight: 'bold' }, styles.textInfo]}>{this.state.selectedMarker ? this.state.selectedMarker.name : allSpots[0].name }</Text>
                     {/* <Text style={[{ fontSize: 12,  marginBottom: 4 }, styles.textInfo]} >{this.state.selectedMarker.priceLevel > 0 || this.state.allMarkers[0].priceLevel > 0 ?  this.renderDollar(this.state.selectedMarker.priceLevel ? this.state.selectedMarker.priceLevel : this.state.allMarkers[0].priceLevel) : "Price not available" }</Text>  */}
                     <StarRating
                       disable={true}
                       maxStars={5}
-                      rating={this.state.selectedMarker.businessGoogleRating ? this.state.selectedMarker.businessGoogleRating : allSpots[0].businessGoogleRating }
+                      rating={this.state.selectedMarker && this.state.selectedMarker.businessGoogleRating ? this.state.selectedMarker.businessGoogleRating : allSpots[0].businessGoogleRating }
                       starSize={10}
                       starStyle = {{ color:'#ffbf00' }}
                     />
@@ -471,8 +488,9 @@ class MapScreen extends React.Component{
               source={require('../../assets/loadingIndicator.gif')}
             />
           </View>
-        </OrientationLoadingOverlay>  
-        { this.state.showProfileModal && <Modal   businessData = {this.state.selectedMarker} currentView = {this.state.currentView} show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  } 
+        </OrientationLoadingOverlay> 
+        <CategoryAddModal  show = {this.state.showCategoryAddPopUp} message = {this.state.totalCategoriesName} /> 
+        { this.state.showProfileModal && <Modal   businessData = {this.state.selectedMarker ? this.state.selectedMarker : allSpots[0]} currentView = {this.state.currentView} show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  } 
          <ShowVibeModal show = {this.state.showVibeModal} onClose = {()=> { this.setState({ showVibeModal: false }) }} /> 
       </View>
     )
@@ -669,7 +687,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
     getfilteredBusiness,
-    getSearchBusinesses
+    getSearchBusinesses,
+    addToFavourite
   }, dispatch)
 );
 

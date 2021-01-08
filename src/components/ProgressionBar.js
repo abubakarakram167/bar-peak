@@ -31,24 +31,23 @@ class ProgressionBar extends React.Component {
       borderRadius: 0,
       borderColor: 'orange',
     };
-    console.log("the progressionBar", this.props.progressionBar)
     return (
       
 
       <View style={styles.container}>
+        <View style={styles.buttonContainer}>
+          <View style={styles.buttonInner}>
+            <Text style = {styles.completionText} >
+              Completion: { this.props.progressionBar  }%
+            </Text>
+          </View>
+        </View>
         <View>
           <ProgressBarAnimated
             width={barWidth}
             value={this.props.progressionBar}
             backgroundColorOnComplete="#6CC644"
           />
-          <View style={styles.buttonContainer}>
-            <View style={styles.buttonInner}>
-              <Text style = {{ textAlign: 'center', fontSize: 18, color: '#2f97d4', fontWeight: '500' }} >
-                Completion: { this.props.progressionBar  }%
-              </Text>
-            </View>
-          </View>
         </View>
       </View>
     );
@@ -75,6 +74,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     marginTop: 50,
     padding: 15,
+  },
+  completionText:{ 
+    textAlign: 'center', 
+    fontSize: 18, color: '#2f97d4', 
+    fontWeight: '500', marginBottom: 30 
   },
   buttonContainer: {
     marginTop: 15,
