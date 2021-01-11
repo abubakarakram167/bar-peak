@@ -14,7 +14,7 @@ export class Card extends React.Component {
       <View style={styles.card}>
         <Text style={styles.text}>{this.props.card.question}</Text>
         <Image 
-          resizeMode = 'stretch' 
+          resizeMode = 'contain' 
           style={styles.thumbnail} 
           source={this.props.card.image} 
         />

@@ -7,7 +7,7 @@ import axios from '../api/axios';
 import {storeUserData} from '../components/localStorage';
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
-import RNPickerSelect from 'react-native-picker-select';  
+import RNPickerSelect from 'react-native-picker-select/src';  
 import { getUser } from '../../redux/actions/User';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';

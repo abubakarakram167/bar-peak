@@ -118,37 +118,21 @@ export default function App(props) {
   }
 
   return (
-    // isLoggedin ?
-    //   userData ?
-    //     <View style={styles.container}>
-    //       <Image
-    //         style={{ width: 200, height: 200, borderRadius: 50 }}
-    //         source={{ uri: userData.picture.data.url }}
-    //         onLoadEnd={() => setImageLoadStatus(true)} />
-    //       <ActivityIndicator size="large" color="#0000ff" animating={!isImageLoading} style={{ position: "absolute" }} />
-    //       <Text style={{ fontSize: 22, marginVertical: 10 }}>Hi {userData.name}!</Text>
-    //       <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
-    //         <Text style={{ color: "#fff" }}>Logout</Text>
-    //       </TouchableOpacity>
-    //     </View> :
-    //     null
-    //   :
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={facebookLogIn}  >
-          <View style={styles.socialIcons}>
-            <View style={{flex: 0, height: 15, marginLeft: '1%'}} >
-              <SocialIcon
-                type='facebook'
-                style = {{ position: 'relative', bottom: '35%', height: 30, width: 30 }}
-              />
-            </View> 
-            <View style={{flex: 1, height: 15 , marginLeft: '12%' }}  >
-              <Text style = {{ color: "black" }}  > Continue With Facebooks</Text>  
-            </View>
-            
-          </View>
-        </TouchableOpacity>
-      </View>
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity onPress={facebookLogIn}  >
+        <View style={styles.socialIcons}>
+          <View style={{flex: 0, height: 10, marginLeft: '1%'}} >
+            <SocialIcon
+              type='facebook'
+              style = {{ position: 'relative', bottom: '35%', height: 20, width: 20 }}
+            />
+          </View> 
+          <View style={{flex: 1, height: 15 , marginLeft: '12%', borderRadius: 10 }}  >
+            <Text style = {{ color: "black", fontWeight: "500", fontSize: 15 }}  > Continue With Facebook</Text>  
+          </View> 
+        </View>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -183,9 +167,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center', 
     alignItems: 'center',
-    width: '80%',
+    width: '100%',
     height: 50,
     borderWidth: 1,
-    marginTop: 20 
+    marginTop: 20 ,
+    borderRadius: 10
   }
 });

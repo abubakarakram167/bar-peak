@@ -20,7 +20,7 @@ class MyVibe extends React.Component{
     super(props);
     this.state = {
       cards: [
-        {no: '1', image: require(`../../assets/vibeTest.png`) ,question: " How hard are you trying to Party? "},
+        {no: '1', image: require(`../../assets/vibeFor.png`) ,question: " How hard are you trying to Party? "},
         {no: '2', image: require(`../../assets/imageFour.png`) ,question: "What type of Partying are you looking for?"},
         {no: '3', image: require(`../../assets/imageThree.png`) ,question: "What is Crowd Vibe You are looking for?"},
         {no: '4', image: require(`../../assets/imageTwo.png`) ,question: "What age demographic?"},
@@ -361,7 +361,7 @@ class MyVibe extends React.Component{
         </View> 
         }
         
-       { (!this.state.showIndicator && this.state.showSwiper )  &&  
+       {/* { (!this.state.showIndicator && this.state.showSwiper )  &&  
         <View style = {{ flex: 1, justifyContent: 'center',alignItems:'center',flexDirection: 'row',position: 'relative', top: '43%' }} >
           <View style = {styles.swipeButtons}>
             <TouchableOpacity
@@ -392,7 +392,7 @@ class MyVibe extends React.Component{
             </TouchableOpacity>
           </View>
           </View>  
-        }
+        } */}
         
         { this.state.showIndicator &&
           <View style={[styles.container, styles.horizontal]}>

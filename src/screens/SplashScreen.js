@@ -35,11 +35,11 @@ import { bindActionCreators } from 'redux';
     console.log("calling splash")
     const user = await this.props.getUser()
     console.log("in splash", user)
-    // console.log(`token is ${token} and userId is ${userId}`);
+     console.log(`token is ${token} and userId is ${userId}`);
     if(token && userId && user === "ok" )
       navigation.navigate('HomeApp')
     else{
-      // navigation.navigate('HomeApp')
+      console.log("in login Screen")
       navigation.navigate('LoginScreen')
     }
       

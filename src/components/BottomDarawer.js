@@ -1,14 +1,12 @@
 import React from 'react'
-import {Text, View, Dimensions, FlatList,ScrollView, SafeAreaView, TouchableOpacity} from 'react-native'
+import {Text, View, Dimensions} from 'react-native'
 import { Icon } from 'react-native-elements'
 import SlidingUpPanel from 'rn-sliding-up-panel'
-import Home from './BottomDrawerComponents/Home';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {getfilteredBusiness} from '../../redux/actions/Business';
 import Constants from 'expo-constants';
 import _, { map } from 'underscore';
-import Modal from '../components/Modal';
 
 const { height, width } = Dimensions.get('window')
 
@@ -28,11 +26,10 @@ const styles = {
     height: '100%'
   },
   panelHeader: {
-    height: 60,
     alignItems: 'center',
     justifyContent: 'start',
-    borderBottom: 10,
-    borderBottomWidth:1,
+    borderBottom: 1,
+    borderBottomWidth:0.3,
     width: '100%'
   },
   favoriteIcon: {
@@ -62,6 +59,12 @@ const styles = {
     height: 64,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  loginSignUpHeading: {
+    marginBottom: 20,
+    fontSize: 16,
+    color: 'black',
+    fontWeight: "700"
   }
 }
 
@@ -88,18 +91,12 @@ class BottomSheet extends React.Component {
   }
 
   render() {
-    const { filterBusinesses } = this.props.business.business;
-    const { vibe } = this.props.vibe.vibe;
-    const { goodSpots, badSpots } = filterBusinesses;
-    // console.log("the filter business", filterBusinesses);
-    const isVibeEmpty = _.isEmpty(filterBusinesses); 
-    const { category } =  this.props;
     return (
       <View style={styles.container}>
         <Text>Hello world</Text>
         <SlidingUpPanel
           ref={c => (this._panel = c)}
-          draggableRange={{top: height / 1.2, bottom: 120}}
+          draggableRange={{top: height / 1.2, bottom: 620}}
           animatedValue={this._draggedValue}
           showBackdrop={true}>
           {dragHandler => (
@@ -109,84 +106,16 @@ class BottomSheet extends React.Component {
                   <Icon
                     name='ios-remove'
                     type = 'ionicon'
-                    size = {60}
-                  />         
+                    size = {70}
+                    color = 'gray'
+                    style = {{ width: 60, height: 60 }}
+                  />
+                  <Text style = { styles.loginSignUpHeading } >Log in or sign up</Text>         
                 </View>
-              </View>
-              <View style = {{flex: 1}} >
-                <View style={{padding: 0,height: height * 0.35}}>
-                  <Text
-                    style = {{ 
-                      fontSize: 20,
-                      margin: 10,
-                      fontWeight: '600'
-                    }}
-                  >
-                    <Text style={{ fontSize: 20, fontWeight: '700', paddingHorizontal: 20 }}>
-                     { category ? "Results By Category" : "Your Vibe's" }<Text style ={{ fontSize: 10 }} >({ vibe.crowdedPlace ? "Crowded" : "UnCrowdy" },{ vibe.nightLife? "nightLife": "barAndRestaurants"}  ,{ category ? category : vibe.barOrRestaurant})</Text> 
-                    </Text>
-                  </Text>
-                  <ScrollView        
-                    horizontal = {true}
-                  >          
-                    {
-                      !isVibeEmpty && goodSpots.map((business)=>{
-                        return(
-                          <TouchableOpacity
-                            onPress = {()=>{ 
-                            this.selectSpecificBusiness(business)
-                            }}
-                          >
-                            <Home 
-                              width={width}
-                              height= {height}
-                              item = {business}
-                            />
-                          </TouchableOpacity>
-                        )
-                      })
-                    }   
-                  </ScrollView>
-                </View> 
-                <View style={{padding: 0, flex: 1}}>
-                  <Text
-                    style = {{ 
-                      fontSize: 20,
-                      margin: 10,
-                      fontWeight: '600'
-                    }}
-                  >
-                    <Text style={{ fontSize: 24, fontWeight: '700', paddingHorizontal: 20 }}>
-                    { category ? "Results By Category" : "Unvibe" } <Text style ={{ fontSize: 10 }} >({ !vibe.crowdedPlace ? "Crowded" : "UnCrowdy" }, { vibe.nightLife? "nightLife": "barAndRestaurants"} , {category ? category : vibe.barOrRestaurant}</Text> 
-                    </Text>
-                  </Text>
-                  <ScrollView        
-                    horizontal = {true}
-                  >          
-                    {
-                      !isVibeEmpty && badSpots.map((business)=>{
-                        return(
-                          <TouchableOpacity
-                            onPress = {()=>{ 
-                            this.selectSpecificBusiness(business)
-                            }}
-                          >
-                            <Home 
-                              width={width}
-                              height= {height}
-                              item = {business}
-                            />
-                          </TouchableOpacity >
-                        )
-                      })
-                    }   
-                  </ScrollView>
-                </View>
-              </View> 
-            </View>
+              </View>    
+            </View> 
           )}
         </SlidingUpPanel>
-        { this.state.showProfileModal && <Modal  item  = {this.state.selectedItem}  businessData = {this.state.selectedBusiness}  show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  }   
       </View>
     )
   }

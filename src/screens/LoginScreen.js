@@ -12,6 +12,9 @@ import { bindActionCreators } from 'redux';
 import AlertComponent from '../components/AlertComponent';
 import * as Animatable from 'react-native-animatable';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
+import BottomDarawer from  "../components/BottomDarawer";
+import LoginSignupModal from "../components/ModalLogInSignUp"; 
+
 
  class LoginScreen extends React.Component {
   constructor(props){
@@ -23,7 +26,8 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
       showModal: true,
       showError: false,
       showAnimatedTextFadeIn: true,
-      showAnimatedTextFadeOut: false 
+      showAnimatedTextFadeOut: false,
+      showSignUpModal: false 
     }
   }
 
@@ -87,7 +91,9 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
       this.setState({ showAnimatedTextFadeIn: false },()=>{
         this.setState({ showAnimatedTextFadeOut: true }, ()=>{
           setTimeout(()=>{
-            this.setState({ showModal: false })
+            this.setState({ showModal: false }, ()=> {
+              this.setState({ showSignUpModal: true })
+            })
           }, 2000)
         })
       })
@@ -111,7 +117,9 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
         >
           <View style={ styles.modal }>
             <View style={styles.modalContainer}>
-              <View style = {{ justifyContent: 'center', alignItems: 'center' }} >
+              <View 
+                style = {{ justifyContent: 'center', alignItems: 'center' }} 
+              >
                 { this.state.showAnimatedTextFadeIn && <Animatable.Text duration = {3000} style = {{ fontSize: 30,fontWeight: '700', color: "#3c6e55" }} animation="fadeInLeftBig">Welcome to BarPeak</Animatable.Text> }
                 { this.state.showAnimatedTextFadeOut && <Animatable.Text duration = {3000} style = {{ fontSize: 30,fontWeight: '700', color: "#3c6e55" }}  animation="fadeOut">Welcome to BarPeak</Animatable.Text> }
               </View>
@@ -144,10 +152,6 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
             </ScrollView> 
           </View>
         </KeyboardAwareView>
-       
-        {/* <TouchableOpacity onPress = { ()=>{ this.sendEmail() } } >
-          <Text style={styles.forgot}>Forgot Password?</Text>
-        </TouchableOpacity> */}
         
         <View style = {styles.loginContainer} >
           <TouchableOpacity style={styles.SignUpBtn} onPress = { ()=>{ this.props.navigation.navigate("SignUpScreen") } } >
@@ -157,15 +161,6 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
             <Text style={styles.loginText}>LOGIN</Text>
           </TouchableOpacity>
         </View>
-        {/* <View style={{flexDirection: 'row', alignItems: 'center', width: '80%'}}>
-          <View style={{flex: 1, height: 1, backgroundColor: 'black'}} />
-          <View>
-            <Text style={{width: 50, textAlign: 'center'}}>or</Text>
-          </View>
-          <View style={{flex: 1, height: 1, backgroundColor: 'black'}} />
-        </View> */}
-  
-        {/* <FaceBookComponent navigation = {navigation} /> */}
         <Spinner
           visible={this.state.spinner}
           textContent={'Loading...'}
@@ -176,6 +171,8 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
           message = {this.state.message} 
           closeModal = { ()=> this.setState({ showError: false  }) }  
         />
+        { this.state.showSignUpModal && <LoginSignupModal  navigation = {this.props.navigation} /> }
+        
       </View>
     );
   }

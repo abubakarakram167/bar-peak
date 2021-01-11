@@ -11,9 +11,6 @@ if(environment === "development"){
 else
   url = 'https://barpeak-backend.herokuapp.com/'
 
-console.log("the url", url);
-console.log("the node environemnt", process.env.NODE_ENV);  
-
 export default axios.create({
   baseURL: url
 })

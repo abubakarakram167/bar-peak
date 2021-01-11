@@ -2,9 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, AsyncStorage, ActivityIndicator, Modal, Button, Platform } from 'react-native';
 import { withNavigation } from 'react-navigation';
 import Spinner from 'react-native-loading-spinner-overlay';
-// import { WebView } from 'react-native-webview'
 import SignUpComponent from '../components/SignupComponent';
-import Validation from '../components/validation'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 class SignUpScreen extends React.Component {
