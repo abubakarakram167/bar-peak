@@ -12,7 +12,7 @@ export default class MyDatePicker extends Component {
     
     return (
       <DateTimePicker
-        style={{width: 200}}
+        style={{width: 200, backgroundColor: "transparent"}}
         value={this.state.date}
         mode="date"
         placeholder="select date"
