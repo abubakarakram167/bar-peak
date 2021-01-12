@@ -12,7 +12,7 @@
     "@material-ui/core": "^4.11.0",
     "@mdi/font": "^5.8.55",
     "@mdi/react": "^1.4.0",
-    "@react-native-community/datetimepicker": "3.0.0",
+    "@react-native-community/datetimepicker": "^3.0.0",
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/netinfo": "5.9.6",
     "@react-native-community/picker": "^1.8.1",
@@ -118,7 +118,9 @@
     "rn-sliding-up-panel": "^2.4.3",
     "sharp-cli": "^1.14.1",
     "underscore": "^1.11.0",
-    "yup": "^0.29.3"
+    "yup": "^0.29.3",
+    "expo-apple-authentication": "~2.2.1",
+    "expo-secure-store": "~9.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.6",

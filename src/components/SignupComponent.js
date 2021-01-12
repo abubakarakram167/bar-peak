@@ -38,7 +38,7 @@ const createTwoButtonAlert = (message) =>
     { cancelable: true }
 );
 
-const keyboardVerticalOffset = Platform.OS === 'ios' ? 200 : 0
+// const keyboardVerticalOffset = Platform.OS === 'ios' ? 200 : 0
 
 class SignUpComponent extends React.Component {
 	
@@ -57,11 +57,11 @@ class SignUpComponent extends React.Component {
 	}
 
 	componentDidMount(){
-    console.log("the passing data", this.props.user );
+    console.log("the passing data", this.props );
 
     if(this.props.user){
-      const {email, name } = this.props.user;
-      this.setState({ email, firstName: name.split(' ')[0], lastName: name.split(' ')[1] })
+      const {email, firstName, lastName } = this.props.user;
+      this.setState({ email, firstName, lastName  })
     }
   }
   
@@ -72,23 +72,23 @@ class SignUpComponent extends React.Component {
   changeDate = (date) => {
     this.setState({ date: moment(date).format("YYYY-MM-DD"), showPicker: false })
     setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
-    console.log("the date", moment(date).format("YYYY-MM-DD"))
+    console.log("the date in component", moment(date).format("YYYY-MM-DD"))
   }
 
   signUp = () => {
     this.setState({ spinner: true })
-    const {navigation} = this.props;
-    let password = this.props.user ? "asdfg" : this.state.password;
+    const {navigation, phoneNumber} = this.props;
     let accountType = this.props.user ? 'social' : "app";
-    console.log("the date", this.state.date)
+    let finalPhoneNumber = accountType === "app" ? phoneNumber : null
     console.log("on sigunup", this.state);
+    console.log("the phone Number", finalPhoneNumber)
     
     const body = {
       query: `
       mutation{
         createUser(userInput: {email: "${this.state.email}",
         firstName: "${this.state.firstName}", lastName: "${this.state.lastName}", 
-        password: "${password}", dob: "${this.state.date}", accountType: "${accountType}"})
+        dob: "${this.state.date}", accountType: "${accountType}", phoneNumber: "${finalPhoneNumber}"})
         {
           token
           user{
@@ -98,6 +98,7 @@ class SignUpComponent extends React.Component {
             lastName
             email
             dob
+            phoneNumber
           }
         }
       }
@@ -134,8 +135,8 @@ class SignUpComponent extends React.Component {
         />}
         <View style = {styles.inputForm} >
           
-          {/* <ScrollView   style = {{flex:1, backgroundColor: 'white', width: '100%'}}>
-            <KeyboardAvoidingView  style = {{ flex:1 }} behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}>         */}
+          <ScrollView   style = {{flex:1, backgroundColor: 'white', width: '80%'}}>
+           
             <KeyboardAwareScrollView style ={{ flex:1 }} >  
               <View style={styles.inputView} >
                 <TextInput
@@ -156,39 +157,14 @@ class SignUpComponent extends React.Component {
                 />
               </View>
               <View style={styles.inputView} >
-                {/* <DateTimePickerModal
-                  isVisible={this.state.showPicker}
-                  mode="date"
-                  onConfirm = {(date)=> this.changeDate(date)}
-                  onCancel = {()=>{ 
-                    setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
-                  }}
-                  style = {{ backgroundColor: 'gray', color: 'gray' }}
+                <DatePicker 
+                  onChange = { (date)=> { 
+                    this.changeDate(date)
+                  }} 
                 />
-                <TextInput
-                  style={styles.inputText}
-                  placeholder="SelectBirtday (MM/DD/YYYY)"
-                  placeholderTextColor="#003f5c"
-                   onFocus = {()=> 
-                    this.setState({ showPicker: true })
-                  }
-                  // onChange = {()=> this.setState({ showPicker: true })}
-                  defaultValue = "SelectBirday(MM/DD/YYYY)"
-                  value = { this.state.date && this.state.date }
-                /> */}
-                <DatePicker onChange = { (date)=> { this.setState({ date: date }) } } />
                 
               </View>
               <Text style = {{lineHeight: 14, marginTop: 5, color: 'gray', alignSelf: 'center'}} >Age must be 21 or greater.</Text>
-              {/* <View style={styles.inputView} >
-                <TextInput
-                  style={styles.inputText}
-                  placeholder="Last Name"
-                  placeholderTextColor="#003f5c"
-                  onChangeText={val => this.onChangeText('lastName', val)}
-                  value = {this.state.lastName}
-                />
-              </View> */}
               <View style={styles.inputView} >
                 <TextInput
                   style={ styles.inputText }
@@ -197,6 +173,7 @@ class SignUpComponent extends React.Component {
                   placeholderTextColor="#003f5c"
                   value = {this.state.email}
                   onChangeText={val => this.onChangeText('email', val)}
+                  editable={ this.props.user ? false : true   }
                 />
               </View>
               { this.props.user &&
@@ -205,7 +182,7 @@ class SignUpComponent extends React.Component {
                 </View>
                 )
               }
-              { !this.props.user &&(
+              {/* { !this.props.user &&(
                 <View style = {[ styles.inputView, { marginBottom: 20 }] } >
                   <View  >
                     <TextInput
@@ -220,7 +197,7 @@ class SignUpComponent extends React.Component {
                 </View>
                 
               )
-              }
+              } */}
               <View style = { [styles.inputView, { padding: 0, paddingLeft: 20 }] } >
                 <RNPickerSelect
                   style={[styles.inputText ]}
@@ -242,9 +219,8 @@ class SignUpComponent extends React.Component {
               <TouchableOpacity style={{ width: '40%',alignSelf: 'center' ,backgroundColor: 'black', marginTop: '10%', borderRadius: '10%' }} onPress = { ()=>{this.signUp()} } >
                 <Text style={styles.SignUpText}>Signup</Text>
               </TouchableOpacity>
-            {/* </KeyboardAvoidingView>
-          </ScrollView> */} 
-          </KeyboardAwareScrollView>   
+            </KeyboardAwareScrollView>
+           </ScrollView>     
         </View>
         <Spinner
           visible={this.state.spinner}
@@ -321,7 +297,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
     alignItems: 'center',
     margin: 0
   }

@@ -72,8 +72,12 @@ class SignUpScreen extends React.Component {
               <Icon name={'close'} color={'black'} size={30} />
             </TouchableOpacity>
             <View style={styles.modalContainer}>
-              <SignUpComponent user = {params && params.user}  navigation = {this.props.navigation} closeModal = { ()=> this.setState({ showModal: false }) } />
-              {/* <Validation /> */}
+              <SignUpComponent 
+                user = {params && params.user}  
+                navigation = {this.props.navigation} 
+                closeModal = { ()=> this.setState({ showModal: false }) }
+                phoneNumber = {params && params.phoneNumber} 
+              />
             </View>
           </View>
         </Modal>

@@ -46,7 +46,8 @@ export const getUser = () => async (dispatch, getState) => {
             radius
             profilePic
             gender
-            accountType
+            accountType,
+            phoneNumber
         }
       }
     ` 

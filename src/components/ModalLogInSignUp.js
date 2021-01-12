@@ -17,14 +17,14 @@ import axiosApi from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 import FaceBookComponent from './facebookComponent';
 import ModalPinCode from './ModalPinCode';
-import axios from '../api/axios';
+import AppleComponent from './AppleComponent';
 import VerificationComponent from "./VerificationComponent";
 
 const { width, height } = Dimensions.get("window");
 
 class showVibeModal extends Component {
   state = {
-    modalVisible: false,
+    modalSignUpVisible: true,
     allCountries: [],
     phoneNumber: '',
     currentcountry: '',
@@ -67,7 +67,7 @@ class showVibeModal extends Component {
         <Modal
           animationType="slide"
           transparent={true}
-          visible={true}
+          visible={this.props.showModal}
           onRequestClose={() => {
             Alert.alert("Modal has been closed.");
           }}
@@ -88,7 +88,7 @@ class showVibeModal extends Component {
                   <TouchableHighlight
                     style={styles.openButton}
                     onPress={() => {
-                      this.props.onClose()
+                      this.props.onCloseModalSignUp()
                     }}
                   >
                     <Icon
@@ -122,7 +122,9 @@ class showVibeModal extends Component {
                       onClose = { ()=> this.setState( {showPinModal: false} ) }  
                       phoneNumberPinData = {this.state.phoneNumberPinData}
                       onSendPinAgain = {()=> this.sendVerificationCode()}
-                      navigation = {this.props}
+                      navigation = {this.props.navigation}
+                      onCloseModalSignUp  = { () =>  this.props.onCloseModalSignUp() }
+                      onNavigateSignUpScreen = {this.props.onNavigateSignUpScreen}
                     />)
                   }  
                     <RNPickerSelect      
@@ -177,16 +179,6 @@ class showVibeModal extends Component {
                     style  = {{ flex: 2 }}
                   > 
                     <View style = {{ flex:2, marginTop: 0 }} >
-                      {/* <TouchableOpacity
-                        onPress = {()=> { 
-                          this.sendVerificationCode()
-                        }}
-                        disabled = { this.state.phoneNumber === '' ? true : false}
-                        style = {[styles.continueButton, this.state.phoneNumber === '' && { backgroundColor: "#e0dede"}] }
-                        
-                      >
-                        <Text style = {styles.continueText} >Continue</Text>
-                      </TouchableOpacity> */}
                       <VerificationComponent 
                         currentcountry = {this.state.currentcountry}
                         phoneNumber = {this.state.phoneNumber }
@@ -205,7 +197,14 @@ class showVibeModal extends Component {
                     <View
                       style = {styles.socialButtons}
                     >
-                      <FaceBookComponent navigation = {navigation} /> 
+                      <FaceBookComponent 
+                        onCloseModalSignUp = { this.props.onCloseModalSignUp } 
+                        navigation = {navigation} 
+                      />
+                      <AppleComponent
+                        onCloseModalSignUp = { this.props.onCloseModalSignUp } 
+                        navigation = {navigation} 
+                      /> 
                     </View>
                   </View>
                 </View>     

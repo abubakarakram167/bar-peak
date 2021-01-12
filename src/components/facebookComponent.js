@@ -10,7 +10,8 @@ console.disableYellowBox = true;
 
 export default function App(props) {
 
-  const{navigation} = props;
+  console.log("the props", props)
+  const{navigation, onCloseModalSignUp} = props;
   const [isLoggedin, setLoggedinStatus] = useState(false);
   const [userData, setUserData] = useState(null);
   const [isImageLoading, setImageLoadStatus] = useState(false);
@@ -56,13 +57,20 @@ export default function App(props) {
           .then(async(data) => {
             const userFound = await checkUserExist(data.email);
             console.log("the user found", userFound)
-            if(!userFound.data.data.checkUserAvailable)
-              navigation.navigate('SignUpScreen', { user: data })
+            if(!userFound.data.data.checkUserAvailable){
+              onCloseModalSignUp();
+              let userData = { 
+                email, firstName: name.split(' ')[0], 
+                lastName: name.split(' ')[1] 
+              }
+              
+              navigation.navigate('SignUpScreen', { user: userData })
+            }
             else{
               const body = {
                 query:`
                 query{
-                  login(email: "${data.email}", password: "asdfg")
+                  login(email: "${data.email}")
                   {
                     token,
                     user{
@@ -73,7 +81,8 @@ export default function App(props) {
                       email
                       dob
                       gender
-                      accountType
+                      accountType,
+                      phoneNumber
                     }
                   }
                 }
@@ -82,13 +91,12 @@ export default function App(props) {
               axios.post(`graphql?`,body).then((res)=>{
                 console.log("in login facebook", res)
                 if(res.data.data.login){
-                  console.log("in facebook component", res.data.data.login)
                   storeUserData(res.data.data.login).then( async () => {
                     dispatch({
                       type: 'Fetch_User',
                       payload: res.data.data.login.user
                     })
-                    console.log("then");
+                    onCloseModalSignUp();
                     navigation.navigate('HomeApp');
                   })
                 }

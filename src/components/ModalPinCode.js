@@ -9,11 +9,15 @@ import {
   Dimensions,
   TouchableOpacity
 } from "react-native";
+import Spinner from 'react-native-loading-spinner-overlay';
 import { Icon } from 'react-native-elements'
 import { connect } from 'react-redux';
 import SmoothPinCodeInput  from 'react-native-smooth-pincode-input';
 import axios from '../api/axios';
 import * as firebase from 'firebase';
+import {storeUserData} from './localStorage';
+import { getUser } from '../../redux/actions/User';
+import { bindActionCreators } from 'redux';
 
 try {
   if (!firebase.apps.length) {
@@ -39,9 +43,62 @@ class ModalPinCode extends Component {
     allCountries: [],
     phoneNumber: '',
     currentcountry: '',
-    user: {},
-    showIncorrectErrorCode: false
+    user: null,
+    showIncorrectErrorCode: false,
+    spinner: false
   };
+
+  getLoginUser = async() => {
+    
+    this.setState({ spinner: true });
+    const { navigation } = this.props;
+    const body = {
+      query:`
+      query{
+        login(email: "${this.state.user.email}")
+        {
+          token,
+          user{
+            _id
+            firstName
+            radius
+            lastName
+            email
+            dob
+            profilePic
+            gender
+            accountType,
+            phoneNumber
+          }
+        }
+      }
+      `
+    }
+
+    
+    axios.post(`graphql?`,body).then((res)=>{
+      console.log("the reso login", res)
+      if(res.data.data.login){
+        console.log("the data in login", res.data.data.login)
+        storeUserData(res.data.data.login).then(async() => {
+          this.setState({ spinner: false });
+          const user = await this.props.getUser();
+          if(user === 'ok'){
+            this.props.onCloseModalSignUp()
+            this.props.onClose()
+            navigation.navigate('HomeApp');
+          }
+            
+        })
+      }
+    }).catch(err => {
+        console.log('the error')
+        const {errors} =  err.response.data; 
+        const { message } = errors[0]; 
+        this.setState({ spinner: false, message, showError: true })
+    })
+
+  }
 
   async componentDidMount(){
     console.log("this.props", this.props)
@@ -63,19 +120,28 @@ class ModalPinCode extends Component {
   }
 
   verifyCode = async (code) => {
-    const { phoneNumberPinData } = this.props;
+    const { phoneNumberPinData, navigation } = this.props;
     const verificationId = phoneNumberPinData.verificationId;
     const verificationCode = code;
-    console.log(`the verification id ${verificationId} and verification code: ${verificationCode}`);
+  
     try {
       const credential = firebase.auth.PhoneAuthProvider.credential(
         verificationId ,
         verificationCode
       );
       const getResult = await firebase.auth().signInWithCredential(credential);
-      if(getResult){
-        console.log("the user", this.state.user)
+    
+      console.log("the state user", this.state.user)
+      if(this.state.user){
+        this.getLoginUser();
       }
+      else{
+        this.props.onCloseModalSignUp()
+        this.props.onClose()
+        this.props.onNavigateSignUpScreen(phoneNumberPinData.phoneNo) 
+      }
+       
+      
       console.log("the getResult", getResult)
       // showMessage({ text: 'Phone authentication successful 👍' });
     } catch (err) {
@@ -89,6 +155,10 @@ class ModalPinCode extends Component {
     console.log("the data", this.props)
     return (
       <View style={styles.centeredView}>
+        <Spinner
+          visible={this.state.spinner}
+          textContent={'Loading...'}
+        />
         <Modal
           animationType="slide"
           transparent={true}
@@ -265,10 +335,10 @@ const styles = StyleSheet.create({
   
 });
 
-const mapStateToProps = (state) => {
-  const {  vibe } = state
-  return { 
-    vibe: vibe.vibe.vibe
-  }
-};
-export default connect(mapStateToProps)(ModalPinCode);;
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    getUser
+  }, dispatch)
+);
+
+export default connect(null, mapDispatchToProps)(ModalPinCode);

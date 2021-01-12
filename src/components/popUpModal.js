@@ -33,7 +33,7 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}> 
        <AwesomeAlert
-          show={true}
+          show={this.props.showModal}
           showProgress={false}
           title="Vibe Required"
           titleStyle ={{ fontWeight: '700', fontSize: 20 }}

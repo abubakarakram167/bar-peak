@@ -1,17 +1,19 @@
 import React, { Component } from 'react'
-import DatePicker from 'react-native-datepicker'
+import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment'; 
+
 export default class MyDatePicker extends Component {
   constructor(props){
     super(props)
-    this.state = {date: moment().format('YYYY-MM-DD')}
+    this.state = {date: new Date()}
   }
  
   render(){
+    
     return (
-      <DatePicker
+      <DateTimePicker
         style={{width: 200}}
-        date={this.state.date}
+        value={this.state.date}
         mode="date"
         placeholder="select date"
         format="YYYY-MM-DD"
@@ -33,9 +35,11 @@ export default class MyDatePicker extends Component {
           }
           // ... You can check the source to find the other keys.
         }}
-        onDateChange={(date) => {
-          this.props.onChange(date)
-          this.setState({date: date})
+        onChange={(event,date) => {
+          console.log("on calling", date)
+          this.setState({date: date}, ()=> {
+            this.props.onChange( this.state.date)
+          })
         }}
       />
     )

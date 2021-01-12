@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ScrollView, ActivityIndicator, Modal, Button } from 'react-native';
-import { withNavigation } from 'react-navigation';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FaceBookComponent from '../components/facebookComponent';
@@ -27,7 +26,7 @@ import LoginSignupModal from "../components/ModalLogInSignUp";
       showError: false,
       showAnimatedTextFadeIn: true,
       showAnimatedTextFadeOut: false,
-      showSignUpModal: false 
+      showSignUpModal: false
     }
   }
 
@@ -129,7 +128,7 @@ import LoginSignupModal from "../components/ModalLogInSignUp";
        
         <Image style = { styles.ImageLogo }  source = {{ uri: "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png" }}  />
 
-        <KeyboardAwareView animated={true}>
+        {/* <KeyboardAwareView animated={true}>
           <View style={{flex: 2}}>
             <ScrollView style={{flex: 2}}> 
               <View style={[styles.inputView, { marginTop: 30, width: 300 }]} >
@@ -151,14 +150,17 @@ import LoginSignupModal from "../components/ModalLogInSignUp";
               </View>
             </ScrollView> 
           </View>
-        </KeyboardAwareView>
+        </KeyboardAwareView> */}
         
         <View style = {styles.loginContainer} >
           <TouchableOpacity style={styles.SignUpBtn} onPress = { ()=>{ this.props.navigation.navigate("SignUpScreen") } } >
-            <Text style={styles.SignUpText}>Signup</Text>
+            <Text style={styles.SignUpText}>Signup Test</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.loginBtn} onPress = {()=>{ this.authenticateUser() } } >
-            <Text style={styles.loginText}>LOGIN</Text>
+          <TouchableOpacity 
+            style={styles.SignUpBtn} 
+            onPress = { ()=> this.setState({ showSignUpModal: true })  } 
+          >
+            <Text style={styles.loginText}>SignUp / LOGIN</Text>
           </TouchableOpacity>
         </View>
         <Spinner
@@ -171,8 +173,12 @@ import LoginSignupModal from "../components/ModalLogInSignUp";
           message = {this.state.message} 
           closeModal = { ()=> this.setState({ showError: false  }) }  
         />
-        { this.state.showSignUpModal && <LoginSignupModal  navigation = {this.props.navigation} /> }
-        
+        <LoginSignupModal 
+          showModal = {this.state.showSignUpModal}  
+          navigation = {this.props.navigation} 
+          onCloseModalSignUp = {()=> this.setState({ showSignUpModal: false })}
+          onNavigateSignUpScreen = {(phoneNumber)=> this.props.navigation.navigate("SignUpScreen", {phoneNumber}) }
+        />
       </View>
     );
   }
@@ -280,8 +286,9 @@ const styles = StyleSheet.create({
     width:"80%",
     alignItems:"center",
     justifyContent:"center",
-    height: 40,
     marginBottom:0,
+    paddingTop: 20,
+    paddingBottom: 20,
     marginTop: 40,
     color:'white',
     backgroundColor:"white",
