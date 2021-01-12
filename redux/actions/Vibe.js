@@ -40,7 +40,7 @@ export const submitVibe = ({ crowdedPlace, nightLife, ageInterval, barType }) =>
     })
     return Promise.resolve(res.data.data.setVibe);
   }catch(err){
-    console.log("hte errorsss", err.response.data)
+    console.log("hte errorsss, submit vibe", err)
   }
 };
 
@@ -75,7 +75,7 @@ export const updateVibe = ({ crowdedPlace, nightLife, ageInterval, barType }) =>
     })
     return Promise.resolve(res.data.data.updateVibe);
   }catch(err){
-    console.log("hte errorsss", err.response.data)
+    console.log("hte errorsss, updateVibe", err)
   }
 }
 
@@ -104,7 +104,7 @@ export const getVibe = () => async (dispatch, getState) => {
     })
     return Promise.resolve(res.data.data.getVibe);
   }catch(err){
-    console.log("hte errorsss", err.response.data)
+    console.log("hte errorsss getVibe", err)
   }
 
 }

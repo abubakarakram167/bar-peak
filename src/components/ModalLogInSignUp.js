@@ -54,6 +54,7 @@ class showVibeModal extends Component {
       phoneNo,
       verificationId
     }
+    console.log("the verification Id", verificationId);
     
     if( verificationId){
       this.setState({ showPinModal: true, phoneNumberPinData: data })
@@ -145,7 +146,12 @@ class showVibeModal extends Component {
                       useNativeAndroidPickerStyle={false}
                       textInputProps={{ underlineColor: 'yellow' }}
                       Icon={() => {
-                        return <Ionicons name="md-arrow-down" size={20} color="gray" />;
+                        return (
+                          <Ionicons 
+                            name="md-arrow-down" 
+                            size={20} 
+                            color="gray" 
+                          />);
                       }}
                     />
                     <TextInput

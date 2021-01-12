@@ -48,7 +48,7 @@ class HomeScreen extends Component {
     }, 1000)
     const isVibeEmpty = _.isEmpty(getVibe);  
     if(isVibeEmpty)
-      this.setState({ showModal: true })    
+      this.setState({ showModal: false })    
     await this.props.getAllCategories();
     await this.props.getfilteredBusiness(null, null, null);
     await this.props.getFavouritesBusinessAction();

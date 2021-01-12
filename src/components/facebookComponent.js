@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import * as Facebook from 'expo-facebook';
 import { SocialIcon } from 'react-native-elements'
+import { Icon } from 'react-native-elements'
 import axios from '../api/axios';
 import {storeUserData} from '../components/localStorage';
 import { useDispatch } from 'react-redux';
@@ -39,6 +40,7 @@ export default function App(props) {
 
       await Facebook.initializeAsync({
         appId: '402918750725114',
+        appName: "Bar Peak"
       });
 
       const {
@@ -129,14 +131,26 @@ export default function App(props) {
     <View style={styles.buttonContainer}>
       <TouchableOpacity onPress={facebookLogIn}  >
         <View style={styles.socialIcons}>
-          <View style={{flex: 0, height: 10, marginLeft: '1%'}} >
+          {/* <View style={{flex: 0, height: 10, marginLeft: '1%'}} >
             <SocialIcon
               type='facebook'
               style = {{ position: 'relative', bottom: '35%', height: 20, width: 20 }}
             />
-          </View> 
-          <View style={{flex: 1, height: 15 , marginLeft: '12%', borderRadius: 10 }}  >
-            <Text style = {{ color: "black", fontWeight: "500", fontSize: 15 }}  > Continue With Facebook</Text>  
+            
+          </View>  */}
+          <View style={{flex: 1 , marginLeft: '12%', borderRadius: 10, flexDirection: "row" }}  >
+            {/* <SocialIcon
+              type='facebook'
+              style = {{ position: 'relative', bottom: '35%', height: 10, width: 10 }}
+            /> */}
+            <Icon
+              name='social-facebook'
+              type = 'foundation'
+              size = {21}
+              color = 'blue'
+              
+            />
+            <Text style = {{ color: "black", fontWeight: "600", fontSize: 17 }}  > Continue With Facebook</Text>  
           </View> 
         </View>
       </TouchableOpacity>
@@ -177,8 +191,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: 50,
-    borderWidth: 1,
+    borderWidth: 0.5,
     marginTop: 20 ,
-    borderRadius: 10
+    borderRadius: 7
   }
 });

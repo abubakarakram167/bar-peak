@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/barPeakLogo.png",
+    "notification": { "icon": "./assets/barPeakLogo.png" },
     "splash": {
       "image": "./assets/welcomeScreen.png",
       "backgroundColor": "#000000",
@@ -16,6 +17,8 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "facebookDisplayName": "Bar Peak",
+    "facebookAppId": "402918750725114",
     "ios": {
       "bundleIdentifier": "com.BarPeak",
       "config": {

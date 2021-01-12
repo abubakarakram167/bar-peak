@@ -18,6 +18,7 @@ import * as firebase from 'firebase';
 import {storeUserData} from './localStorage';
 import { getUser } from '../../redux/actions/User';
 import { bindActionCreators } from 'redux';
+import AnimatedEllipsis from 'react-native-animated-ellipsis';
 
 try {
   if (!firebase.apps.length) {
@@ -45,7 +46,8 @@ class ModalPinCode extends Component {
     currentcountry: '',
     user: null,
     showIncorrectErrorCode: false,
-    spinner: false
+    spinner: false,
+    pinCodeIconLoader: false
   };
 
   getLoginUser = async() => {
@@ -120,6 +122,7 @@ class ModalPinCode extends Component {
   }
 
   verifyCode = async (code) => {
+    this.setState({pinCodeIconLoader: true})
     const { phoneNumberPinData, navigation } = this.props;
     const verificationId = phoneNumberPinData.verificationId;
     const verificationCode = code;
@@ -130,8 +133,7 @@ class ModalPinCode extends Component {
         verificationCode
       );
       const getResult = await firebase.auth().signInWithCredential(credential);
-    
-      console.log("the state user", this.state.user)
+      
       if(this.state.user){
         this.getLoginUser();
       }
@@ -146,7 +148,7 @@ class ModalPinCode extends Component {
       // showMessage({ text: 'Phone authentication successful 👍' });
     } catch (err) {
       console.log("the error", err)
-      this.setState({ showIncorrectErrorCode: true })
+      this.setState({ showIncorrectErrorCode: true, pinCodeIconLoader: false })
     }
   }
 
@@ -206,27 +208,46 @@ class ModalPinCode extends Component {
                 style = {{ width: width * 0.8, height: height * 0.75, borderWidth: 0 }}
               >
                 <View
-                  style = {{ flex: 1 }}
+                  style = {{ flex: 1,  }}
                 >
-                  <Text style = {styles.smsText} >Enter The Code We Sent Over SMS to {phoneNumberPinData.phoneNo}</Text>
-                  <SmoothPinCodeInput
-                    cellStyle={{
-                      borderWidth: 1,
-                      borderColor: 'gray',
-                      borderRadius: 10,
-                      marginLeft: 5
-                    }}
-                    codeLength={6}
-                    cellSize = {48}
-                    cellStyleFocused={{
-                      borderColor: 'black',
-                      borderWidth: 2
-                    }}
-                    value = {this.state.code}  
-                    onTextChange={code => this.setState({ code })}
-                    containerStyle = {{ marginTop: 20 }}
-                    onFulfill = {(code)=> this.verifyCode(code) }
-                  />
+                  <Text style = {styles.smsText} >Enter The Code We Sent Over SMS to {phoneNumberPinData && phoneNumberPinData.phoneNo}</Text>
+                  <View
+                    opacity = { this.state.pinCodeIconLoader ? 0.3 : 1}
+                  >
+                    <SmoothPinCodeInput
+                      cellStyle={{
+                        borderWidth: 1.2,
+                        borderColor: 'gray',
+                        borderRadius: 10,
+                        marginLeft: 5
+                      }}
+                      codeLength={6}
+                      cellSize = {48}
+                      cellStyleFocused={{
+                        borderColor: 'black',
+                        borderWidth: 2
+                      }}
+                      value = {this.state.code}  
+                      onTextChange={code => this.setState({ code })}
+                      containerStyle = {{ marginTop: 20 }}
+                      onFulfill = {(code)=> this.verifyCode(code) }
+                    />
+                  </View>
+                  { this.state.pinCodeIconLoader &&
+                   (<Text style = {{  alignSelf: "center" }} >
+                    <AnimatedEllipsis 
+                      numberOfDots={4}
+                      style={{
+                        color: 'black',
+                        fontSize: 90,
+                        letterSpacing: -10,
+                        position: "relative",
+                        bottom: 50
+                      }}
+                      minOpacity={0.2}
+                    />
+                  </Text>)
+                  }
                   { this.state.showIncorrectErrorCode &&
                     (<Text style = {styles.showError} >You've enter the wrong Pin!.Please Try Again. </Text>)
                   }    

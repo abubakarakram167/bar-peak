@@ -91,7 +91,7 @@ export default function AppleComponent(props){
   return (
     <AppleAuthentication.AppleAuthenticationButton
       buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
       cornerRadius={5}
       style={{  height: 50,marginBottom: 70, borderRadius: 20 }}
       onPress={async () => {

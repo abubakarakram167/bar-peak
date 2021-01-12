@@ -127,35 +127,11 @@ import LoginSignupModal from "../components/ModalLogInSignUp";
         </Modal> 
        
         <Image style = { styles.ImageLogo }  source = {{ uri: "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png" }}  />
-
-        {/* <KeyboardAwareView animated={true}>
-          <View style={{flex: 2}}>
-            <ScrollView style={{flex: 2}}> 
-              <View style={[styles.inputView, { marginTop: 30, width: 300 }]} >
-                <TextInput
-                  style={styles.inputText}
-                  placeholder="Email or Username"
-                  placeholderTextColor="#003f5c"
-                  onChangeText={username => this.setState({username: username})}
-                />
-              </View>
-              <View style={styles.inputView} >
-                <TextInput
-                  style={styles.inputText}
-                  placeholder="Password..."
-                  placeholderTextColor="#003f5c"
-                  onChangeText={password => this.setState({password: password})}
-                  secureTextEntry
-                />
-              </View>
-            </ScrollView> 
-          </View>
-        </KeyboardAwareView> */}
-        
+ 
         <View style = {styles.loginContainer} >
-          <TouchableOpacity style={styles.SignUpBtn} onPress = { ()=>{ this.props.navigation.navigate("SignUpScreen") } } >
+          {/* <TouchableOpacity style={styles.SignUpBtn} onPress = { ()=>{ this.props.navigation.navigate("SignUpScreen") } } >
             <Text style={styles.SignUpText}>Signup Test</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity 
             style={styles.SignUpBtn} 
             onPress = { ()=> this.setState({ showSignUpModal: true })  } 
