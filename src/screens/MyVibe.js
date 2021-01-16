@@ -20,23 +20,18 @@ class MyVibe extends React.Component{
  
   }
 
-
-
   async componentDidMount(){     
     await this.props.getAllCategories();
-    this.setState({ showFirst :true })  
   }
 
   render(){
-    const { category } = this.props.category.category
-    const barCategories = category.length>0 && category.filter((category)=> category.type === "sub_bar" );
-
+    const { navigation } = this.props;
     return (
       <View style={Style.screen}>
         <View 
           style = {Style.ProgressiveBar}
         >
-          <ProgressiveBar />
+          <ProgressiveBar navigation = {navigation} />
         </View>
 
       </View>

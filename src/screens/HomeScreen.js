@@ -37,21 +37,25 @@ class HomeScreen extends Component {
   }
 
   async componentDidMount(){
-    await this.props.emptyBusiness()
-    this.setState({ spinner: true })
-    const location = await this.getCurrentLocation()
-    await this.getNewChangedLocation(); 
-    const { coords } = location;
-    const [getVibe] = await Promise.all([ this.props.getVibe(), this.props.getNearLocationBusiness(coords), this.props.setUserLocation(coords)]) 
-    setTimeout(()=> {  
-      this.setState({ spinner: false })
-    }, 1000)
-    const isVibeEmpty = _.isEmpty(getVibe);  
-    if(isVibeEmpty)
-      this.setState({ showModal: false })    
-    await this.props.getAllCategories();
-    await this.props.getfilteredBusiness(null, null, null);
-    await this.props.getFavouritesBusinessAction();
+    try{
+      await this.props.emptyBusiness()
+      this.setState({ spinner: true })
+      const location = await this.getCurrentLocation()
+      await this.getNewChangedLocation(); 
+      const { coords } = location;
+      const [getVibe] = await Promise.all([ this.props.getVibe(), this.props.getNearLocationBusiness(coords), this.props.setUserLocation(coords)]) 
+      setTimeout(()=> {  
+        this.setState({ spinner: false })
+      }, 1000)
+      const isVibeEmpty = _.isEmpty(getVibe);  
+      if(isVibeEmpty)
+        this.setState({ showModal: false })    
+      await this.props.getAllCategories();
+      await this.props.getfilteredBusiness(null, null, null);
+      await this.props.getFavouritesBusinessAction();
+    }catch(error){
+      console.log("the error", error)
+    }
   }
 
   getBusinessByCategory = async(category) => {

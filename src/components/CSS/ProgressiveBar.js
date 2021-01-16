@@ -8,9 +8,18 @@ export default StyleSheet.create({
   },
   questionText: { 
     color: "white", 
-    fontSize: 20, 
+    fontSize: 18, 
     textAlign: 'center', 
     position: 'relative', 
-    top: 20 
+    top: 20,
+    fontFamily: "Times New Roman"
+  },
+  nextButton:{ 
+    backgroundColor: '#42a4f5',
+    color: 'white', 
+    borderRadius: 10, 
+    padding: 10, 
+    paddingLeft: 20, 
+    paddingRight: 20 
   }
 })

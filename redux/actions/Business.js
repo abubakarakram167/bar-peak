@@ -4,7 +4,7 @@ import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
 import Category from '../reducers/Category';
 import haversine from 'haversine-distance'
-import { getAllCaseData } from "../helperFunction";
+import { getAllCaseData , getSelectedCategories } from "../helperFunction";
 
 let getMiles = (i) => {
   return i*0.000621371192;
@@ -302,99 +302,37 @@ export const getNearLocationBusiness = ({ latitude, longitude }) => async (dispa
 
 export const getfilteredBusiness = ( selectedMainCategory, search, favourite) => async (dispatch, getState) => {
 
-  const { vibe, business, category, user } = getState();
+  const { vibe, business, category } = getState();
   const data = business.business.businesses;
   const searchData = business.business.searchResults;
   const favouriteEstablishments = business.business.favouriteBusiness;
   const actualVibe = vibe.vibe.vibe;
   const allCategories = category.category.category;
   const favouriteEstablishmentCategory = business.business.selectedEstablishmentCategory
- 
+  
   let selectedCategory = []
   if(!search){  
-    if(selectedMainCategory !== null){
+    if(selectedMainCategory !== null)
       selectedCategory = allCategories.filter((category)=> selectedMainCategory.includes(category._id)).map((specificCategory)=> specificCategory._id)
-    }
-    else{
-      if(actualVibe.nightLife)
-        selectedCategory = allCategories.filter((category)=> category.title === "Night Clubs" ).map((specificCategory)=> specificCategory._id)
-      else
-        selectedCategory = allCategories.filter((category)=> category.title === actualVibe.barType ).map((specificCategory)=> specificCategory._id)
-    }
+    else
+      selectedCategory = allCategories.filter((category)=> actualVibe.selectedCategories.includes(category._id)).map((specificCategory)=> specificCategory._id)
   }
   
-  // console.log("the selected category", selectedCategory);
-    
   try{ 
-    
     let filterCategoryBusinessVibe; 
-
-    if(search){
-      searchData.map(business => {
-        if( business.ageInterval === actualVibe.ageInterval  ){
-          const { rating } = business;
-          if(actualVibe.crowdedPlace){
-            if(rating.crowd >= 4 && rating.crowd <= 5){
-              filterCategoryBusinessVibe.goodSpots.push(business)
-            }
-            else if(rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
-              filterCategoryBusinessVibe.averageSpots.push(business)
-            }
-            else if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
-              filterCategoryBusinessVibe.badSpots.push(business)
-            }
-          }
-          else{
-            if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
-              filterCategoryBusinessVibe.goodSpots.push(business)
-            }
-            else if(business.rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
-              filterCategoryBusinessVibe.averageSpots.push(business)
-            }
-            else if(business.rating.crowd >= 4 && business.rating.crowd <= 5){
-              filterCategoryBusinessVibe.badSpots.push(business)
-            }
-          }   
-        }
-      })
-    }
+    if(search)
+      filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, searchData)
     else if(favourite){
-      favouriteEstablishments.filter((business)=> {
+      let favouriteBusiness = favouriteEstablishments.filter((business)=> {
         return business.category.map(category=> category._id).includes(favouriteEstablishmentCategory)
-      }).map(business => {
-        if( business.ageInterval === actualVibe.ageInterval  ){
-          const { rating } = business;
-          if(actualVibe.crowdedPlace){
-            if(rating.crowd >= 4 && rating.crowd <= 5){
-              filterCategoryBusinessVibe.goodSpots.push(business)
-            }
-            else if(rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
-              filterCategoryBusinessVibe.averageSpots.push(business)
-            }
-            else if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
-              filterCategoryBusinessVibe.badSpots.push(business)
-            }
-          }
-          else{
-            if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0){
-              filterCategoryBusinessVibe.goodSpots.push(business)
-            }
-            else if(business.rating.crowd >= 2.1 && business.rating.crowd <= 3.9){
-              filterCategoryBusinessVibe.averageSpots.push(business)
-            }
-            else if(business.rating.crowd >= 4 && business.rating.crowd <= 5){
-              filterCategoryBusinessVibe.badSpots.push(business)
-            }
-          }   
-        }
       })
+      filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, favouriteBusiness)
     }
-    else{
-      filterCategoryBusinessVibe = getAllCaseData({ vibeCategory: "sada" }, data, selectedCategory)
-    }
-
-  
+    else
+      filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, selectedCategory)
     
+    console.log("the hereeeee")  
+    console.log("the data", filterCategoryBusinessVibe)  
     const { allSpots } = filterCategoryBusinessVibe;
     // let { latitude, longitude } = user.user.user;
     var latitude = 32.7970465;

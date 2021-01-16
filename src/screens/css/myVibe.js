@@ -10,6 +10,8 @@ export default StyleSheet.create({
     margin: 0
   },
   ProgressiveBar: {
-    flex: 1
+    flex: 1,
+    paddingLeft: 2,
+    paddingRight: 2
   }
 })

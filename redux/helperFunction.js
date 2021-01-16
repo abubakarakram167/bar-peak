@@ -1,4 +1,19 @@
 
+export const  getSelectedCategories = (barOrNightClub) => {
+  const { category } = this.props.category.category;
+  let selectedCategory;
+
+  if(barOrNightClub === "nightClub"){
+    selectedCategory = category.filter(category => category.title === 'Night Clubs')
+  }
+  else{
+    const barCategories = this.state.question3;
+    selectedCategory = category.filter((category)=>  barCategories.includes(category._id) )
+  }
+  return selectedCategory.map(category => category._id)
+}
+
+
 export const getAllCaseData = (userVibeData, data, selectedCategory) => {
 
   let filterVibeCategoryData = {
@@ -8,8 +23,7 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
   };
   let { vibeCategory } = userVibeData; 
 
-  if(vibeCategory === "Professional Party Time" || true){
-    console.log("the data", data)
+  if(vibeCategory === "Professional Party Time"){
     data.map(business => {
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
         const { rating, difficultyGettingIn, fun } = business;

@@ -18,35 +18,33 @@ export default class App extends React.Component {
       super(props);  
     }
 
-    _renderItemWithParallax ({item, index}, parallaxProps) {
+    _renderItem = ({item, index}) => {
       return (
-          <SliderEntry
-            data={item}
-            even={(index + 1) % 2 === 0}
-            parallax={true}
-            parallaxProps={parallaxProps}
-          />
-      );
-    }
-    _renderItem ({item, index}) {
-      return <SliderEntry data={item} even={(index + 1) % 2 === 0} />;
+        <SliderEntry 
+          selectChoice = {this.props.selectChoice} 
+          currentStep = {this.props.currentStep}
+          value = {this.props.value}
+          data={item} 
+          even={(index + 1) % 2 === 0} 
+        />
+      )
     }
 
     render() {
       const {entries} = this.props;
         return (
           <View style={styles.exampleContainer}>
-             <Carousel
-                data={entries}
-                renderItem={this._renderItem}
-                sliderWidth={sliderWidth}
-                itemWidth={itemWidth}
-                containerCustomStyle={styles.slider}
-                contentContainerCustomStyle={styles.sliderContentContainer}
-                scrollInterpolator={scrollInterpolators[`scrollInterpolator2`]}
-                slideInterpolatedStyle={animatedStyles[`animatedStyles2`]}
-                useScrollView={true}
-              />
+            <Carousel
+              data={entries}
+              renderItem={this._renderItem}
+              sliderWidth={sliderWidth}
+              itemWidth={itemWidth}
+              containerCustomStyle={styles.slider}
+              contentContainerCustomStyle={styles.sliderContentContainer}
+              scrollInterpolator={scrollInterpolators[`scrollInterpolator2`]}
+              slideInterpolatedStyle={animatedStyles[`animatedStyles2`]}
+              useScrollView={true}
+            />
           </View>
         );
     }

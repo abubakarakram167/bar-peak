@@ -22,7 +22,7 @@ class showVibeModal extends Component {
 
   render() {
     const { vibe } = this.props;
-    console.log("the vibe", vibe);
+    
     return (
       <View style={styles.centeredView}>
         <Modal
@@ -37,38 +37,9 @@ class showVibeModal extends Component {
             <View style={styles.modalView}>
               <Text style={styles.modalText}>Your's Current Vibe</Text>
               <View
-                style = {{ width: width * 0.7, height: height * 0.5 }}
+                style = {{ width: width * 0.7 }}
               >
-                <View style = { styles.wholeContainer } >
-                  <Text style = {styles.questions}> Night Clubs or Bar </Text>
-                  <Text style = {styles.answers} >{vibe.nightLife ? "Night Clubs": "Bar" }</Text>
-                  <View
-                    style={ styles.bottomLine }
-                  />
-                </View>
-                { ! vibe.nightLife &&
-                    (<View style = { styles.wholeContainer } >
-                      <Text style = {styles.questions}> Bar Category </Text>
-                      <Text style = {styles.answers} >{vibe.barType}</Text>
-                      <View
-                        style={ styles.bottomLine }
-                      />
-                    </View>)
-                }
-                <View style = { styles.wholeContainer } >
-                  <Text style = {styles.questions}  > Crowdy Places </Text>
-                  <Text style = {styles.answers} >{vibe.crowdedPlace ? "Crowdy": "Quiet" }</Text>
-                  <View
-                    style={ styles.bottomLine }
-                  />
-                </View>
-                <View style = { styles.wholeContainer } >
-                  <Text style = {styles.questions}  > Age Range</Text>
-                  <Text style = {styles.answers} > { vibe.ageInterval } </Text>
-                  <View
-                    style={ styles.bottomLine }
-                  />
-                </View>
+               <Text style = {styles.vibeCategoryText} >{ vibe.vibeCategory }</Text>
               </View>
             </View>
             <TouchableHighlight
@@ -93,6 +64,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 22
   },
+  vibeCategoryText:{
+    textAlign: 'center',
+    fontSize: 25
+  },
   bottomLine: {
     borderBottomColor: 'gray',
     borderBottomWidth: 0.5,
@@ -101,7 +76,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: "#ededed",
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
@@ -129,7 +104,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: "center",
     fontWeight: '700',
-    fontSize: 25
+    fontSize: 20
   },
   wholeContainer: {
     flex: 1,

@@ -34,46 +34,56 @@ export default class SliderEntry extends Component {
         );
     }
 
+    getSelectionColor = () => {
+      const {currentStep, value, data: { title, id } } = this.props;
+      if(currentStep === 3)
+        return value.includes(id) ? { borderWidth: 5, borderColor: 'darkgray', borderRadius: 20 } : {}
+      else
+        return value === title ? { borderWidth: 5, borderColor: 'darkgray', borderRadius: 20 } : {}
+    }
+
     render () {
-        const { data: { title, subtitle}, even } = this.props;
+      const { data: { title, id},selectChoice,currentStep, even, value } = this.props;
 
-        const uppercaseTitle = title ? (
-            <Text
-              style={[styles.title, styles.titleEven ]}
-              numberOfLines={2}
-            >
-                { title.toUpperCase() }
-            </Text>
-        ) : false;
-
-        return (
-          <View
+      const uppercaseTitle = title ? (
+          <Text
+            style={[styles.title, styles.titleEven ]}
+            numberOfLines={2}
           >
-            <Text style = {{ color: 'white', textAlign: "center", fontSize: 25 }} >{title}</Text>
-            <TouchableOpacity
-              activeOpacity={1}
-              style={styles.slideInnerContainer}
-              onPress={() => { alert(`You've clicked '${title}'`); }}
+              { title.toUpperCase() }
+          </Text>
+      ) : false;
+
+      return (
+        <View
+        >
+          <Text style = {styles.titleHeading} >{title}</Text>
+          <TouchableOpacity
+            activeOpacity={1}
+            style={[styles.slideInnerContainer, this.getSelectionColor() ] }
+          >
+            <View style={styles.shadow} />
+            <View style={[styles.imageContainer, styles.imageContainerEven ]}>
+                { this.image }
+                <View style={[styles.radiusMask,styles.radiusMaskEven]} />
+            </View>
+            <View style={{ position: "absolute", top: "80%", left: "45%" }}>
+              <TouchableOpacity
+                style = {{ backgroundColor: "#5a5c5c", padding: 10, borderRadius: 20 }}
+                onPress={() => { 
+                  selectChoice( currentStep === 3 ? id : title, currentStep)
+                }} 
               >
-                <View style={styles.shadow} />
-                <View style={[styles.imageContainer, styles.imageContainerEven ]}>
-                    { this.image }
-                    <View style={[styles.radiusMask,styles.radiusMaskEven]} />
-                </View>
-                <View style={{ position: "absolute", top: "80%", left: "45%" }}>
-                  <TouchableOpacity
-                    style = {{ backgroundColor: "#5a5c5c", padding: 10, borderRadius: 20 }} 
-                  >
-                    <Text
-                      style={{ color: "white", fontSize: 15, fontWeight: "600" }}
-                      numberOfLines={2}
-                    >
-                        Choose
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-            </TouchableOpacity>
-          </View>  
-        );
+                <Text
+                  style={{ color: "white", fontSize: 15, fontWeight: "600" }}
+                  numberOfLines={2}
+                >
+                  {  value === title ? "UnPick" : "Pick" } 
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </View>  
+      );
     }
 }

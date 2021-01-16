@@ -9,8 +9,8 @@ function wp (percentage) {
     return Math.round(value);
 }
 
-const slideHeight = viewportHeight * 0.38;
-const slideWidth = wp(82);
+const slideHeight = viewportHeight * 0.40;
+const slideWidth = wp(85);
 const itemHorizontalMargin = wp(5);
 
 export const sliderWidth = viewportWidth;
@@ -95,5 +95,11 @@ export default StyleSheet.create({
     },
     subtitleEven: {
         color: 'rgba(255, 255, 255, 0.7)'
+    },
+    titleHeading: { 
+      color: 'white', 
+      textAlign: "center", 
+      fontSize: 18, 
+      fontWeight: "400" 
     }
 });

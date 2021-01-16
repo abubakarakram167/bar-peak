@@ -3,7 +3,8 @@ import Category from "../../../../redux/reducers/Category";
 
 export const Entries = (props) => {
   const ENTRIES1 = [
-    {
+    { 
+      number: 1,
       question: "How hard are you trying to party?",
       label: "Fun",
       data:[{  
@@ -19,6 +20,7 @@ export const Entries = (props) => {
       }]
     },
     { 
+      number: 2,
       question: "What type of partying are you looking for?",
       label: "Party",
       data:[
@@ -33,6 +35,7 @@ export const Entries = (props) => {
       ]
     },
     { 
+      number: 3,
       question: "What types of Bar Are you Looking For?",
       label: "Bar",
       data:[
@@ -46,7 +49,8 @@ export const Entries = (props) => {
         }
       ]
     },
-    {
+    { 
+      number: 4,
       question: "What level of crowd are you looking for?",
       label: "Crowd",
       data:[
@@ -64,7 +68,8 @@ export const Entries = (props) => {
         }
       ]
     },
-    {
+    { 
+      number: 5,
       question: "What age demographic?",
       label: "Age Range",
       data:[
@@ -91,7 +96,6 @@ export const Entries = (props) => {
        question: entry.question, 
        label:entry.label, 
        data: props.filter((category)=>{
-         console.log("the category", category)
           if(category.type === "sub_bar")
             return true
           return false   
@@ -107,7 +111,6 @@ export const Entries = (props) => {
     else
       return entry 
   })
-  console.log("the trasform", data)
 
   return data;
 

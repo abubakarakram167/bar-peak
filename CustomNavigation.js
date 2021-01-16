@@ -216,11 +216,16 @@ const HomeTabScreen = () => {
           name="myVibe"
           component={MyVibeScreen}
           options = {
-          { title: "Setting My Vibe",
-            headerShown: true,
-            headerLeft: () => {return null},
-            unmountInactiveRoutes: true 
-          }}
+            { title: "Setting My Vibe",
+              headerShown: true,
+              headerLeft: () => {return null},
+              unmountInactiveRoutes: true, 
+              headerStyle: { backgroundColor: '#b3b5b4' },
+              headerTitleStyle: {
+                color: 'black'
+              }
+            }
+          }
         />
       </Stack.Navigator>
     );

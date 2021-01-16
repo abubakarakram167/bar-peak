@@ -56,7 +56,7 @@ function animatedStyles2 (index, animatedValue, carouselProps) {
     return {
         zIndex: carouselProps.data.length - index,
         opacity: animatedValue.interpolate({
-            inputRange: [-1, 0, 1, 2],
+            inputRange: [-1, 0.3, 1, 2],
             outputRange: [0.75, 1, 0.6, 0.4]
         }),
         transform: [{
@@ -76,8 +76,8 @@ function animatedStyles2 (index, animatedValue, carouselProps) {
                 outputRange: [
                     0,
                     0,
-                    -sizeRef + 30,
-                    -sizeRef * 2 + 45
+                    -sizeRef + 10,
+                    -sizeRef * 2 + 25
                 ],
                 extrapolate: 'clamp'
             })

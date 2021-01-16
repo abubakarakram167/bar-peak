@@ -3,28 +3,35 @@ import { graphql } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
 
-export const submitVibe = ({ crowdedPlace, nightLife, ageInterval, barType }) => async (dispatch, getState) => {
+export const submitVibe = (vibeInput) => async (dispatch, getState) => {
   
-  
+  const {
+    fun,
+    party,
+    barOrNightClub,
+    crowdLevel,
+    ageDemographic,
+    vibeCategory,
+    selectedCategories
+  } = vibeInput;
   const { token } = await getUserData();
+ 
   const body = {
       query:`
       mutation{
-        setVibe(vibeInput: {
-          crowdedPlace: ${crowdedPlace},
-          nightLife: ${nightLife},
-          ageInterval: "${ageInterval}",
-          barType: "${barType}"
+        setVibe(vibeInput: { 
+          fun: "${fun}",
+          party: "${party}",
+          barOrNightClub: "${barOrNightClub}",
+          crowdLevel: "${crowdLevel}",
+          ageDemographic: "${ageDemographic}",
+          vibeCategory: "${vibeCategory}",
+          selectedCategories: "${selectedCategories}"
         })
           {
-            crowdedPlace,
-            nightLife,
-            ageInterval
-            user{
-              email,
-              password,
-              firstName
-            }
+            vibeCategory
+            barOrNightClub
+            selectedCategories
           }
       }
       `
@@ -40,26 +47,37 @@ export const submitVibe = ({ crowdedPlace, nightLife, ageInterval, barType }) =>
     })
     return Promise.resolve(res.data.data.setVibe);
   }catch(err){
-    console.log("hte errorsss, submit vibe", err)
+    console.log("hte errorsss, submit vibe", err.response)
   }
 };
 
-export const updateVibe = ({ crowdedPlace, nightLife, ageInterval, barType }) => async (dispatch, getState) => {
+export const updateVibe = (vibeInput) => async (dispatch, getState) => {
   const { token } = await getUserData();
+  const {
+    fun,
+    party,
+    barOrNightClub,
+    crowdLevel,
+    ageDemographic,
+    vibeCategory,
+    selectedCategories
+  } = vibeInput;
   const body = {
     query:`
     mutation{
-      updateVibe(vibeInput: {
-        crowdedPlace: ${crowdedPlace},
-        nightLife: ${nightLife},
-        ageInterval: "${ageInterval}",
-        barType: "${barType}"
+      updateVibe(vibeInput: { 
+        fun: "${fun}",
+        party: "${party}",
+        barOrNightClub: "${barOrNightClub}",
+        crowdLevel: "${crowdLevel}",
+        ageDemographic: "${ageDemographic}",
+        vibeCategory: "${vibeCategory}",
+        selectedCategories: "${selectedCategories}"
       })
         {
-          crowdedPlace,
-          nightLife,
-          ageInterval
-          barType
+          vibeCategory
+          barOrNightClub
+          selectedCategories
         }
     }
     `
@@ -85,10 +103,9 @@ export const getVibe = () => async (dispatch, getState) => {
       query:`
       query{
         getVibe{
-          crowdedPlace,
-          nightLife,
-          ageInterval
-          barType     
+          vibeCategory
+          barOrNightClub
+          selectedCategories
         }
       } 
       `
@@ -102,6 +119,7 @@ export const getVibe = () => async (dispatch, getState) => {
       type: Set_Vibe,
       payload: res.data.data.getVibe,
     })
+    
     return Promise.resolve(res.data.data.getVibe);
   }catch(err){
     console.log("hte errorsss getVibe", err)
