@@ -67,7 +67,7 @@ export default function ImagePickerExample(props) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Button style = {{ position: "absolute" }} title="Pick an image from camera roll" onPress={pickImage} />
-      {image && <Image source={{ uri: image }} resizeMode = "cover" style={{ width: 280, height: 180 }} />}
+      {image && <Image source={{ uri: image }} resizeMode = "cover" style={{ width: 200,borderWidth: 1 ,height: 200 , borderRadius: 200/ 2}} />}
     </View>
   );
 }

@@ -40,10 +40,10 @@ export const submitVibe = (vibeInput) => async (dispatch, getState) => {
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-    
+    let transformCategories = res.data.data.setVibe.selectedCategories.split(',');
     dispatch({
       type: Set_Vibe,
-      payload: res.data.data.setVibe,
+      payload: {...res.data.data.setVibe, selectedCategories: transformCategories},
     })
     return Promise.resolve(res.data.data.setVibe);
   }catch(err){
@@ -86,10 +86,12 @@ export const updateVibe = (vibeInput) => async (dispatch, getState) => {
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-    
+
+    let transformCategories = res.data.data.updateVibe.selectedCategories.split(',');
+
     dispatch({
       type: Update_Vibe,
-      payload: res.data.data.updateVibe,
+      payload: {...res.data.data.updateVibe, selectedCategories: transformCategories},
     })
     return Promise.resolve(res.data.data.updateVibe);
   }catch(err){
@@ -114,10 +116,11 @@ export const getVibe = () => async (dispatch, getState) => {
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-  
+    console.log("the getting vibe", res.data.data.getVibe)
+    let transformCategories = res.data.data.getVibe.selectedCategories.length> 0 ?  res.data.data.getVibe.selectedCategories.split(','): []
     dispatch({
       type: Set_Vibe,
-      payload: res.data.data.getVibe,
+      payload: {...res.data.data.getVibe, selectedCategories: transformCategories},
     })
     
     return Promise.resolve(res.data.data.getVibe);

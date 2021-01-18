@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text, KeyboardAvoidingView , ScrollView, Alert, Modal} from 'react-native';
+import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text, KeyboardAvoidingView , ScrollView, Alert, Dimensions} from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -11,6 +11,9 @@ import AlertComponent from '../components/AlertComponent';
 import { removeStorageItem } from '../components/localStorage';
 import { updateUser } from '../../redux/actions/User';
 import ImageUploader from '../components/ImageUploader';
+import DatePicker from '../components/DatePicker';
+
+const { height, width } = Dimensions.get('window')
 
 const shadowOpt = {
   width:160,
@@ -43,7 +46,7 @@ class SignUpComponent extends React.Component {
 	constructor(props){
 		super(props)
 		this.state = {
-      date : '', 
+      date : null, 
       showPicker: false,
       email: "",
       firstName: "",
@@ -52,7 +55,8 @@ class SignUpComponent extends React.Component {
       message: "",
       showError: false,
       gender: "",
-      password: ""
+      password: "",
+      newEmail: null
     }
 	}
 
@@ -61,7 +65,7 @@ class SignUpComponent extends React.Component {
     console.log("the user", user);
     this.setState({
       date: user.dob,
-      email: user.email,
+      existingEmail: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
       gender: user.gender
@@ -86,25 +90,30 @@ class SignUpComponent extends React.Component {
   updateUser = async() => {
     this.setState({ spinner: true })
     const {navigation} = this.props;    
-    console.log("this.state", this.state)
-   try{
-    const isPasswordChange =  await this.props.updateUser(this.state)
-    console.log("is passwordChange", isPasswordChange)
-    if(isPasswordChange)
-      this.makeLogout()
-    else{
-      navigation.navigate('Screen 1')  
+  
+    try{
+      const isSameEmail=  await this.props.updateUser(this.state)
+      console.log("is Email Change", isSameEmail)
+      if(!isSameEmail)
+        this.makeLogout()
+      else{
+        navigation.navigate('Screen 1')  
+      }
+      
+    }catch(err){
+      console.log("the eroorrr", err)
+      this.setState({ spinner: false, message: err, showError: true })
     }
-     
-   }catch(err){
-     console.log("the eroorrr", err)
-    this.setState({ spinner: false, message: err, showError: true })
-   }
+  }
+
+  changeDate = (date) => {
+    this.setState({ date: moment(date).format("YYYY-MM-DD"), showPicker: false })
+    setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
+  
   }
   
 	render(){
     const { user } = this.props.user.user;
-    console.log("the useringggg", user)
 		return (
       <View style = {styles.container} >
         <ImageUploader profilePic = {user.profilePic} onUpload = {(url)=>{  this.setState({ profilePic: url })  }} />
@@ -134,51 +143,37 @@ class SignUpComponent extends React.Component {
                 />
               </View>
               <View style={styles.inputView} >
-                <DateTimePickerModal
-                  isVisible={this.state.showPicker}
-                  mode="date"
-                  onConfirm = {(date)=> this.changeDate(date)}
-                  onCancel = {()=>{ 
-                    setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
-                  }}
-                  style = {{ backgroundColor: 'gray', color: 'gray' }}
-                />
-                <TextInput
-                  style={styles.inputText}
-                  placeholder="SelectBirtday (MM/DD/YYYY)"
-                  placeholderTextColor="#003f5c"
-                   onFocus = {()=> 
-                    this.setState({ showPicker: true })
-                  }
-                  // onChange = {()=> this.setState({ showPicker: true })}
-                  defaultValue = "SelectBirday(MM/DD/YYYY)"
-                  value = { this.state.date && this.state.date }
+                <DatePicker 
+                  dob = { this.state.date && this.state.date }
+                  onChange = { (date)=> { 
+                    this.changeDate(date)
+                  }} 
                 />
               </View>
             { user.accountType === "app" &&
               <View>
-                <View style={styles.inputView} >
-                  <TextInput
-                    style={ styles.inputText }
-                    placeholder="Email"
-                    ref= "email"
-                    placeholderTextColor="#003f5c"
-                    value = {this.state.email}
-                    onChangeText={val => this.onChangeText('email', val)}
-                  />
-                </View>         
-                <View style = {[ styles.inputView, { marginBottom: 20 }] } >
-                  <View  >
+                <View>
+                  <View style={styles.inputView} >
                     <TextInput
-                      style={styles.inputText}
-                      placeholder="Password"
+                      style={ styles.inputText }
+                      placeholder="Email"
+                      ref= "email"
                       placeholderTextColor="#003f5c"
-                      value = {this.state.password}
-                      onChangeText={val => this.onChangeText('password', val)}
-                      secureTextEntry
+                      value = {this.state.existingEmail}
+                      onChangeText={val => this.onChangeText('existingEmail', val)}
                     />
-                    <Text style = {{lineHeight: 14, marginTop: 15, color: 'gray'}} >Password must be atleast 5 key words</Text>
-                  </View>
+                  </View>         
+                </View>
+                <View>
+                  <View style={styles.inputView} >
+                    <TextInput
+                      style={ styles.inputText }
+                      placeholder="New Email"
+                      placeholderTextColor="#003f5c"
+                      value = {this.state.newEmail}
+                      onChangeText={val => this.onChangeText('newEmail', val)}
+                    />
+                  </View>         
                 </View>
               </View>
             }
@@ -278,13 +273,15 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: "black"
+    color: "black",
+    width: width * 0.7
   },
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
     alignItems: 'center',
-    margin: 0
+    margin: 0,
+    width: "100%"
   }
 }) 
 

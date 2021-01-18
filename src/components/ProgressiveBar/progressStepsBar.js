@@ -93,9 +93,13 @@ class ProgressStepBar extends Component {
     }
     else{
       const barCategories = this.state.question3;
+      console.log("the bar categories", barCategories);
       selectedCategory = category.filter((category)=>  barCategories.includes(category._id))
+     
     }
-    return selectedCategory.map(category => category._id)
+    let mapData = selectedCategory.map(category => category._id)
+    console.log("after the map", mapData)
+    return mapData;
   }
 
   onSubmitSteps = () => {
@@ -115,25 +119,28 @@ class ProgressStepBar extends Component {
       barOrNightClub: question2 === "Night Clubs" ? 'nightClub' : 'bar',
       crowdLevel: question4,
       ageDemographic: question5,
-      vibeCategory: ''
+      vibeCategory: '',
+      selectedCategories: []
     };
+    let onlyDiveBar = category.filter(category => category.title ===  "Dive Bar" ).map(category => category._id)[0];
     const { barOrNightClub, fun, crowdLevel } = vibe;
     if(fun === "Hard" && crowdLevel === "Crowded" )
       vibeCategory = "Professional Party Time";
     else if(fun === "Moderate" && crowdLevel === "Crowded")
       vibeCategory = "Moderate Party Time";
-    else if(["Moderate", "Mellow"].includes(fun) && barOrNightClub === 'bar' && crowdLevel === "Uncrowded")
+    else if(fun === "Mellow" && barOrNightClub === 'bar' && this.getSelectedCategories(barOrNightClub).includes(onlyDiveBar) )
+    vibeCategory = "Netflix and Chill";    
+    else if(["Moderate"].includes(fun) && barOrNightClub === 'bar' && crowdLevel === "Uncrowded")
       vibeCategory = "Social Drinking";
     else if(fun === "Mellow" && barOrNightClub === 'bar' && crowdLevel === "Uncrowded"  )
-      vibeCategory = "Social Drinking";  
-    else if(fun === "Mellow" && barOrNightClub === 'bar' && category.filter(category => category.title ===  "Dive Bar" ) )
-      vibeCategory = "Netflix and Chill";
+      vibeCategory = "Baby Party Time";  
     else{
       this.setState({ restartVibeModal: true })
       submit = false
     }
     vibe.vibeCategory = vibeCategory;
-    vibe.selectedCategories = this.getSelectedCategories(barOrNightClub)
+    vibe.selectedCategories = this.getSelectedCategories(barOrNightClub).toString()
+    console.log("here the vibe selection", vibe)
     if(submit)
       this.setVibe(vibe)
   }
@@ -153,21 +160,33 @@ class ProgressStepBar extends Component {
     else{
       const updateVibe = await this.props.updateVibe(vibeData);      
       if(updateVibe){
-        this.setState({ showIndicator: false })
-      await this.props.emptyBusiness()
-      this.props.getfilteredBusiness(null, null, null);  
-      navigation.navigate('Screen 1'); 
+        await this.props.emptyBusiness()
+        this.props.getfilteredBusiness(null, null, null); 
+        this.setState({ showIndicator: false }) 
+        navigation.navigate('Screen 1'); 
       }
     }
   }
 
   getSelectedBars = (barId) => {
+    const { category } = this.props.category.category;
+    console.log("the bar id", barId)
     let getAllBars = this.state.question3.length > 0 ? this.state.question3 : []
-    if(getAllBars.includes(barId))
-      getAllBars = getAllBars.filter((bar) =>  bar !== barId  )
-    else
-      getAllBars.push(barId)
-
+    if(barId === "AllBarsId"){
+      if (getAllBars.includes("AllBarsId"))
+        getAllBars = [];
+      else{  
+        getAllBars = category.filter((category) =>  category.type === 'sub_bar').map(category => category._id)
+        getAllBars.push("AllBarsId")
+      }
+    }
+    else{
+      if(getAllBars.includes(barId))
+        getAllBars = getAllBars.filter((bar) =>  bar !== barId  )
+      else
+        getAllBars.push(barId)
+    }
+    console.log("get all bars id", getAllBars)
     return getAllBars;   
   }
   getSelectedChoice = (choiceName, number) => {
@@ -199,6 +218,20 @@ class ProgressStepBar extends Component {
       currentStep: 1, 
     })
   }
+
+  getButtonDisableOrNot = () => {
+    if(this.state.currentStep !== 3)
+      return !this.state[`question${this.state.currentStep}`]
+    else
+      return this.state[`question${this.state.currentStep}`].length> 0 ? false : true
+  }
+
+  getNextButtonStylerOrNot = () => {
+    if(this.state.currentStep !== 3)
+      return this.state[`question${this.state.currentStep}`] ? Style.nextButton: {}
+    else
+      return this.state[`question${this.state.currentStep}`].length> 0 ? Style.nextButton: {}
+  }
  
 
   render() {
@@ -228,19 +261,19 @@ class ProgressStepBar extends Component {
           finishBtnText = "Set Vibe"
           activeStep = { this.state.currentStep - 1}
         >
-          { Entries(category).map((entry)=>{
+          { Entries(category).map((entry, index)=>{
               return(
                 entry.label !== "Age Range" ? 
                 <ProgressStep
-                  key = {entry.label}
+                  key = {index}
                   label={entry.label}
                   labelFontSize = {12}
                   onNext={()=> this.onNextStep(this.state.currentStep ) }
                   onPrevious={ ()=> this.onPrevStep( this.state.currentStep ) }
                   scrollViewProps={this.defaultScrollViewProps}
                   style = {Style.labelText}
-                  nextBtnDisabled = { !this.state[`question${this.state.currentStep}`] }
-                  nextBtnStyle = { this.state[`question${this.state.currentStep}`] ? Style.nextButton: {}}
+                  nextBtnDisabled = { this.getButtonDisableOrNot() }
+                  nextBtnStyle = { this.getNextButtonStylerOrNot() }
                   nextBtnTextStyle = {{ color: 'white', fontSize: 15, fontWeight: '700' }}
                 >
                   <Text style = {Style.questionText}>{entry.question}</Text>
@@ -257,7 +290,8 @@ class ProgressStepBar extends Component {
                   onSubmit={this.onSubmitSteps}
                   style = {Style.labelText}
                   scrollViewProps={this.defaultScrollViewProps}
-                  nextBtnStyle = {{ backgroundColor: 'white' }}
+                  nextBtnDisabled = { this.getButtonDisableOrNot() }
+                  nextBtnStyle = { this.getNextButtonStylerOrNot() }
                   finishBtnText = "Set Vibe"
                 > 
                   <Text style = {Style.questionText}>How hard are you trying to party?</Text>

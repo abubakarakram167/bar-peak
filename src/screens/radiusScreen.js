@@ -27,7 +27,8 @@ class radiusScreen extends React.Component{
     this.state = {
       choosenLabel: 0,
       chooseIndex: 500,
-      spinner: false
+      spinner: false,
+      selectedValue: 1
     }
   }
 
@@ -35,42 +36,45 @@ class radiusScreen extends React.Component{
     return miles * 1609;
   }
   getMetersIntoMiles(meters){
-    return meters/1609;
+    return parseFloat((meters/1609).toFixed(1))
+  }
+  componentDidMount(){
+    const { radius } = this.props.user.user;
+    this.setState({ selectedValue: this.getMetersIntoMiles(radius)}, ()=> console.log("the state", this.state) )
   }
 
   render(){
     const { navigation } = this.props;
     const { user, radius } = this.props.user.user;
-    console.log("the radius", radius)
+    console.log("the radius", this.getMetersIntoMiles(radius) )
     return(
       <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
-        {/*Picker with multiple chose to choose*/}
-        {/*selectedValue to set the preselected value if any*/}
-        {/*onValueChange will help to handle the changes*/}
         <View style = {{flex:5, justifyContent: 'center'}} >
           <Text style={styles.infoText}>
             The Radius ensures that in how much km you gonna see your results.
           </Text>
           <Picker
-            selectedValue={this.state.choosenLabel === 0 ? Math.round(this.getMetersIntoMiles(radius) * 2) / 2 : this.state.choosenLabel }
+            selectedValue={ this.state.selectedValue  }
             onValueChange={(itemValue, itemIndex) => {
               console.log("the item value", itemValue);
               this.setState(
                 { choosenLabel: itemValue,
-                  chooseIndex: itemIndex
+                  chooseIndex: itemIndex,
+                  selectedValue: itemValue
                 }
               )
             }}>
-            <Picker.Item label="0.5" value = { this.getMilesintoMeters(0.5) } />
-            <Picker.Item label="1" value = { this.getMilesintoMeters(1)} />
-            <Picker.Item label="1.5" value =  { this.getMilesintoMeters(1.5)}   />
-            <Picker.Item label="2" value = { this.getMilesintoMeters(2)}  />
-            <Picker.Item label="2.5" value = { this.getMilesintoMeters(2.5)}  />
-            <Picker.Item label="3" value = { this.getMilesintoMeters(3)}  />
-            <Picker.Item label="3.5" value = { this.getMilesintoMeters(3.5)}  />
-            <Picker.Item label="4" value = { this.getMilesintoMeters(4)}  />
-            <Picker.Item label="4.5" value = { this.getMilesintoMeters(4.5)}  />
+            <Picker.Item label="0.5" value = { 0.5 } />
+            <Picker.Item label="1" value = { 1} />
+            <Picker.Item label="1.5" value =  { 1.5}   />
+            <Picker.Item label="2" value = { 2 }  />
+            <Picker.Item label="2.5" value = { 2.5 }  />
+            <Picker.Item label="3" value = { 3 }  />
+            <Picker.Item label="3.1" value = {  3.1 }  />
+            <Picker.Item label="3.5" value = { 3.5 }  />
+            <Picker.Item label="4" value = { 4 }  />
+            {/* <Picker.Item label="4.5" value = { this.getMilesintoMeters(4.5)}  />
             <Picker.Item label="5" value = { this.getMilesintoMeters(5)}  />
             <Picker.Item label="5.5" value = { this.getMilesintoMeters(5.5)}  />
             <Picker.Item label="6" value = { this.getMilesintoMeters(6)}  />
@@ -91,10 +95,10 @@ class radiusScreen extends React.Component{
             <Picker.Item label="13.5" value = { this.getMilesintoMeters(13.5)}  />
             <Picker.Item label="14" value = { this.getMilesintoMeters(14)}  />
             <Picker.Item label="14.5" value = { this.getMilesintoMeters(14.5)}  />
-            <Picker.Item label="15" value = { this.getMilesintoMeters(15)}  />
+            <Picker.Item label="15" value = { this.getMilesintoMeters(15)}  /> */}
           </Picker>
           <Text style={[styles.text, { fontWeight: '600' }]}>
-            Your Radius: {this.state.choosenLabel === 0 ?  this.getMetersIntoMiles(radius).toFixed(2) : this.getMetersIntoMiles(this.state.choosenLabel) } miles
+            Your Radius:  {this.getMetersIntoMiles(radius)}  miles
           </Text>
           <Text style={[styles.text, {marginTop: '10%'}]}>
             Max Selection is 15 miles
@@ -104,7 +108,7 @@ class radiusScreen extends React.Component{
           <TouchableOpacity 
             onPress = {async ()=>{
               this.setState({ spinner: true }) 
-              await this.props.updateRadius(this.state.choosenLabel)
+              await this.props.updateRadius( this.getMilesintoMeters(this.state.selectedValue) )
               await this.props.emptyBusiness()
               this.setState({ spinner: false }) 
               navigation.navigate("Screen 1") 

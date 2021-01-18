@@ -4,7 +4,7 @@ import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
 import Category from '../reducers/Category';
 import haversine from 'haversine-distance'
-import { getAllCaseData , getSelectedCategories } from "../helperFunction";
+import { getAllCaseData , getSelectedCategories, getSearchData } from "../helperFunction";
 
 let getMiles = (i) => {
   return i*0.000621371192;
@@ -235,7 +235,6 @@ export const getNearLocationBusiness = ({ latitude, longitude }) => async (dispa
   const { user } = getState();
   let { radius } = user.user.user;
   const { token } = await getUserData();
-
   latitude = 32.7970465;
   longitude = -117.254522;
   radius = 100000;
@@ -309,31 +308,36 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
   const actualVibe = vibe.vibe.vibe;
   const allCategories = category.category.category;
   const favouriteEstablishmentCategory = business.business.selectedEstablishmentCategory
-  
+
+
+
+  // console.log("the actuval vibe", actualVibe)
   let selectedCategory = []
   if(!search){  
     if(selectedMainCategory !== null)
       selectedCategory = allCategories.filter((category)=> selectedMainCategory.includes(category._id)).map((specificCategory)=> specificCategory._id)
-    else
+    else{
       selectedCategory = allCategories.filter((category)=> actualVibe.selectedCategories.includes(category._id)).map((specificCategory)=> specificCategory._id)
+    }
   }
-  
+
   try{ 
     let filterCategoryBusinessVibe; 
-    if(search)
-      filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, searchData)
+    if(search){
+      let searchBusinessIds = searchData.map(business => business._id) 
+      filterCategoryBusinessVibe = getSearchData(actualVibe , data, searchBusinessIds)
+    }
     else if(favourite){
       let favouriteBusiness = favouriteEstablishments.filter((business)=> {
         return business.category.map(category=> category._id).includes(favouriteEstablishmentCategory)
-      })
-      filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, favouriteBusiness)
+      }).map(business => business._id)
+      filterCategoryBusinessVibe = getSearchData(actualVibe , data, favouriteBusiness)
     }
-    else
+    else{
       filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, selectedCategory)
-    
-    console.log("the hereeeee")  
-    console.log("the data", filterCategoryBusinessVibe)  
+    }
     const { allSpots } = filterCategoryBusinessVibe;
+   
     // let { latitude, longitude } = user.user.user;
     var latitude = 32.7970465;
     var longitude = -117.254522;
@@ -345,7 +349,7 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
     })
   
     filterCategoryBusinessVibe.allSpots = sortSpotsByDistanceAway(markerList)
-
+    // console.log("here the filer vibe data", filterCategoryBusinessVibe)
     dispatch({
       type: FILTERED_BUSINESS,
       payload: filterCategoryBusinessVibe,

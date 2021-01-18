@@ -37,7 +37,6 @@ class ListComponent extends React.Component{
   }
 
   getMarkerCategoryName = (category) => {
-    console.log("here the category", category)
     if(category.types.includes("Night Clubs") || category.types.includes("Bar"))
       return 'drinks';
     else if(category.types.includes("Restaurant"))
@@ -92,9 +91,9 @@ class ListComponent extends React.Component{
             </View> */}
             <View style = {{ flex:10, borderWidth: 0 }} >
               <ScrollView >
-                {  allSpots && allSpots.slice(this.state.currentPageNumber * 10, this.state.currentPageNumber * 10 + 10).map((marker)=>{
+                {  allSpots && allSpots.slice(this.state.currentPageNumber * 10, this.state.currentPageNumber * 10 + 10).map((marker, index)=>{
                     return(
-                      <View style = { styles.listElement } >
+                      <View key = {index} style = { styles.listElement } >
                         <View style = {[styles.listIcon, this.getColor(marker)  ]} >
                         </View>
                         <View style = {{ flex:1 }}>

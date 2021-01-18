@@ -14,7 +14,7 @@ import {getVibe} from '../../redux/actions/Vibe';
 import { getAllCategories } from '../../redux/actions/Category';
 import { setUserLocation } from '../../redux/actions/User';
 import * as Location from 'expo-location';
-import ShowPopupModal from '../components/popUpModal';
+import VibeRequirePopUp from '../components/Modals/VibeRequiredPopupModal';
 import _, { map } from 'underscore';
 import Modal from '../components/Modal';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
@@ -44,15 +44,14 @@ class HomeScreen extends Component {
       await this.getNewChangedLocation(); 
       const { coords } = location;
       const [getVibe] = await Promise.all([ this.props.getVibe(), this.props.getNearLocationBusiness(coords), this.props.setUserLocation(coords)]) 
-      setTimeout(()=> {  
-        this.setState({ spinner: false })
-      }, 1000)
-      const isVibeEmpty = _.isEmpty(getVibe);  
-      if(isVibeEmpty)
-        this.setState({ showModal: false })    
+      this.setState({ spinner: false })
+      if(!getVibe){
+        setTimeout(()=> { this.setState({ showModal: true }) }, 200)      
+      }
       await this.props.getAllCategories();
       await this.props.getfilteredBusiness(null, null, null);
       await this.props.getFavouritesBusinessAction();
+      this.setState({ spinner: false })
     }catch(error){
       console.log("the error", error)
     }
@@ -106,8 +105,21 @@ class HomeScreen extends Component {
       <SafeAreaView style = {{ flex: 1 }} >
         <View style={{ flex: 1 }}>
           <MapComponent navigation = {navigation}/>
-          { this.state.showModal &&  <ShowPopupModal  closeModal = {()=> this.setState({ showModal: false })} navigation = {this.props.navigation} /> } 
-          { this.state.showProfileModal && <Modal  item  = {this.state.selectedItem}  businessData = {this.state.selectedBusiness}  show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  }   
+          { this.state.showModal &&
+            < VibeRequirePopUp 
+              show = {this.state.showModal} 
+              closeModal = {()=> this.setState({ showModal: false })} 
+              navigation = {this.props.navigation} 
+            /> 
+          }
+          { this.state.showProfileModal && 
+            (<Modal  
+              item  = {this.state.selectedItem}  
+              businessData = {this.state.selectedBusiness}  
+              show = {this.state.showProfileModal} 
+              closeModal = {()=> { this.setState({ showProfileModal: false }) }} 
+              />) 
+          }   
           <OrientationLoadingOverlay
             visible={this.state.spinner}
             message = "Loading..."

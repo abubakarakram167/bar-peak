@@ -26,11 +26,11 @@ export const Entries = (props) => {
       data:[
         {  
           title: 'Bar',
-          illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_99/v1608140714/bqf3bkea7qnfc3ulijmm.jpg',
+          illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610942434/BarPeak/bar-bara-peak_zb7okx.jpg',
         },
         {   
             title: 'Night Clubs',
-            illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610677283/BarPeak/nightClubs_ecpho5.jpg'
+            illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610942457/BarPeak/nightclub-_iuygm1.jpg'
         }
       ]
     },
@@ -78,12 +78,12 @@ export const Entries = (props) => {
           illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610676375/BarPeak/age-21-25_jxibdw.jpg',
         },
         {   
-          title: '25-45',
-          illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610676375/BarPeak/age-45-plus_az1krn.jpg'
+          title: '25-45', 
+          illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610676375/BarPeak/age-25-45_tetbe4.jpg'
         },
         {   
           title: '45+',
-          illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610676375/BarPeak/age-25-45_tetbe4.jpg'
+          illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610676375/BarPeak/age-45-plus_az1krn.jpg'
         }
       ]
     }
@@ -95,7 +95,11 @@ export const Entries = (props) => {
       return{ 
        question: entry.question, 
        label:entry.label, 
-       data: props.filter((category)=>{
+       data: [ {
+        title: "All Bars",
+        illustration: "https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610942434/BarPeak/bar-bara-peak_zb7okx.jpg",
+        id: "AllBarsId"
+      }, ...props.filter((category)=>{
           if(category.type === "sub_bar")
             return true
           return false   
@@ -105,13 +109,13 @@ export const Entries = (props) => {
               illustration: category.imageUrl,
               id: category._id
             }
-        })
+        })]
       }
     }
     else
       return entry 
   })
-
+ 
   return data;
 
 }

@@ -25,7 +25,9 @@ import AlertComponent from './AlertComponent';
 import ProgressionBar from './ProgressionBar';
 import haversine from 'haversine-distance';
 import SurveyComponent from './Survey';
+import PreviousWeekDayRating from './Modals/PreviousWeekDayRating';
 const { width, height } = Dimensions.get("window");
+import moment from 'moment';
 
 const iconsList = [
   {
@@ -58,7 +60,9 @@ class ProfileModal extends Component {
     showTimings: false,
     showRatingModal: false,
     rating: {},
-    spinner: false
+    spinner: false,
+    getPreviousWeekDayRating: {},
+    showPreviousWeekDayModal: false
   };
 
   setModalVisible = (visible) => {
@@ -105,17 +109,40 @@ class ProfileModal extends Component {
         }
       }}
       `
-  }
-  try{  
-    const res = await axios.post(`graphql?`,body);
-    this.setState( { rating: res.data.data.getSingleBusiness.rating } )
-  }catch(err){
-    console.log("hte errorsss", err.response.data)
-  }
+    }
+    try{  
+      const res = await axios.post(`graphql?`,body);
+      this.setState( { rating: res.data.data.getSingleBusiness.rating } )
+    }catch(err){
+      console.log("hte errorsss", err.response.data)
+    }
   } 
 
   async componentDidMount(){
-
+    const { businessData } = this.props;  
+    const body = {
+      query:`
+      query{
+        getCurrentDayExactTimeRating(businessId: "${businessData.markerId}"){
+            getExactTime,
+            rating{
+              fun,
+              crowd,
+              ratioInput,
+              difficultyGettingIn,
+              difficultyGettingDrink
+            }
+        }
+      }
+      `
+    }
+    try{  
+      const res = await axios.post(`graphql?`,body);
+      console.log("the get", res.data.data.getCurrentDayExactTimeRating)
+      this.setState( { getPreviousWeekDayRating: res.data.data.getCurrentDayExactTimeRating} )
+    }catch(err){
+      console.log("hte errorsss", err)
+    }
   }
 
   getRatingCase = (ratingCase, value) => {
@@ -237,7 +264,9 @@ class ProfileModal extends Component {
     const { vibe } = this.props.vibe.vibe;
     const { rating } = businessData
     const allPhotos = businessData && businessData.images.map((photo)=> photo.secure_url);
-   
+    console.log("the rating", rating)  
+    console.log("the business data", businessData)
+    
     return (
       <View style={styles.centeredView}>
         <Modal
@@ -301,7 +330,7 @@ class ProfileModal extends Component {
               <View style = {styles.heartIcon}  >
                 <TouchableOpacity
                   onPress = {()=> {
-                    this.addToFavourites()
+                    this.props.addToFavourites()
                   }}
                 >
                   <Icon
@@ -313,6 +342,12 @@ class ProfileModal extends Component {
                   />
                 </TouchableOpacity>
               </View>
+              <PreviousWeekDayRating 
+                ratingData = { this.state.getPreviousWeekDayRating } 
+                show = { this.state.showPreviousWeekDayModal }
+                vibe = { this.props.vibe }
+                closeModal = { ()=> this.setState({ showPreviousWeekDayModal: false })  }  
+              />
               <View style={[styles.modalView]}>
                 
                 <Text style={styles.modalText}>{businessData.name}</Text>
@@ -385,26 +420,28 @@ class ProfileModal extends Component {
                   style={styles.divider}
                 />
                 <View style = {{ flex:2, borderWidth: 0, width: '100%', marginTop: 20}} >
-                  <View style = {{ flex: 1, alignItems: 'flex-start', borderWidth:0 }} >
-                    <Text style = {{ textAlign: 'left', borderWidth:0, fontSize: 20, marginBottom:15, fontWeight: '600' }} >Rating</Text>
+                  <View style = {{ flex: 1, flexDirection: 'row' }} >
+                    <View style = {{ flex: 4, alignItems: 'flex-start', borderWidth:0 }} >
+                      <Text style = {{ textAlign: 'left', borderWidth:0, fontSize: 20, marginBottom:15, fontWeight: '600' }} >Rating</Text>
+                    </View>
+                    <View style = {{ flex: 3 }}>
+                      <TouchableOpacity
+                        onPress = {()=> this.setState({ showPreviousWeekDayModal: true })}
+                        style = {{ padding: 2, backgroundColor: 'red', paddingTop: 10, paddingBottom: 10, borderRadius: 10, backgroundColor: "#eb3498"}}
+                      >
+                        <Text style = {{ color: 'white', textAlign: 'center', fontSize: 12 }} >Show Previous Rating</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                   <View 
                     style = {[styles.starComponent, { marginTop:0 }]} 
                   >
-                    <Text style = {styles.heading } >{ vibe.crowdedPlace ? "Crowd Factor" : "Quiet Factor" } </Text>
+                    <Text style = {styles.heading } >Crowd Factor</Text>
                     <TouchableOpacity
                       style = {[styles.ratingButtonToggle, { backgroundColor: this.getVibeCaseColor('crowdy', rating.crowd)}]}
                     >
                       <Text style = {styles.ratingLabel} >{ this.getRatingCase("crowd", rating.crowd) }</Text>
                     </TouchableOpacity>
-                    {/* <StarRatings
-                      disable={true}
-                      maxStars={5}
-                      rating={rating.crowd}
-                      starSize={15}
-                      starStyle = {{ color: this.getCaseColor(rating.crowd) }}
-                    />
-                    <Text>5/{rating.crowd}</Text> */}
                   </View>
                   <View 
                     style = {styles.starComponent} 
@@ -413,16 +450,8 @@ class ProfileModal extends Component {
                     <TouchableOpacity
                       style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("fun", 5) }</Text>
+                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("fun", rating.fun) }</Text>
                     </TouchableOpacity>
-                    {/* <StarRatings
-                      disable={true}
-                      maxStars={5}
-                      rating={rating.fun}
-                      starSize={15}
-                      starStyle = {{ color: this.getCaseColor(rating.fun) }}
-                    /> */}
-                    {/* <Text>5/{rating.fun && rating.fun.toFixed(1)}</Text> */}
                   </View>
                   <View 
                     style = {styles.starComponent} 
@@ -433,14 +462,6 @@ class ProfileModal extends Component {
                     >
                       <Text style = {styles.ratingLabel} >{ this.getRatingCase("genderBreakdown", rating.ratioInput) }</Text>
                     </TouchableOpacity>
-                    {/* <StarRatings
-                      disable={true}
-                      maxStars={5}
-                      rating={ rating.ratioInput}
-                      starSize={15}
-                      starStyle = {{ color: this.getCaseColor(rating.ratioInput) }}
-                    />
-                    <Text>5/{rating.ratioInput && rating.ratioInput.toFixed(1)}</Text> */}
                   </View>
                   <View 
                     style = {styles.starComponent} 
@@ -451,32 +472,16 @@ class ProfileModal extends Component {
                     >
                       <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingIn", rating.difficultyGettingIn) }</Text>
                     </TouchableOpacity>
-                    {/* <StarRatings
-                      disable={true}
-                      maxStars={5}
-                      rating={rating.difficultyGettingIn}
-                      starSize={15}
-                      starStyle = {{ color: this.getCaseColor(rating.difficultyGettingIn) }}
-                    />
-                    <Text>5/{rating.difficultyGettingIn && rating.difficultyGettingIn.toFixed(1)}</Text> */}
                   </View>
                   <View 
                     style = {styles.starComponent} 
                   >
-                    <Text style = {styles.heading }>{vibe.crowdedPlace ? "Difficulty Getting a Drink" : "Easy Getting Drink"} </Text>
+                    <Text style = {styles.heading }>Difficulty Getting a Drink</Text>
                     <TouchableOpacity
                       style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
                       <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingADrink", rating.difficultyGettingDrink) }</Text>
                     </TouchableOpacity>
-                    {/* <StarRatings
-                      disable={true}
-                      maxStars={5}
-                      rating={rating.difficultyGettingDrink}
-                      starSize={15}
-                      starStyle = {{ color: this.getCaseColor(rating.difficultyGettingDrink) }}
-                    />
-                    <Text>5/{rating.difficultyGettingDrink && rating.difficultyGettingDrink.toFixed(1)}</Text> */}
                   </View>        
                 </View>
                 
@@ -647,7 +652,7 @@ class RateModal extends React.Component{
       const res = await axios.post(`graphql?`,body,{ headers: {
         'Authorization': `Bearer ${token}`
       } });
-      console.log("the response in Rating", res.data.data.addRating);
+  
       // this.props.updateRating(res.data.data.addRating);
       this.setState({ spinner: false, showConfirmation: true },()=>{
         setTimeout(()=> this.props.closeModal(), 2000)

@@ -35,7 +35,7 @@ class showVibeModal extends Component {
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-              <Text style={styles.modalText}>Your's Current Vibe</Text>
+              <Text style={styles.modalText}>Your Current Vibe</Text>
               <View
                 style = {{ width: width * 0.7 }}
               >

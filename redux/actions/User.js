@@ -5,6 +5,7 @@ import { getUserData , storeUserData} from '../../src/components/localStorage';
 
 export const updateRadius = (radius) => async (dispatch, getState) => {
   const { token } = await getUserData();
+  console.log("in update radius", radius)
   const body = {
       query:`
       mutation{
@@ -66,17 +67,20 @@ export const getUser = () => async (dispatch, getState) => {
   }
 }
 
-export const updateUser = ({email, firstName, lastName, password, date, gender, profilePic}) => async (dispatch, getState) => {
+export const updateUser = ({existingEmail,newEmail ,firstName, lastName, date, gender, profilePic}) => async (dispatch, getState) => {
   const { token } = await getUserData();
-  console.log(`${email}, ${firstName}, ${lastName}, ${password}, ${date}, ${gender}`);
-    
+  console.log(`${existingEmail} ,${newEmail}, ${firstName}, ${lastName}, ${date}, ${gender}`);
+  
+  let applyNewEmail = newEmail ? newEmail : "notApply"
+  console.log("apple new", applyNewEmail)
   const body = {
     query: `
     mutation{
-      updateUser(userInput: {email: "${email}",
+      updateUser(userInput: {newEmail: "${applyNewEmail}",
+      existingEmail: "${existingEmail}",
       profilePic: "${profilePic}",
       firstName: "${firstName}", lastName: "${lastName}", 
-      password: "${password}", dob: "${date}",  gender: "${gender}"})
+      , dob: "${date}",  gender: "${gender}"})
       {
         user{
           _id
@@ -88,8 +92,9 @@ export const updateUser = ({email, firstName, lastName, password, date, gender, 
           accountType
           profilePic
           gender
+          phoneNumber
         }
-        isPasswordChange
+        isSameEmail
       }
     }
     `
@@ -104,9 +109,9 @@ export const updateUser = ({email, firstName, lastName, password, date, gender, 
         type: update_User,
         payload: res.data.data.updateUser.user,
       })
-      console.log("the is paswword chane", res.data.data.updateUser.isPasswordChange)
+      console.log("the is paswword chane", res.data.data.updateUser.isSameEmail)
     }
-    return (res.data.data.updateUser.isPasswordChange) 
+    return (res.data.data.updateUser.isSameEmail) 
   }
   catch(err){
     console.log("the erororr", err.response.data)

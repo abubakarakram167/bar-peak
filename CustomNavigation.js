@@ -4,7 +4,6 @@ import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from "./src/screens/HomeScreen";
 import userSettings from "./src/screens/userSettings";
 import SignUpScreen from './src/screens/SignUpScreen';
-import MapScreen from './src/screens/MapScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import MyVibeScreen from './src/screens/MyVibe';
 import Screen2 from "./screens/Screen2";
@@ -196,11 +195,6 @@ const HomeTabScreen = () => {
         name="Home"
         component={HomeScreen}
         options = { ()=> {return screenOptions} }
-      />
-      <Stack.Screen
-        name="MapScreen"
-        component={MapScreen}
-
       />
     </Stack.Navigator>
   );

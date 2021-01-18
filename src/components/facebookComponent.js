@@ -57,13 +57,16 @@ export default function App(props) {
         fetch(`https://graph.facebook.com/me?access_token=${token}&fields=id,name,email,birthday,first_name,picture.height(500)`)
           .then(response => response.json())
           .then(async(data) => {
-            const userFound = await checkUserExist(data.email);
-            console.log("the user found", userFound)
+            const { email, name } = data;
+            const userFound = await checkUserExist(email);
+            // console.log("the user found", userFound)
             if(!userFound.data.data.checkUserAvailable){
               onCloseModalSignUp();
               let userData = { 
-                email, firstName: name.split(' ')[0], 
-                lastName: name.split(' ')[1] 
+                email, 
+                firstName: name.split(' ')[0], 
+                lastName: name.split(' ')[1],
+                socialSource: "facebook"
               }
               
               navigation.navigate('SignUpScreen', { user: userData })

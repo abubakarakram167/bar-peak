@@ -13,7 +13,7 @@ export default class MyDatePicker extends Component {
     return (
       <DateTimePicker
         style={{width: 200, backgroundColor: "transparent"}}
-        value={this.state.date}
+        value={ this.props.dob ? new Date(this.props.dob) : new Date(this.props.value)}
         mode="date"
         placeholder="select date"
         format="YYYY-MM-DD"

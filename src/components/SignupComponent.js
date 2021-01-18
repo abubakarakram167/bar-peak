@@ -46,7 +46,7 @@ class SignUpComponent extends React.Component {
 	constructor(props){
 		super(props)
 		this.state = {
-      date : '', 
+      date : new Date(), 
       showPicker: false,
       email: "",
       firstName: "",
@@ -61,7 +61,7 @@ class SignUpComponent extends React.Component {
     console.log("the passing data", this.props );
 
     if(this.props.user){
-      const {email, firstName, lastName } = this.props.user;
+      const {email, firstName, lastName} = this.props.user;
       this.setState({ email, firstName, lastName  })
     }
   }
@@ -73,7 +73,6 @@ class SignUpComponent extends React.Component {
   changeDate = (date) => {
     this.setState({ date: moment(date).format("YYYY-MM-DD"), showPicker: false })
     setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
-    console.log("the date in component", moment(date).format("YYYY-MM-DD"))
   }
 
   signUp = () => {
@@ -81,8 +80,8 @@ class SignUpComponent extends React.Component {
     const {navigation, phoneNumber} = this.props;
     let accountType = this.props.user ? 'social' : "app";
     let finalPhoneNumber = accountType === "app" ? phoneNumber : null
-    console.log("on sigunup", this.state);
-    console.log("the phone Number", finalPhoneNumber)
+    // console.log("on sigunup", this.state);
+    // console.log("the phone Number", finalPhoneNumber)
     
     const body = {
       query: `
@@ -119,7 +118,8 @@ class SignUpComponent extends React.Component {
       
     }).catch(err =>{
       const { errors } = err.response.data;
-      const { message } = errors[0]; 
+      const { message } = errors[0];
+      console.log("the error", errors) 
       this.setState({ spinner: false, message, showError: true })
     })
   }
@@ -161,7 +161,9 @@ class SignUpComponent extends React.Component {
                 <DatePicker 
                   onChange = { (date)=> { 
                     this.changeDate(date)
-                  }} 
+                  }}
+                  dob = {null}
+                  value = { this.state.date  } 
                 />
                 
               </View>
@@ -181,7 +183,7 @@ class SignUpComponent extends React.Component {
               </View>
               { this.props.user &&
                 (<View > 
-                  <Text style = {{lineHeight: 14, marginTop: 10}} >This info came from facebook and not editable.</Text>
+                  <Text style = {{lineHeight: 14, marginTop: 10}} >This info came from {this.props.user &&  this.props.user.socialSource} and not editable.</Text>
                 </View>
                 )
               }

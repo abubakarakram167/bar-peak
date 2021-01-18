@@ -93,10 +93,10 @@ import LoginSignupModal from "../components/ModalLogInSignUp";
             this.setState({ showModal: false }, ()=> {
               this.setState({ showSignUpModal: true })
             })
-          }, 2000)
+          }, 500)
         })
       })
-    }, 2000)
+    }, 1000)
   }
 
   static options = {

@@ -42,7 +42,7 @@
     "haversine-distance": "^1.2.1",
     "lodash": "^4.17.19",
     "lottie-react-native": "^3.5.0",
-    "moment": "^2.27.0",
+    "moment": "^2.29.1",
     "navbar-native": "^1.6.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",

@@ -52,29 +52,6 @@ class UserSettings extends React.Component{
         <View style = {{ marginTop: 50}} >
           <View style ={{ flexDirection: 'row'}} >
             <View style = {{ flex: 5 }} >
-              <TouchableOpacity onPress = {()=> { navigation.navigate('vibeInfo') }} >
-                <Text style = {styles.headingText} > Vibe Info </Text>
-              </TouchableOpacity> 
-            </View>
-            <View style ={{ flex:1 }} >
-              <Icon 
-                name="heart"
-                type = 'foundation'
-              />
-            </View>
-          </View>  
-            <View
-              style={{
-                borderBottomColor: 'gray',
-                borderBottomWidth: 1,
-                width: 340,
-                marginTop: 20
-              }}
-            />
-        </View>
-        <View style = {{ marginTop: 50}} >
-          <View style ={{ flexDirection: 'row'}} >
-            <View style = {{ flex: 5 }} >
               <TouchableOpacity onPress = {()=> { navigation.navigate('radiusScreen') }} >
                 <Text style = {styles.headingText} >Your Radius</Text>
                 <Text style = {{ fontSize: 12, fontWeight: '500', color: 'gray' }} >This option ensures in how much distance in m you gonna see your results. </Text>

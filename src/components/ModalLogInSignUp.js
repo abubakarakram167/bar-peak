@@ -125,7 +125,7 @@ class showVibeModal extends Component {
                       onSendPinAgain = {()=> this.sendVerificationCode()}
                       navigation = {this.props.navigation}
                       onCloseModalSignUp  = { () =>  this.props.onCloseModalSignUp() }
-                      onNavigateSignUpScreen = {this.props.onNavigateSignUpScreen}
+                      onNavigateSignUpScreen = {(phoneNumber) => this.props.onNavigateSignUpScreen(phoneNumber)}
                     />)
                   }  
                     <RNPickerSelect      

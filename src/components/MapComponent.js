@@ -1,6 +1,6 @@
 import React from 'react';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
-import { View, Text, StyleSheet, Dimensions, Animated,Image, TouchableOpacity, TextInput} from 'react-native';
+import { View, Text, Dimensions, Animated,Image, TouchableOpacity, TextInput} from 'react-native';
 import CustomMapData from './CustomMapData';
 import {getfilteredBusiness, getSearchBusinesses, addToFavourite } from '../../redux/actions/Business';
 import { connect } from 'react-redux';
@@ -13,6 +13,7 @@ import ListComponent from './ListComponent';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
 import ShowVibeModal from "./showVibeModal";
 import CategoryAddModal from './CategoryAddOrRemoveAlert';
+import styles from './CSS/MapComponent';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 3;
@@ -32,7 +33,7 @@ class MapScreen extends React.Component{
       selectedItem: {},
       selectedBusiness: {},
       currentView: 'map',
-      defaultCategory: 'food',
+      currentCategory: null,
       searchValue: '',
       showCard: true,
       spinner: false,
@@ -68,26 +69,30 @@ class MapScreen extends React.Component{
   }
 
   showSpecificCategoryMarkers = (category) => {
-    this.setState({ defaultCategory: category })
-    let categories  = [];
-    let allCategories = this.props.category;
-    if(category === 'food'){
-      categories = allCategories.filter((category)=>{
-       return category.title === "Restaurant"
-      }).map((category) => category._id)
+    this.setState({ currentCategory: category }, ()=>{
+    if(this.state.currentCategory){  
+      let categories  = [];
+      let allCategories = this.props.category;
+      if(category === 'food'){
+        categories = allCategories.filter((category)=>{
+        return category.title === "Restaurant"
+        }).map((category) => category._id)
+      }
+      else if(category === 'drinks'){
+        categories = allCategories.filter((category)=>{
+          return ["Night Clubs", "Bar"].includes(category.title)
+        }).map((category) => category._id)
+      }
+      else if(category === 'food+drinks'){
+        categories = allCategories.filter((category)=>{
+          return category.type === "main_category"
+        }).map((category) => category._id)
+      }
+      this.props.getfilteredBusiness(categories, null, null);
     }
-    else if(category === 'drinks'){
-      categories = allCategories.filter((category)=>{
-        return ["Night Clubs", "Bar"].includes(category.title)
-      }).map((category) => category._id)
-    }
-    else if(category === 'food+drinks'){
-      categories = allCategories.filter((category)=>{
-        return category.type === "main_category"
-      }).map((category) => category._id)
-    }
-    
-    this.props.getfilteredBusiness(categories, null, null);
+    else
+      this.props.getfilteredBusiness(null, null, null);
+    })
   }
 
   getSearchResults = async() => {
@@ -99,22 +104,27 @@ class MapScreen extends React.Component{
 
   getImagePath = (types, whichSpot) => {
     let fileName = '';
-    if(types.includes("Night Clubs") || types.includes("Bar")  ){
-      if(whichSpot === 'red')
-        return  require('../../assets/redWhite.png')
-      else if(whichSpot === 'green')
-        return  require('../../assets/greenWhite.png')
-      else
-        return  require('../../assets/yellowTest.png')
+    if(this.state.currentCategory === "food"){
+      return  require('../../assets/FoodBlackTransparent.png')
     }
-    else if(types.includes("Restaurant")){
-      if(whichSpot === 'red')
-        return  require('../../assets/redTransparent.png')
-      else if(whichSpot === 'green')
-        return  require('../../assets/greenTransparent.png')
-      else
-        return  require('../../assets/yellowTransparent.png')
-    } 
+    else{
+      if(types.includes("Night Clubs") || types.includes("Bar")  ){
+        if(whichSpot === 'red')
+          return  require('../../assets/redWhite.png')
+        else if(whichSpot === 'green')
+          return  require('../../assets/greenWhite.png')
+        else
+          return  require('../../assets/yellowTest.png')
+      }
+      else if(types.includes("Restaurant")){
+        if(whichSpot === 'red')
+          return  require('../../assets/redTransparent.png')
+        else if(whichSpot === 'green')
+          return  require('../../assets/greenTransparent.png')
+        else
+          return  require('../../assets/yellowTransparent.png')
+      } 
+    }
   }
 
   getFavouriteEstablishmentColor = (marker) => {
@@ -161,7 +171,7 @@ class MapScreen extends React.Component{
             style={styles.searchBarInput}
             onChangeText = {(text)=> {
               if(text.length === 0 )
-                this.showSpecificCategoryMarkers(this.state.defaultCategory)
+                this.showSpecificCategoryMarkers(this.state.currentCategory)
               this.setState({ searchValue: text })
             }}
            
@@ -217,10 +227,10 @@ class MapScreen extends React.Component{
             <View style = {{ flex:1 }} >
               <TouchableOpacity
                 onPress = {()=>{ this.showSpecificCategoryMarkers("food") }}
-                style = {styles.categoryButtons}
+                style = { this.state.currentCategory === 'food' ? styles.categoryButtons : styles.nonActiveCategory}
               >
                 <Text
-                  style = { [  this.state.defaultCategory === 'food' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor, { color: 'black' }] }
+                  style = {  this.state.currentCategory === 'food' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor  }
                 >
                   FOOD
                 </Text>
@@ -229,10 +239,10 @@ class MapScreen extends React.Component{
             <View style = {{ flex:1 }} >
               <TouchableOpacity
                 onPress = {()=>{ this.showSpecificCategoryMarkers("drinks") }}
-                style = {[styles.categoryButtons]}
+                style = { this.state.currentCategory === 'drinks' ? styles.categoryButtons : styles.nonActiveCategory}
               >
                 <Text
-                  style = {[ this.state.defaultCategory === 'drinks' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor, { color: 'black' }]}
+                   style = {  this.state.currentCategory === 'drinks' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor  }
                 >
                   DRINKS
                 </Text>       
@@ -241,10 +251,10 @@ class MapScreen extends React.Component{
             <View style = {{ flex: 2 }} >
               <TouchableOpacity
                 onPress = {()=>{ this.showSpecificCategoryMarkers("food+drinks") }}
-                style = {[styles.categoryButtons, { marginRight: 5}]}
+                style = { this.state.currentCategory === 'food+drinks' ? styles.categoryButtons : styles.nonActiveCategory}
               >
                 <Text
-                  style = {[ this.state.defaultCategory === 'food+drinks' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor,  { color: 'black' }]}
+                  style = {  this.state.currentCategory === 'food+drinks' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor   }
                 >
                   FOOD + DRINKS
                 </Text>       
@@ -276,10 +286,11 @@ class MapScreen extends React.Component{
             loadingEnabled = {true}
           > 
             {  
-              goodSpots && goodSpots.length> 0 && goodSpots.map((marker)=> {
+              goodSpots && goodSpots.length> 0 && goodSpots.map((marker, index)=> {
                 const url = this.getImagePath(marker.types, 'green')
                 return(
                   <MapView.Marker
+                    key = {index}
                     coordinate={{ 
                       latitude: marker.latitude,
                       longitude: marker.longitude,
@@ -302,10 +313,11 @@ class MapScreen extends React.Component{
             }
 
             {  
-                averageSpots && averageSpots.length> 0 && averageSpots.map((marker)=> {
+                averageSpots && averageSpots.length> 0 && averageSpots.map((marker, index)=> {
                   const url = this.getImagePath(marker.types, 'yellow')
                 return(
                   <MapView.Marker
+                    key = {index}
                     coordinate={{ 
                       latitude: marker.latitude,
                       longitude: marker.longitude,
@@ -328,10 +340,11 @@ class MapScreen extends React.Component{
             }
 
             {  
-              badSpots && badSpots.length> 0 &&  badSpots.map((marker)=> {
+              badSpots && badSpots.length> 0 &&  badSpots.map((marker, index)=> {
                 const url = this.getImagePath(marker.types, 'red')
                 return(
                   <MapView.Marker
+                    key = {index}
                     coordinate={{ 
                       latitude: marker.latitude,
                       longitude: marker.longitude,
@@ -490,7 +503,15 @@ class MapScreen extends React.Component{
           </View>
         </OrientationLoadingOverlay> 
         <CategoryAddModal  show = {this.state.showCategoryAddPopUp} message = {this.state.totalCategoriesName} /> 
-        { this.state.showProfileModal && <Modal   businessData = {this.state.selectedMarker ? this.state.selectedMarker : allSpots[0]} currentView = {this.state.currentView} show = {this.state.showProfileModal} closeModal = {()=> { this.setState({ showProfileModal: false }) }} />  } 
+        { this.state.showProfileModal && 
+          ( <Modal 
+              businessData = {this.state.selectedMarker ? this.state.selectedMarker : allSpots[0]} 
+              currentView = {this.state.currentView} show = {this.state.showProfileModal} 
+              closeModal = {()=> { this.setState({ showProfileModal: false }) }}
+              addToFavourites = {()=> this.addToFavourite()} 
+            /> 
+          ) 
+        } 
          <ShowVibeModal show = {this.state.showVibeModal} onClose = {()=> { this.setState({ showVibeModal: false }) }} /> 
       </View>
     )
@@ -498,183 +519,6 @@ class MapScreen extends React.Component{
 
 }
 
-const styles = StyleSheet.create({
-  heartIcon:{ 
-    flex:1,
-    alignSelf: 'flex-end',
-    position: 'absolute',
-    right: 5,
-    top: 5 
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-end',
-  },
-  setVibeButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '800' 
-  },
-  setVibeButton: {
-    backgroundColor: '#1b76de',
-    padding: 10,
-    paddingTop: 10,
-    paddingBottom: 10,
-    width: 70,
-    borderRadius: 100,
-    borderWidth: 4,
-    borderColor: '#043c7d'
-  },
-  searchBarInput:{ 
-    flex: 6, 
-    fontWeight: '700',
-    color: 'black', 
-    backgroundColor: 'white', 
-    textAlign: 'left', 
-    height: '80%'
-  },
-  viewButtons: {
-    backgroundColor: 'white',
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderWidth: 2,
-    paddingRight: 2,
-    paddingLeft: 2 
-  },
-  activeViewButtons: {
-    backgroundColor: 'black',
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderWidth: 2,
-    paddingRight: 2,
-    paddingLeft: 2 
-  },
-  activeCategoryButtonTextColor: {
-    color: 'black',
-    textAlign:'center',
-    fontSize: 10,
-    fontWeight: '900'
-  },
-  categoryButtonTextColor: {
-    color: 'black',
-    textAlign:'center',
-    fontSize: 8,
-    fontWeight: '200'
-  },
-  searchBar:{
-    flexDirection: 'row', 
-    padding: 10,
-    backgroundColor: 'white',
-    marginHorizontal: '10%',
-    shadowOffset: { width: 0, height: 0 },
-    shadowColor: 'black',
-    shadowOpacity: 0.2,
-    elevation: 1,
-    marginTop: 20,
-    marginBottom: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    width: '80%',
-    borderRadius: 20,
-    borderWidth: 1
-  },
-  categoryButtons: {
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderWidth: 2,
-    marginLeft: 5 ,
-    borderRadius: 8,
-    borderColor: 'lightgray'
-  },
-  categoryButtonTextColor: {
-    color: 'white',
-    textAlign:'center',
-    fontSize: 11,
-    fontWeight: '300'
-  },
-  activeButtonTextColor: {
-    color: 'white',
-    textAlign:'center',
-    fontSize: 13,
-    fontWeight: '800'
-  },
-  buttonTextColor: {
-    color: 'black',
-    textAlign:'center',
-    fontSize: 11,
-    fontWeight: '800'
-  },
-  mapStyle: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height * 0.70,
-  },
-  scrollView: {
-    position: "absolute",
-    bottom: '6%',
-    left: 0,
-    right: 0,
-    paddingVertical: 10,
-  },
-  endPadding: {
-    paddingRight: width - CARD_WIDTH,
-  },
-  card: {
-    padding: 0,
-    elevation: 2,
-    backgroundColor: "#FFF",
-    marginHorizontal: 20,
-    shadowColor: "#000",
-    shadowRadius: 5,
-    shadowOpacity: 0.3,
-    shadowOffset: { x: 2, y: -2 },
-    height: CARD_HEIGHT,
-    width: CARD_WIDTH,
-    overflow: "hidden",
-    marginBottom: 30,
-    borderRadius: 10,
-    borderWidth: 0.3
-  },
-  cardImage: {
-    flex: 1,
-    width: "100%",
-    height: "50%",
-  },
-  textContent: {
-    flex: 1,
-  },
-  cardtitle: {
-    fontSize: 12,
-    marginTop: 5,
-    fontWeight: "bold",
-  },
-  cardDescription: {
-    fontSize: 12,
-    color: "#444",
-  },
-  markerWrap: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  marker: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "rgba(130,4,150, 0.9)",
-  },
-  ring: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "rgba(130,4,150, 0.3)",
-    position: "absolute",
-    borderWidth: 1,
-    borderColor: "rgba(130,4,150, 0.5)",
-  }
-});
 
 const mapStateToProps = (state) => {
   const { business, vibe, category} = state

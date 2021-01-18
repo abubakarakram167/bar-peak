@@ -42,6 +42,14 @@ export default class SliderEntry extends Component {
         return value === title ? { borderWidth: 5, borderColor: 'darkgray', borderRadius: 20 } : {}
     }
 
+    getSelectionText = () => {
+      const {currentStep, value, data: { title, id } } = this.props;
+      if(currentStep === 3)
+        return value.includes(id) ? "UnPick" : "Pick"
+      else
+        return value === title ? "UnPick" : "Pick"
+    }
+
     render () {
       const { data: { title, id},selectChoice,currentStep, even, value } = this.props;
 
@@ -78,7 +86,7 @@ export default class SliderEntry extends Component {
                   style={{ color: "white", fontSize: 15, fontWeight: "600" }}
                   numberOfLines={2}
                 >
-                  {  value === title ? "UnPick" : "Pick" } 
+                  { this.getSelectionText() }
                 </Text>
               </TouchableOpacity>
             </View>
