@@ -128,7 +128,7 @@ class ProgressStepBar extends Component {
       vibeCategory = "Professional Party Time";
     else if(fun === "Moderate" && crowdLevel === "Crowded")
       vibeCategory = "Moderate Party Time";
-    else if(fun === "Mellow" && barOrNightClub === 'bar' && this.getSelectedCategories(barOrNightClub).includes(onlyDiveBar) )
+    else if(fun === "Mellow" && barOrNightClub === 'bar' && this.getSelectedCategories(barOrNightClub).includes(onlyDiveBar) && crowdLevel === "Uncrowded" )
     vibeCategory = "Netflix and Chill";    
     else if(["Moderate"].includes(fun) && barOrNightClub === 'bar' && crowdLevel === "Uncrowded")
       vibeCategory = "Social Drinking";
@@ -140,7 +140,7 @@ class ProgressStepBar extends Component {
     }
     vibe.vibeCategory = vibeCategory;
     vibe.selectedCategories = this.getSelectedCategories(barOrNightClub).toString()
-    console.log("here the vibe selection", vibe)
+    
     if(submit)
       this.setVibe(vibe)
   }
@@ -153,8 +153,13 @@ class ProgressStepBar extends Component {
     if(_.isEmpty(getVibe)){
       const submitVibe =  await this.props.submitVibe(vibeData)
       if(submitVibe){
-        this.setState({ showIndicator: false })
-        navigation.popToTop()
+        this.props.getfilteredBusiness(null, null, null);
+        setTimeout(()=> {
+          this.setState({ showIndicator: false }, ()=> {
+            navigation.navigate('Screen 1'); 
+          })
+        }, 1000) 
+       
       }
     }
     else{
@@ -170,7 +175,6 @@ class ProgressStepBar extends Component {
 
   getSelectedBars = (barId) => {
     const { category } = this.props.category.category;
-    console.log("the bar id", barId)
     let getAllBars = this.state.question3.length > 0 ? this.state.question3 : []
     if(barId === "AllBarsId"){
       if (getAllBars.includes("AllBarsId"))
@@ -186,9 +190,9 @@ class ProgressStepBar extends Component {
       else
         getAllBars.push(barId)
     }
-    console.log("get all bars id", getAllBars)
     return getAllBars;   
   }
+
   getSelectedChoice = (choiceName, number) => {
     const stateQuestion = this.state;
     if(stateQuestion['question' + number ] === choiceName)

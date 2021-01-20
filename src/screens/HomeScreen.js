@@ -45,13 +45,14 @@ class HomeScreen extends Component {
       const { coords } = location;
       const [getVibe] = await Promise.all([ this.props.getVibe(), this.props.getNearLocationBusiness(coords), this.props.setUserLocation(coords)]) 
       this.setState({ spinner: false })
+      await this.props.getAllCategories();
       if(!getVibe){
         setTimeout(()=> { this.setState({ showModal: true }) }, 200)      
       }
-      await this.props.getAllCategories();
       await this.props.getfilteredBusiness(null, null, null);
       await this.props.getFavouritesBusinessAction();
       this.setState({ spinner: false })
+     
     }catch(error){
       console.log("the error", error)
     }

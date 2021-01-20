@@ -44,7 +44,7 @@ class MyFavourites extends React.Component {
           <Text
             style = { styles.favouritesText }
           >
-            Favourites
+            Favorites
           </Text>
         </View>
         <View

@@ -109,7 +109,7 @@ class App extends Component {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>  Rating!</Text>
-                { rating && <Text style={styles.timeText}> On Previous Week { ratingData.getExactTime } </Text>}
+                { rating && <Text style={styles.timeText}> This Time Last Week on. The last should be :</Text>}
                { rating ?
                 <View 
                   style = {{ flex: 1 }} 
@@ -166,7 +166,7 @@ class App extends Component {
                       </TouchableOpacity>
                     </View>        
                   </View>
-               </View> : <Text style = {{ fontSize: 20, textAlign: 'center', marginTop: 30 }} >For this Time of Previous Week Rating is Not Available</Text>}
+               </View> : <Text style = {{ fontSize: 20, textAlign: 'center', marginTop: 30 }} >Previous week rating is not available. </Text>}
             </View>
             <View style = {{ position: 'absolute', top: '20%', left: '10%' }}  >
               <TouchableOpacity

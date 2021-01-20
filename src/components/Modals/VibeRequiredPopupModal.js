@@ -28,7 +28,7 @@ class App extends Component {
                 <View 
                   style = {{ flex: 1, alignItems: 'center', justifyContent: 'center' }} 
                 >
-                  <Text style = {styles.modalMessage} > Please set your vibe to access your app Completely</Text>
+                  <Text style = {styles.modalMessage} > Please set your vibe to continue. </Text>
                   <TouchableOpacity
                     onPress = {() =>  {
                       this.props.closeModal()

@@ -99,7 +99,7 @@ class MapScreen extends React.Component{
     this.setState({ spinner: true })
     await this.props.getSearchBusinesses(this.state.searchValue)
     await this.props.getfilteredBusiness(null,'search', null)
-    this.setState({ spinner: false })
+    return; 
   }
 
   getImagePath = (types, whichSpot) => {
@@ -177,8 +177,9 @@ class MapScreen extends React.Component{
            
           />
           <TouchableOpacity
-            onPress = {()=>{ 
-              this.getSearchResults()
+            onPress = {async()=>{ 
+              await this.getSearchResults()
+              this.setState({ spinner: false, currentView: "list" })
             }}
           >
             <ProfileModalIcon
@@ -410,7 +411,10 @@ class MapScreen extends React.Component{
           </View>
         </View>
         :
-        <ListComponent navigation = {navigation} />
+        <ListComponent 
+          navigation = {navigation}
+          currentCategory = {this.state.currentCategory} 
+        />
 
         }
         <Animated.ScrollView
@@ -462,7 +466,6 @@ class MapScreen extends React.Component{
                   <View style={{ flex: 2, alignItems: 'flex-start', paddingLeft: 10, paddingTop: 10 }}>
                     <Text style={[{ fontSize: 20, color: '#b63838', marginBottom: 2 }, styles.textInfo]}>{this.state.selectedMarker ? this.state.selectedMarker.types[0] : allSpots[0].types[0] }</Text> 
                     <Text style={[{ fontSize: 16, fontWeight: 'bold' }, styles.textInfo]}>{this.state.selectedMarker ? this.state.selectedMarker.name : allSpots[0].name }</Text>
-                    {/* <Text style={[{ fontSize: 12,  marginBottom: 4 }, styles.textInfo]} >{this.state.selectedMarker.priceLevel > 0 || this.state.allMarkers[0].priceLevel > 0 ?  this.renderDollar(this.state.selectedMarker.priceLevel ? this.state.selectedMarker.priceLevel : this.state.allMarkers[0].priceLevel) : "Price not available" }</Text>  */}
                     <StarRating
                       disable={true}
                       maxStars={5}

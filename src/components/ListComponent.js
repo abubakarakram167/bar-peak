@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
 import { connect } from 'react-redux';
 import haversine from 'haversine-distance'
+import { property } from 'underscore';
 class ListComponent extends React.Component{
 
   constructor(props){
@@ -16,36 +17,67 @@ class ListComponent extends React.Component{
 
   }
 
-  getColor = ({ markerId }) => {
-    const { averageSpots, goodSpots } = this.props.business;
-    let color = '' 
-    if(averageSpots.map(spot => spot.markerId).includes(markerId))
-      color = '#f5ef56';
-    else if(goodSpots.map(spot => spot.markerId).includes(markerId))
-      color = '#0bb53e'
-    else
-      color = 'red'
+  getColor = ({ markerId, types }) => {
+    const { averageSpots, goodSpots, allSpots } = this.props.business;
+    const { currentCategory } = this.props;
+    let color = ''
+    if( currentCategory === "food"  )
+      color =  'black'
+    else if(currentCategory === "food+drinks"  ){  
+      if(types.includes("Restaurant") && ! (types.includes("Night Clubs") || types.includes("Bar") ) ) 
+        color = "black"
+      else{
+        if(averageSpots.map(spot => spot.markerId).includes(markerId))
+        color = '#f5ef56';
+        else if(goodSpots.map(spot => spot.markerId).includes(markerId))
+          color = '#0bb53e'
+        else
+          color = 'red' 
+      }   
+    }
+    else{  
+      if(types.includes("Restaurant") && ! (types.includes("Night Clubs") || types.includes("Bar") ) ) // For show black when on vibe.And not any option is selected.
+        color = "black"
+      else{   
+        if(averageSpots.map(spot => spot.markerId).includes(markerId))
+          color = '#f5ef56';
+        else if(goodSpots.map(spot => spot.markerId).includes(markerId))
+          color = '#0bb53e'
+        else
+          color = 'red'
+      }   
+    }
     return {
       backgroundColor: color
-    }    
+    }   
   }
 
   changePageNumber = (pageNumber) => {
-    this.setState({ currentPageNumber: pageNumber }, ()=> {
-      console.log("the state", this.state.currentPageNumber)
-    })
+    this.setState({ currentPageNumber: pageNumber })
   }
 
   getMarkerCategoryName = (category) => {
-    if(category.types.includes("Night Clubs") || category.types.includes("Bar"))
-      return 'drinks';
-    else if(category.types.includes("Restaurant"))
-      return 'food';
+    if(category.types.includes("Restaurant") && (category.types.includes("Night Clubs") || category.types.includes("Bar")) )
+      return "food + drinks"
+    if( (category.types.includes("Night Clubs") || category.types.includes("Bar") ) && !category.types.includes("Restaurant") )
+      return 'Only drinks';
+    else if(category.types.includes("Restaurant") && ! (category.types.includes("Night Clubs") ||  category.types.includes("Bar") ) )
+      return 'Only food';
+  }
+  getCurrentCategorySelected = (categories) => {
+    const {currentCategory} = this.props;
+  
+    if(currentCategory === "food")
+      return categories.includes("Restaurant") &&  ! (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false
+    else if(currentCategory === "drinks")   
+      return !categories.includes("Restaurant") &&  (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false     
+    else 
+      return true
   }
 
   render(){
     const { allSpots } = this.props.business;
-    const {navigation} = this.props;
+    const { navigation } = this.props;
     return(
       <View style={styles.container}>
         <View style = {{ flex: 1, flexDirection: 'column' }} >
@@ -83,70 +115,69 @@ class ListComponent extends React.Component{
               <Text style = {styles.column} >Type</Text>
               <Text style = {styles.column} >Distance Away</Text>
             </View>
-            {/* <View style = {{  alignSelf: 'flex-end', marginRight: '5%'}}>
-              
-            </View>
-            <View style = {{  alignSelf: 'flex-end', marginRight: '5%'}}>
-              <Text style = {{ fontSize: 14, fontWeight: '700' }} >Distance Away</Text>
-            </View> */}
             <View style = {{ flex:10, borderWidth: 0 }} >
               <ScrollView >
                 {  allSpots && allSpots.slice(this.state.currentPageNumber * 10, this.state.currentPageNumber * 10 + 10).map((marker, index)=>{
-                    return(
-                      <View key = {index} style = { styles.listElement } >
-                        <View style = {[styles.listIcon, this.getColor(marker)  ]} >
+                    
+                    if( this.getCurrentCategorySelected(marker.types, marker.name) ){
+                      return(
+                        <View key = {index} style = { styles.listElement } >
+                          <View style = {[styles.listIcon, this.getColor(marker)  ]} >
+                          </View>
+                          <View style = {{ flex:1 }}>
+                            <Text
+                              style = {styles.listElementName}
+                            >
+                              { marker.name }
+                            </Text>
+                          </View>
+                          <View style = {{ flex:1 }}>
+                            <Text
+                              style = {styles.listElementName}
+                            >
+                              { this.getMarkerCategoryName(marker) }
+                            </Text>
+                          </View>
+                          <View style = {{ flex:1 }}>
+                            <Text>
+                              { marker.distanceAway + " " }
+                              <Text style = {{ fontWeight: '400' }} >miles</Text>
+                            </Text>
+                          </View>
                         </View>
-                        <View style = {{ flex:1 }}>
-                          <Text
-                            style = {styles.listElementName}
-                          >
-                            { marker.name }
-                          </Text>
-                        </View>
-                        <View style = {{ flex:1 }}>
-                          <Text
-                            style = {styles.listElementName}
-                          >
-                            { this.getMarkerCategoryName(marker) }
-                          </Text>
-                        </View>
-                        <View style = {{ flex:1 }}>
-                          <Text>
-                            { marker.distanceAway + " " }
-                            <Text style = {{ fontWeight: '400' }} >miles</Text>
-                          </Text>
-                        </View>
-                      </View>
-                    )
-                  })
+                      ) 
+                    }
+                    else
+                      return null; 
+                  }) 
                 }
               </ScrollView>   
             </View>
-            <View style = {{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
-             { this.state.currentPageNumber >0  &&
-              (<TouchableOpacity
-                style = {styles.paginationButton}
-                onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber - 1) }}
-              >
-                <Text
-                  style = {{ fontWeight: '700' }}
-                >Previous Page</Text>
-              </TouchableOpacity>)
-            }
             { allSpots && allSpots.slice(this.state.currentPageNumber * 10 ).length > 10 &&
-              (<TouchableOpacity
-                style = {[styles.paginationButton, { marginRight: 30 }]}
-                onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber + 1) }}
-              >
-                <Text
-                  style = {{ 
-                    fontWeight: '700' 
-                  }}
-                >Next Page</Text>
-              </TouchableOpacity>)
+                <View style = {{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
+                { this.state.currentPageNumber >0  &&
+                  (<TouchableOpacity
+                    style = {styles.paginationButton}
+                    onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber - 1) }}
+                  >
+                    <Text
+                      style = {{ fontWeight: '700' }}
+                    >Previous Page</Text>
+                  </TouchableOpacity>)
+                }
+              
+                  (<TouchableOpacity
+                    style = {[styles.paginationButton, { marginRight: 30 }]}
+                    onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber + 1) }}
+                  >
+                    <Text
+                      style = {{ 
+                        fontWeight: '700' 
+                      }}
+                    >Next Page</Text>
+                  </TouchableOpacity>)
+                </View>
             }
-            </View>
-            
           </View>
         </View>
       </View>

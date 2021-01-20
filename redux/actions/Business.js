@@ -309,9 +309,6 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
   const allCategories = category.category.category;
   const favouriteEstablishmentCategory = business.business.selectedEstablishmentCategory
 
-
-
-  // console.log("the actuval vibe", actualVibe)
   let selectedCategory = []
   if(!search){  
     if(selectedMainCategory !== null)

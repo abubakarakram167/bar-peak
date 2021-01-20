@@ -424,14 +424,6 @@ class ProfileModal extends Component {
                     <View style = {{ flex: 4, alignItems: 'flex-start', borderWidth:0 }} >
                       <Text style = {{ textAlign: 'left', borderWidth:0, fontSize: 20, marginBottom:15, fontWeight: '600' }} >Rating</Text>
                     </View>
-                    <View style = {{ flex: 3 }}>
-                      <TouchableOpacity
-                        onPress = {()=> this.setState({ showPreviousWeekDayModal: true })}
-                        style = {{ padding: 2, backgroundColor: 'red', paddingTop: 10, paddingBottom: 10, borderRadius: 10, backgroundColor: "#eb3498"}}
-                      >
-                        <Text style = {{ color: 'white', textAlign: 'center', fontSize: 12 }} >Show Previous Rating</Text>
-                      </TouchableOpacity>
-                    </View>
                   </View>
                   <View 
                     style = {[styles.starComponent, { marginTop:0 }]} 
@@ -488,6 +480,14 @@ class ProfileModal extends Component {
                 <View
                   style={[styles.divider, { marginBottom: 20 }]}
                 />
+                  <View style = {{ flex: 3 }}>
+                    <TouchableOpacity
+                      onPress = {()=> this.setState({ showPreviousWeekDayModal: true })}
+                      style = {{ padding: 2, backgroundColor: 'red', paddingTop: 10, paddingLeft: 18, paddingRight: 18, paddingBottom: 10, borderRadius: 10, backgroundColor: "#eb3498"}}
+                    >
+                      <Text style = {{ color: 'white', textAlign: 'center', fontSize: 12, width: 100 }} >This Time Last Week</Text>
+                    </TouchableOpacity>
+                  </View>
                 {  this.checkUserRatingAvailableDistance() &&
                   (<View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
                     <TouchableOpacity
@@ -524,7 +524,7 @@ class ProfileModal extends Component {
                   closeModal = {()=>{ this.setState({ showTimings: false }) }}
                 />)
             }
-            <View style = {{ height: '8%', borderTopWidth: 1, borderTopColor: 'gray' }} >
+            {/* <View style = {{ height: '8%', borderTopWidth: 0, borderTopColor: 'gray' }} >
               <View style = {{ flex:1, flexDirection: 'row' }} >
                 <View style = {{ flex:2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }} >
                   <View style = {{ flex:1, alignItems : 'center' }} >  
@@ -544,15 +544,15 @@ class ProfileModal extends Component {
                     <Text style = {{ textAlign: 'center', fontSize: 12,color: 'white', fontWeight: '700',paddingTop: 8, paddingBottom: 8 }} > Timings </Text>
                   </TouchableOpacity>
                 </View>
-                <View style={styles.spinnerContainer}>
-                  <Spinner
-                    visible={this.state.spinner}
-                    textContent={'Loading...'}
-                    textStyle={styles.spinnerTextStyle}
-                  />
-                </View>
               </View>
-            </View> 
+            </View>  */}
+            <View style={styles.spinnerContainer}>
+              <Spinner
+                visible={this.state.spinner}
+                textContent={'Loading...'}
+                textStyle={styles.spinnerTextStyle}
+              />
+            </View>
           </View>       
         </Modal>
       </View>
