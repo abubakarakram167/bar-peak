@@ -11,6 +11,7 @@ const INITIAL_STATE = {
 const userReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case Update_Radius:
+      console.log("in radiuss reducer", action.payload)
       return{
         ...state,
         radius: action.payload

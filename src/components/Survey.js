@@ -5,6 +5,11 @@ import { COLORS } from './validColors';
 import {setProgressionBar} from '../../redux/actions/User'; 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import Spinner from 'react-native-loading-spinner-overlay';
+import { getUserData } from './localStorage'; 
+import axios  from '../api/axios';
+import AlertComponent from './AlertComponent';
+import { showRatingModal } from '../../redux/actions/Components';
 
 const GREEN = 'rgba(32, 168, 68,1)';
 const PURPLE = 'rgba(108,48,237,1)';
@@ -152,16 +157,24 @@ export class SurveyComponent extends Component {
       };
     }
 
+
     constructor(props) {
         super(props);
-        this.state = { backgroundColor: PURPLE, answersSoFar: '', questionText: '' };
+        this.state = { 
+          backgroundColor: PURPLE, 
+          answersSoFar: '', 
+          questionText: '', 
+          spinner: false,
+          showConfirmation: false 
+        };
     }
 
     onSurveyFinished(answers) {
+      console.log("the propertyyy")
       const infoQuestionsRemoved = [...answers];
       const answersAsObj = {};
       for (const elem of infoQuestionsRemoved) { answersAsObj[elem.questionId] = elem.value; }
-      this.props.onFinishSurvey(infoQuestionsRemoved)
+      this.saveRating(infoQuestionsRemoved)
     }
     onAnswerSubmitted(answer) {
       this.setState({ answersSoFar: JSON.stringify(this.surveyRef.getAnswers(), 2) });
@@ -178,17 +191,17 @@ export class SurveyComponent extends Component {
     }
 
     renderPreviousButton(onPress, enabled) {
-        return (
-            <View style={{ flexGrow: 1, maxWidth: 100, marginTop: 10, marginBottom: 10 }}>
-                <Button
-                    color={GREEN}
-                    onPress={onPress}
-                    disabled={!enabled}
-                    backgroundColor={GREEN}
-                    title={'Previous'}
-                />
-            </View>
-        );
+      return (
+        <View style={{ flexGrow: 1, maxWidth: 100, marginTop: 10, marginBottom: 10 }}>
+          <Button
+            color={GREEN}
+            onPress={onPress}
+            disabled={!enabled}
+            backgroundColor={GREEN}
+            title={'Previous'}
+          />
+        </View>
+      );
     }
 
     renderNextButton(onPress, enabled) {
@@ -275,18 +288,19 @@ export class SurveyComponent extends Component {
     }
 
     renderNumericInput(onChange, value, placeholder, onBlur) {
-      console.log(" the valeu", value)
-        return (<TextInput 
-            style={styles.numericInput}
-            onChangeText={text => { onChange(text); }}
-            underlineColorAndroid={'white'}
-            placeholderTextColor={'rgba(184,184,184,1)'}
-            value={String(value)}
-            placeholder={placeholder}
-            keyboardType={'numeric'}
-            onBlur={onBlur}
-            maxLength={3}
-        />);
+      return (
+        <TextInput 
+          style={styles.numericInput}
+          onChangeText={text => { onChange(text); }}
+          underlineColorAndroid={'white'}
+          placeholderTextColor={'rgba(184,184,184,1)'}
+          value={String(value)}
+          placeholder={placeholder}
+          keyboardType={'numeric'}
+          onBlur={onBlur}
+          maxLength={3}
+        />
+      );
     }
 
     renderInfoText(infoText) {
@@ -295,6 +309,57 @@ export class SurveyComponent extends Component {
                 <Text style={styles.infoText}>{infoText}</Text>
             </View>
         );
+    }
+
+    saveRating = async(answers) => {
+      console.log("this.props.data", this.props.data);
+      let FinalAnswers = answers.map((answer)=> answer.value )
+      const rating = {
+        fun: FinalAnswers[0].value,
+        crowd: FinalAnswers[1].value,
+        difficultyGettingIn: FinalAnswers[2].value,
+        ratioInput: FinalAnswers[3].value,
+        difficultyGettingADrink: FinalAnswers[4].value
+      }
+      this.setState({ spinner: true })
+      const { token } = await getUserData();
+      const { data } = this.props;
+      const body = {
+          query:`
+          mutation{
+            addRating(rating:{
+              fun: ${rating.fun.toFixed(2)},
+              crowd: ${rating.crowd.toFixed(2)},
+              ratioInput: ${rating.ratioInput.toFixed(2)},
+              difficultyGettingIn: ${rating.difficultyGettingIn.toFixed(2)},
+              difficultyGettingDrink: ${rating.difficultyGettingADrink.toFixed(2)}    
+            },
+            businessId: "${data.markerId}"
+            ){
+              fun,
+              crowd,
+              ratioInput,
+              difficultyGettingDrink,
+              difficultyGettingIn
+            }
+          }
+          `
+      }
+      try{  
+        const res = await axios.post(`graphql?`,body,{ headers: {
+          'Authorization': `Bearer ${token}`
+        } });
+    
+        // this.props.updateRating(res.data.data.addRating);
+        this.setState({ spinner: false, showConfirmation: true },()=>{
+          setTimeout(()=>{  
+            this.props.showRatingModal(false)
+          }, 2000)
+        })
+      }catch(err){
+        console.log("hte errorsss", err)
+      }
+  
     }
 
     render() {
@@ -318,6 +383,24 @@ export class SurveyComponent extends Component {
               renderNumericInput={this.renderNumericInput}
               renderInfo={this.renderInfoText}
             />
+            <View style={styles.spinnerContainer}>
+              <Spinner
+                visible={this.state.spinner}
+                textContent={'Loading...'}
+                textStyle={styles.spinnerTextStyle}
+              />
+            </View>
+            { 
+              this.state.showConfirmation &&
+                (<AlertComponent 
+                  closeModal = {()=>{ 
+                    this.setState({ showConfirmation: false }) 
+                  }} 
+                  rating = {false} 
+                  showError = {this.state.showConfirmation} 
+                  message = "Rating Succesffully Submitted" 
+                />)
+            }
           </View>    
         </View>
       );
@@ -328,8 +411,11 @@ export class SurveyComponent extends Component {
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
     setProgressionBar,
+    showRatingModal 
   }, dispatch)
 );
+
+
 
 export default connect(null, mapDispatchToProps)(SurveyComponent);
 

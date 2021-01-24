@@ -1,15 +1,23 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
 import { connect } from 'react-redux';
-import haversine from 'haversine-distance'
-import { property } from 'underscore';
+import Modal from './Modal';
+import CategoryAddModal from './CategoryAddOrRemoveAlert';
+import { addToFavourite } from '../../redux/actions/Business';
+import { bindActionCreators } from 'redux';
+
+
 class ListComponent extends React.Component{
 
   constructor(props){
     super(props);
     this.state = {
       renderList: [],
-      currentPageNumber : 0
+      currentPageNumber : 0,
+      showProfileModal: false,
+      showCategoryAddPopUp: false,
+      message: '',
+      totalCategoriesName: ''
     }
   }
 
@@ -56,6 +64,10 @@ class ListComponent extends React.Component{
     this.setState({ currentPageNumber: pageNumber })
   }
 
+  selectSpecificBusiness = (marker) => {
+    this.setState({showProfileModal: true, selectedBusiness: marker, selectedMarker: marker });
+  }
+
   getMarkerCategoryName = (category) => {
     if(category.types.includes("Restaurant") && (category.types.includes("Night Clubs") || category.types.includes("Bar")) )
       return "food + drinks"
@@ -73,6 +85,22 @@ class ListComponent extends React.Component{
       return !categories.includes("Restaurant") &&  (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false     
     else 
       return true
+  }
+
+  addToFavourite = async() => {
+    const { category } = this.props;
+    const { allSpots } = this.props.business
+    const selectedMarker = this.state.selectedMarker? this.state.selectedMarker: allSpots[0];
+    const addOrRemove = await this.props.addToFavourite(selectedMarker.markerId);
+    let TotalCategoriesName = category.filter(category => {
+      return selectedMarker.types.includes(category.title) && category.type === "main_category"
+    }).map(category => category.title)
+    let totalMessage = addOrRemove.toUpperCase() + " to " + TotalCategoriesName.map(name => name + " ")
+    this.setState({ showCategoryAddPopUp: true , totalCategoriesName: totalMessage }, ()=>{
+      setTimeout(()=>{ 
+        this.setState({ showCategoryAddPopUp: false })
+      }, 5000)
+    })
   }
 
   render(){
@@ -115,36 +143,52 @@ class ListComponent extends React.Component{
               <Text style = {styles.column} >Type</Text>
               <Text style = {styles.column} >Distance Away</Text>
             </View>
+            { this.state.showProfileModal && 
+              ( <Modal 
+                  businessData = {this.state.selectedMarker ? this.state.selectedMarker : allSpots[0]} 
+                  currentView = {this.state.currentView} 
+                  show = {this.state.showProfileModal} 
+                  closeModal = {()=> { this.setState({ showProfileModal: false }) }}
+                  addToFavourites = {()=> this.addToFavourite()} 
+                /> 
+              ) 
+            } 
             <View style = {{ flex:10, borderWidth: 0 }} >
               <ScrollView >
                 {  allSpots && allSpots.slice(this.state.currentPageNumber * 10, this.state.currentPageNumber * 10 + 10).map((marker, index)=>{
                     
                     if( this.getCurrentCategorySelected(marker.types, marker.name) ){
                       return(
-                        <View key = {index} style = { styles.listElement } >
-                          <View style = {[styles.listIcon, this.getColor(marker)  ]} >
+                        <TouchableOpacity
+                          onPress = {()=>{ 
+                            this.selectSpecificBusiness(marker)
+                          }}
+                        >
+                          <View key = {index} style = { styles.listElement } >
+                            <View style = {[styles.listIcon, this.getColor(marker)  ]} >
+                            </View>
+                            <View style = {{ flex:1 }}>
+                              <Text
+                                style = {styles.listElementName}
+                              >
+                                { marker.name }
+                              </Text>
+                            </View>
+                            <View style = {{ flex:1 }}>
+                              <Text
+                                style = {styles.listElementName}
+                              >
+                                { this.getMarkerCategoryName(marker) }
+                              </Text>
+                            </View>
+                            <View style = {{ flex:1 }}>
+                              <Text>
+                                { marker.distanceAway + " " }
+                                <Text style = {{ fontWeight: '400' }} >miles</Text>
+                              </Text>
+                            </View>
                           </View>
-                          <View style = {{ flex:1 }}>
-                            <Text
-                              style = {styles.listElementName}
-                            >
-                              { marker.name }
-                            </Text>
-                          </View>
-                          <View style = {{ flex:1 }}>
-                            <Text
-                              style = {styles.listElementName}
-                            >
-                              { this.getMarkerCategoryName(marker) }
-                            </Text>
-                          </View>
-                          <View style = {{ flex:1 }}>
-                            <Text>
-                              { marker.distanceAway + " " }
-                              <Text style = {{ fontWeight: '400' }} >miles</Text>
-                            </Text>
-                          </View>
-                        </View>
+                        </TouchableOpacity>  
                       ) 
                     }
                     else
@@ -153,6 +197,10 @@ class ListComponent extends React.Component{
                 }
               </ScrollView>   
             </View>
+            <CategoryAddModal  
+              show = {this.state.showCategoryAddPopUp} 
+              message = {this.state.totalCategoriesName} 
+            /> 
             { allSpots && allSpots.slice(this.state.currentPageNumber * 10 ).length > 10 &&
                 <View style = {{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
                 { this.state.currentPageNumber >0  &&
@@ -243,11 +291,18 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const { business, user } = state
+  const { business, user, category } = state
   return { 
     business: business.business.filterBusinesses,
-    location: user.user.location
+    location: user.user.location,
+    category: category.category.category
   }
 };
 
-export default connect(mapStateToProps, null)(ListComponent);
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    addToFavourite
+  }, dispatch)
+);
+
+export default connect(mapStateToProps, mapDispatchToProps)(ListComponent);

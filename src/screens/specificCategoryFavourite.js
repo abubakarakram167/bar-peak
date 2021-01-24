@@ -23,7 +23,7 @@ class SpecificCategoryFavourite extends React.Component {
           <Text
             style = { styles.favouritesText }
           >
-            { category.title }
+            { category.title !== "Night Clubs" ? category.title + 's' : category.title  }
           </Text>
           <Text
             style = { styles.favouriteHeading }

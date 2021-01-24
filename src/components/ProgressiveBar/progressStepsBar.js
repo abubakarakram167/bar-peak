@@ -265,7 +265,8 @@ class ProgressStepBar extends Component {
           finishBtnText = "Set Vibe"
           activeStep = { this.state.currentStep - 1}
         >
-          { Entries(category).map((entry, index)=>{
+          { 
+            Entries(category).map((entry, index)=>{
               return(
                 entry.label !== "Age Range" ? 
                 <ProgressStep
@@ -298,7 +299,7 @@ class ProgressStepBar extends Component {
                   nextBtnStyle = { this.getNextButtonStylerOrNot() }
                   finishBtnText = "Set Vibe"
                 > 
-                  <Text style = {Style.questionText}>How hard are you trying to party?</Text>
+                  <Text style = {Style.questionText}> { entry.question } </Text>
                   <Carousel 
                     entries = {entry.data} 
                     currentStep = {this.state.currentStep}  

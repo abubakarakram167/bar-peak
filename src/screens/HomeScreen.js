@@ -43,7 +43,7 @@ class HomeScreen extends Component {
       const location = await this.getCurrentLocation()
       await this.getNewChangedLocation(); 
       const { coords } = location;
-      const [getVibe] = await Promise.all([ this.props.getVibe(), this.props.getNearLocationBusiness(coords), this.props.setUserLocation(coords)]) 
+      const [getVibe] = await Promise.all([ this.props.getVibe(), this.props.getNearLocationBusiness(coords, null), this.props.setUserLocation(coords)]) 
       this.setState({ spinner: false })
       await this.props.getAllCategories();
       if(!getVibe){
@@ -114,12 +114,13 @@ class HomeScreen extends Component {
             /> 
           }
           { this.state.showProfileModal && 
-            (<Modal  
-              item  = {this.state.selectedItem}  
-              businessData = {this.state.selectedBusiness}  
-              show = {this.state.showProfileModal} 
-              closeModal = {()=> { this.setState({ showProfileModal: false }) }} 
-              />) 
+            ( <Modal  
+                item  = {this.state.selectedItem}  
+                businessData = {this.state.selectedBusiness}  
+                show = {this.state.showProfileModal} 
+                closeModal = {()=> { this.setState({ showProfileModal: false }) }} 
+              />
+            ) 
           }   
           <OrientationLoadingOverlay
             visible={this.state.spinner}

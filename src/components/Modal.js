@@ -7,8 +7,7 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
-  Image
+  Dimensions
 } from "react-native";
 import { connect } from 'react-redux';
 import { SliderBox } from "react-native-image-slider-box";
@@ -26,8 +25,10 @@ import ProgressionBar from './ProgressionBar';
 import haversine from 'haversine-distance';
 import SurveyComponent from './Survey';
 import PreviousWeekDayRating from './Modals/PreviousWeekDayRating';
-const { width, height } = Dimensions.get("window");
-import moment from 'moment';
+import { showRatingModal } from '../../redux/actions/Components';
+import { bindActionCreators } from 'redux';
+const { height } = Dimensions.get("window");
+
 
 const iconsList = [
   {
@@ -62,7 +63,11 @@ class ProfileModal extends Component {
     rating: {},
     spinner: false,
     getPreviousWeekDayRating: {},
-    showPreviousWeekDayModal: false
+    showPreviousWeekDayModal: false,
+    defaultRating: {},
+    isRunning: false,
+    noOfUsersUntilShowDefault: 0,
+    showRateIt: true
   };
 
   setModalVisible = (visible) => {
@@ -88,10 +93,8 @@ class ProfileModal extends Component {
       else if(specificCategory.title === "Night Clubs")
         data =  iconsList.filter((icon) => icon.type === 'point_of_interest')[0]
     }
-    console.log("the sicon data", data);
-   
+    
     return data ? data.iconName : ''
-  
   }
 
   getBusinessRating = async (placeId) =>{
@@ -116,10 +119,29 @@ class ProfileModal extends Component {
     }catch(err){
       console.log("hte errorsss", err.response.data)
     }
-  } 
+  }
+  
+  makeShowRateItButton = async() => {
+    const { businessData } = this.props;
+    const { token } = await getUserData();
+    const rateButtonBody = {
+      query: `
+      query{
+        showRateItButtonUntilNextHours(businessId: "${businessData.markerId}") 
+      }`
+    }
+    const responseShowRate = await axios.post(`graphql?`, rateButtonBody,{ 
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }});
+    if(!responseShowRate.data.data.showRateItButtonUntilNextHours){
+      this.setState({ showRateIt: false })  
+    }
+  }
 
   async componentDidMount(){
-    const { businessData } = this.props;  
+    const { businessData } = this.props;
+   
     const body = {
       query:`
       query{
@@ -136,10 +158,17 @@ class ProfileModal extends Component {
       }
       `
     }
-    try{  
+    try{
       const res = await axios.post(`graphql?`,body);
-      console.log("the get", res.data.data.getCurrentDayExactTimeRating)
-      this.setState( { getPreviousWeekDayRating: res.data.data.getCurrentDayExactTimeRating} )
+      const defaultRating = await axios.get('/getdefaultSettings');
+      const { isRunning, noOfUsersUntilShowDefault, rating } = defaultRating.data.settings;
+      this.makeShowRateItButton()
+      this.setState( { 
+        getPreviousWeekDayRating: res.data.data.getCurrentDayExactTimeRating,
+        defaultRating: rating,
+        isRunning,
+        noOfUsersUntilShowDefault
+      })
     }catch(err){
       console.log("hte errorsss", err)
     }
@@ -160,45 +189,45 @@ class ProfileModal extends Component {
         return "Packed-in Like Sardines";
     }
     else if(ratingCase === "fun"){
-      if(value >= 0 && value <= 0.9)
+      if(value >= 0 && value <= 1)
         return "Not Fun";
-      else if (value >= 1 && value <= 1.9)
+      else if (value > 1 && value <= 2)
         return "Sort Of Fun";
-      else if (value >= 2 && value <= 2.9)
+      else if (value >= 2.1 && value <= 3)
         return "Decent";
-      else if(value >= 3 && value <= 3.9)
+      else if(value >= 3.1 && value <= 4)
         return "Very Fun";
-      else if(value >= 4 && value <= 5)
+      else if(value >= 4.1 && value <= 5)
         return "All Time";
     }
     else if(ratingCase === "difficultyGettingIn"){
-      if(value >= 0 && value <= 0.9)
+      if(value >= 0 && value <= 1)
         return "No Problem ";
-      else if (value >= 1 && value <= 1.9)
+      else if (value > 1 && value <= 2)
         return "Less than 5-minute wait";
-      else if (value >= 2 && value <= 2.9)
+      else if (value > 2 && value <= 3 )
         return "5 - 15-Minute Wait";
-      else if(value >= 3 && value <= 3.9)
+      else if(value > 3 && value <= 4)
         return "15 - 30-Minute Wait";
-      else if(value >= 4 && value <= 5)
+      else if(value > 4 && value <= 5)
         return "Over 30-Minute Wait ";
     }
     else if(ratingCase === 'genderBreakdown'){
-      if(value >= 0 && value <= 0.9)
+      if(value >= 0 && value <= 1)
         return "Equal Girls and Guys";
-      else if (value >= 1 && value <= 1.9)
+      else if (value > 1 && value <= 2)
         return "More Guys than Girls";
-      else if (value >= 2 && value <= 3)
+      else if (value >= 2.1 && value <= 3)
         return "More Girls than Guys";
     }
     else if(ratingCase === "difficultyGettingADrink"){
-      if(value >= 0 && value <= 0.9)
+      if(value >= 0 && value <= 1)
         return "No Problem";
-      else if (value >= 1 && value <= 1.9)
+      else if (value >= 1 && value <= 2)
         return "A Little Slow";
-      else if (value >= 2 && value <= 3)
+      else if (value > 2 && value <= 3)
         return "Starting to Get Annoying";
-      else if (value >= 3.1 && value <= 4)
+      else if (value > 3 && value <= 4)
         return "Forget About It";
     }
   }
@@ -239,8 +268,6 @@ class ProfileModal extends Component {
     const { longitude, latitude } = businessData;
     var userLocation = { lat: parseFloat(this.props.location.latitude).toFixed(5) , lng: parseFloat(this.props.location.longitude).toFixed(5) }
     var destinationLocation = { lat: latitude.toFixed(5) , lng: longitude.toFixed(5)  };
-    //For Testing
-    // var destinationLocation = { lat: 31.45250, lng: 74.43324  };
     var DistanceInMiles  =  haversine(userLocation, destinationLocation).toFixed(2)
     console.log("the total distance distnce in meters", DistanceInMiles)
     if(! DistanceInMiles>=80) return false;
@@ -257,16 +284,24 @@ class ProfileModal extends Component {
       return "gray";
   }
 
+  getOriginalOrDefaultRating = (defaultRating, originalRating) => {
+    console.log(`default rating ${defaultRating} and original rating: ${ originalRating } `)
+    const { businessData } = this.props;
+    const { noOfUsersUntilShowDefault: defaultRatingUsers , isRunning} = this.state;
+    if(businessData.totalUserCountRating >= defaultRatingUsers && isRunning )
+      return defaultRating
+    return originalRating;  
+  }
+
   render() {
-    const { show } = this.props;
-    const { businessProfile } = this.state;
+    const { show, component } = this.props;
+    const { showRatingModal } = component.component;
+    const { businessProfile, defaultRating } = this.state;
     const { businessData } = this.props;  
     const { vibe } = this.props.vibe.vibe;
     const { rating } = businessData
     const allPhotos = businessData && businessData.images.map((photo)=> photo.secure_url);
-    console.log("the rating", rating)  
-    console.log("the business data", businessData)
-    
+
     return (
       <View style={styles.centeredView}>
         <Modal
@@ -316,7 +351,7 @@ class ProfileModal extends Component {
               </View> 
               <View style = {{ alignSelf : "flex-start", position: 'absolute', top: '3%', left: '5%' }}  >
                 <TouchableOpacity
-                  onPress = {()=> this.props.closeModal()}
+                  onPress = {()=> this.props.closeModal()  }
                 >
                   <Icon 
                     name="x"
@@ -384,7 +419,7 @@ class ProfileModal extends Component {
                 />
 
                 { !_.isEmpty(businessData) && businessData.types.map((type)=>{
-                    return (
+                    return(
                       <View style ={[{ borderWidth:0, width: '100%', marginTop: '8%' }]} >
                         <View style={{ flexDirection: 'row' }}>
                           <View style = {{ flex:1, borderWidth:0, paddingTop: '1%' }} >  
@@ -398,7 +433,7 @@ class ProfileModal extends Component {
                         </View>
                       </View>
                     )
-                })
+                  })
                 }
                 <View
                   style={styles.divider}
@@ -430,9 +465,9 @@ class ProfileModal extends Component {
                   >
                     <Text style = {styles.heading } >Crowd Factor</Text>
                     <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: this.getVibeCaseColor('crowdy', rating.crowd)}]}
+                      style = {[styles.ratingButtonToggle, { backgroundColor: this.getVibeCaseColor('crowdy', this.getOriginalOrDefaultRating(defaultRating.crowd, rating.crowd))}]}
                     >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("crowd", rating.crowd) }</Text>
+                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("crowd",  this.getOriginalOrDefaultRating(defaultRating.crowd, rating.crowd) ) }</Text>
                     </TouchableOpacity>
                   </View>
                   <View 
@@ -442,7 +477,7 @@ class ProfileModal extends Component {
                     <TouchableOpacity
                       style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("fun", rating.fun) }</Text>
+                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("fun", this.getOriginalOrDefaultRating(defaultRating.fun, rating.fun)) }</Text>
                     </TouchableOpacity>
                   </View>
                   <View 
@@ -452,7 +487,7 @@ class ProfileModal extends Component {
                     <TouchableOpacity
                       style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("genderBreakdown", rating.ratioInput) }</Text>
+                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("genderBreakdown", this.getOriginalOrDefaultRating(defaultRating.ratioInput, rating.ratioInput ) ) }</Text>
                     </TouchableOpacity>
                   </View>
                   <View 
@@ -462,7 +497,7 @@ class ProfileModal extends Component {
                     <TouchableOpacity
                       style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingIn", rating.difficultyGettingIn) }</Text>
+                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingIn", this.getOriginalOrDefaultRating(defaultRating.difficultyGettingIn, rating.difficultyGettingIn )) }</Text>
                     </TouchableOpacity>
                   </View>
                   <View 
@@ -472,7 +507,7 @@ class ProfileModal extends Component {
                     <TouchableOpacity
                       style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
                     >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingADrink", rating.difficultyGettingDrink) }</Text>
+                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingADrink", this.getOriginalOrDefaultRating(defaultRating.difficultyGettingDrink, rating.difficultyGettingDrink )  ) }</Text>
                     </TouchableOpacity>
                   </View>        
                 </View>
@@ -488,30 +523,28 @@ class ProfileModal extends Component {
                       <Text style = {{ color: 'white', textAlign: 'center', fontSize: 12, width: 100 }} >This Time Last Week</Text>
                     </TouchableOpacity>
                   </View>
-                {  this.checkUserRatingAvailableDistance() &&
+                {  this.checkUserRatingAvailableDistance() && this.state.showRateIt && 
                   (<View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
                     <TouchableOpacity
                       style = {{ borderRadius: 6, borderWidth:1,height: '100%', width: '40%',backgroundColor: '#050505' }}
-                      onPress = {() => {  
-                        this.setState({ showRatingModal: true })
+                      onPress = {() => { 
+                        this.props.showRatingModal(true) 
                       }}
                     >
                       <Text style = {styles.rateButtonStyling} > Rate It! </Text>
                     </TouchableOpacity>
                   </View>)
                 }
-                { this.state.showRatingModal && 
+                { showRatingModal && 
                   <RateModal  
-                    closeModal = {()=>{ 
-                      this.setState({ showRatingModal: false }) 
-                      console.log("the pressing")
-                    }}
                     rating = {this.state.rating}
                     vibe = {vibe} 
                     data = { businessData }
-                    show = {this.state.showRatingModal}  
-                    updateRating = {(rating)=>{  this.setState({ rating })    }}
-                    
+                    show = {showRatingModal}  
+                    updateRating = {(rating)=>{  
+                      this.setState({ rating })    
+                    }}
+                    onClose = {()=> { this.props.showRatingModal(false)  }}
                   />
                 }
               </View>
@@ -524,28 +557,6 @@ class ProfileModal extends Component {
                   closeModal = {()=>{ this.setState({ showTimings: false }) }}
                 />)
             }
-            {/* <View style = {{ height: '8%', borderTopWidth: 0, borderTopColor: 'gray' }} >
-              <View style = {{ flex:1, flexDirection: 'row' }} >
-                <View style = {{ flex:2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }} >
-                  <View style = {{ flex:1, alignItems : 'center' }} >  
-                  
-                  </View>
-                  <View style = {{ flex:2 }} >
-                    <Text style = {{ fontWeight: '300', color: 'gray' }} >5.0 ({  !_.isEmpty(businessProfile) && businessProfile.reviews.length })</Text>
-                  </View>
-                </View>
-                <View style = {{ flex:1, justifyContent: 'center', marginBottom: 10 }} >
-                  <TouchableOpacity
-                    style = {{ borderRadius: 6, marginTop: '5%', borderWidth:1, width: '80%',backgroundColor: '#E56060' }}
-                    onPress = {() => {  
-                      this.setState({ showTimings: true })
-                    }}
-                  >
-                    <Text style = {{ textAlign: 'center', fontSize: 12,color: 'white', fontWeight: '700',paddingTop: 8, paddingBottom: 8 }} > Timings </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>  */}
             <View style={styles.spinnerContainer}>
               <Spinner
                 visible={this.state.spinner}
@@ -561,17 +572,24 @@ class ProfileModal extends Component {
 }
 
 const mapStateToProps = (state) => {
-  const { vibe, user, category, business } = state
+  const { vibe, user, category, business, component } = state
   return { 
     vibe: vibe,
     location: user.user.location,
     category: category.category.category,
-    business
+    business,
+    component
   }
 };
 
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    showRatingModal
+  }, dispatch)
+);
 
-export default connect(mapStateToProps, null)(ProfileModal);
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileModal);
 
 class RateModal extends React.Component{
 
@@ -614,55 +632,6 @@ class RateModal extends React.Component{
     })
   }
 
-  saveRating = async(answers) => {
-    let FinalAnswers = answers.map((answer)=> answer.value )
-    const rating = {
-      fun: FinalAnswers[0].value,
-      crowd: FinalAnswers[1].value,
-      difficultyGettingIn: FinalAnswers[2].value,
-      ratioInput: FinalAnswers[3].value,
-      difficultyGettingADrink: FinalAnswers[4].value
-    }
-    const { vibe } = this.props;
-    this.setState({ spinner: true })
-    const { token } = await getUserData();
-    const { data } = this.props;
-    const body = {
-        query:`
-        mutation{
-          addRating(rating:{
-              fun: ${rating.fun.toFixed(2)},
-              crowd: ${rating.crowd.toFixed(2)},
-              ratioInput: ${rating.ratioInput.toFixed(2)},
-              difficultyGettingIn: ${rating.difficultyGettingIn.toFixed(2)},
-              difficultyGettingDrink: ${rating.difficultyGettingADrink.toFixed(2)}    
-          },
-          businessId: "${data.markerId}"
-          ){
-              fun,
-              crowd,
-              ratioInput,
-              difficultyGettingDrink,
-              difficultyGettingIn
-          }
-        }
-        `
-    }
-    try{  
-      const res = await axios.post(`graphql?`,body,{ headers: {
-        'Authorization': `Bearer ${token}`
-      } });
-  
-      // this.props.updateRating(res.data.data.addRating);
-      this.setState({ spinner: false, showConfirmation: true },()=>{
-        setTimeout(()=> this.props.closeModal(), 2000)
-      })
-    }catch(err){
-      console.log("hte errorsss", err.response.data)
-    }
-
-  }
-
   render(){
     return(
       <View style={styles.centeredView}>
@@ -681,7 +650,7 @@ class RateModal extends React.Component{
           > 
             <View
               style = {{ flex: 1 }}
-              >
+            >
                 <ProgressionBar  />
             </View>
             <View style={styles.rateModal}>
@@ -689,16 +658,9 @@ class RateModal extends React.Component{
                 <View
                   style = {{ flex: 1 }}
                 >
-                  <SurveyComponent  
-                    onNextQuestion = {(value)=> {
-                      setTimeout(()=> {
-                        this.setState({ progress: value }) 
-                      }, 500) 
-                    }}
-                    onFinishSurvey = {(answer)=> {
-                      this.saveRating(answer)
-                    }} 
-                  />
+                  <SurveyComponent                      
+                    data = { this.props.data }
+                  />   
                 </View>
               </View>
               <Text style = {styles.surveyHeading} >Please submit this seriously to help us imrove more next time.Thanks!</Text>
@@ -707,8 +669,7 @@ class RateModal extends React.Component{
           <View style = {{ alignSelf : "flex-start", position: 'absolute', top: '5%', left: '5%' }}  >
             <TouchableOpacity
               onPress = {()=> {
-                console.log("called")
-                this.props.closeModal()
+                this.props.onClose()
               }}
             >
               <Icon 
@@ -726,10 +687,7 @@ class RateModal extends React.Component{
               textStyle={styles.spinnerTextStyle}
             />
           </View>
-          { this.state.showConfirmation &&
-          <AlertComponent closeModal = {()=>{ this.setState({ showConfirmation: false }) }} rating = {true} showError = {this.state.showConfirmation} message = "Rating Succesffully Submitted" />
-          }
-          </Modal>
+        </Modal>
       </View>  
     )
   }

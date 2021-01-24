@@ -21,23 +21,20 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
     badSpots: []
   };
   let { vibeCategory } = userVibeData; 
-
   if(vibeCategory === "Professional Party Time"){
     data.map(business => {
      
-      if( business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id) ) ){
+      if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id) ) ){
         const { rating } = business;
         const {difficultyGettingIn, fun, crowd } = rating;
-        if(business.name === "Belly Up Tavern"){
-          console.log(`${difficultyGettingIn} and fun: ${fun}  and crowd: ${crowd} `)
-        }
+        console.log(` ${difficultyGettingIn} , ${fun} , ${crowd} `)
         if(crowd >= 4 && crowd <= 5 && difficultyGettingIn>=4 && fun>=3 ){
           filterVibeCategoryData.goodSpots.push(business)
         }
-        else if( crowd >= 2.1 && crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<4 && fun>=2 && fun <3 ){
+        else if( crowd >= 2 && crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<4 && fun>=2 && fun <3 ){
           filterVibeCategoryData.averageSpots.push(business)
         }
-        else if( crowd >= 1 && crowd <= 2.0 && difficultyGettingIn>=1 && difficultyGettingIn<2 && fun < 2){
+        else if( crowd >= 1 && crowd <= 2.0 && difficultyGettingIn<=2 && fun <= 2){
           filterVibeCategoryData.badSpots.push(business)
         }
       }
@@ -62,7 +59,6 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
         }
       }
     })
-    // console.log("the data", filterVibeCategoryData);
     return getMapData(filterVibeCategoryData);
   }
   else if(vibeCategory === "Social Drinking"){
@@ -256,6 +252,7 @@ const getSpotMapData = (spotsData) => {
       rating: marker.rating,
       types: marker.category.map((category)=> category.title ),
       name: marker.name,
+      totalUserCountRating: marker.totalUserCountRating,
       businessGoogleRating: data.rating,
       address: data.address,
       phoneNo: data.phoneNo

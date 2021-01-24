@@ -7,7 +7,7 @@ class MyFavouritesTile extends React.Component {
 
   render(){
     const { category, totalFavourites } = this.props;
-    console.log("the total Favourites", totalFavourites);
+  
     return(  
       <View
         style = { styles.completeTile }
@@ -18,40 +18,16 @@ class MyFavouritesTile extends React.Component {
           <View
             style = {{flex:2 }}
           >
-          <Image
-            source = {{ uri: category.imageUrl }}
-            style = {styles.imageStyle}
-          />
-
-          </View>
-          <View
-            style = {{flex:1 }}
-          >
-            <View
-              style = {{flex:1 }}
-            >
             <Image
               source = {{ uri: category.imageUrl }}
               style = {styles.imageStyle}
             />
-
-            </View>
-            <View
-              style = {{flex:1 }}
-            >
-            <Image
-              source = {{ uri: category.imageUrl }}
-              style = {styles.imageStyle}
-            />
-
-            </View>
-
           </View>
         </View>
         <View
           style = {styles.bottomContainer}
         >
-          <Text style = {styles.categoryTitle} >{ category.title }</Text>
+          <Text style = {styles.categoryTitle} >{ category.title !== "Night Clubs" ? category.title + 's' : category.title }</Text>
           <Text style = {[styles.categoryTitle, { fontSize: 15 }]} > {totalFavourites}  Favorites</Text>
         </View>
       </View>

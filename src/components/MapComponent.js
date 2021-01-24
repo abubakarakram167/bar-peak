@@ -110,7 +110,7 @@ class MapScreen extends React.Component{
     else{
       if(types.includes("Night Clubs") || types.includes("Bar")  ){
         if(whichSpot === 'red')
-          return  require('../../assets/redWhite.png')
+          return require('../../assets/redWhite.png')
         else if(whichSpot === 'green')
           return  require('../../assets/greenWhite.png')
         else
@@ -156,8 +156,9 @@ class MapScreen extends React.Component{
     const { filterBusinesses } = this.props.business.business;
     const { goodSpots, averageSpots, badSpots, allSpots } = filterBusinesses;
     const vibe = this.props.vibe;
-    const {navigation} = this.props;
-   
+    const {navigation, user} = this.props;
+    const { location } = user.user;
+    console.log("the location", location)
     return(
       <View style={styles.container}>
         <View 
@@ -264,15 +265,15 @@ class MapScreen extends React.Component{
           </View>     
         </View>
 
-        { this.state.currentView === "map" ?
+        { this.state.currentView === "map" && location.latitude && location.longitude ?
         <View style = {{ flex: 12 }} >
           <MapView
             ref={map => this.map = map}
             provider = {PROVIDER_GOOGLE}
             style={styles.mapStyle} 
             initialRegion={{
-            latitude:  allSpots && allSpots.length> 0 ? allSpots[0].latitude: 32.7970465,
-            longitude: allSpots && allSpots.length > 0 ? allSpots[0].longitude: -117.2545220,
+            latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
+            longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
             }}
@@ -283,7 +284,10 @@ class MapScreen extends React.Component{
             showsCompass = {true}
             showsMyLocationButton={true}
             minZoomLevel = {5}
+            userLocationAnnotationTitle = "You"
+            showsScale = {true}
             maxZoomLevel = {20}
+            showsIndoorLevelPicker = {true}
             loadingEnabled = {true}
           > 
             {  
@@ -299,14 +303,10 @@ class MapScreen extends React.Component{
                     onPress={()=>this.markerClick(marker)}
                     title={marker.name}
                     description = "this is marker description"
-                    image = {url }
-                  >
+                    
+                  > 
+                    <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
                     <MapView.Callout tooltip style={styles.customView}>
-                      {/* <TouchableHighlight underlayColor='#dddddd'>
-                        <View style={{ backgroundColor: '#cfd4d0', height: 70, width: 120 }}>
-                          <Text>{marker.name}</Text>
-                        </View>
-                      </TouchableHighlight> */}
                     </MapView.Callout>
                   </MapView.Marker> 
                 )
@@ -326,14 +326,11 @@ class MapScreen extends React.Component{
                     onPress={()=>this.markerClick(marker)}
                     title={marker.name}
                     description = "this is marker description"
-                    image = { url }
+                    
+                    
                   >
+                    <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
                     <MapView.Callout tooltip style={styles.customView}>
-                      {/* <TouchableHighlight underlayColor='#dddddd'>
-                        <View style={styles.calloutText}>
-                          <Text>{marker.name}</Text>
-                        </View>
-                      </TouchableHighlight> */}
                     </MapView.Callout>
                   </MapView.Marker> 
                 )
@@ -353,14 +350,10 @@ class MapScreen extends React.Component{
                     onPress={()=>this.markerClick(marker)}
                     title={marker.name}
                     description = "this is marker description"
-                    image = { url }
+
                   >
-                    <MapView.Callout tooltip style={styles.customView}>
-                      {/* <TouchableHighlight underlayColor='#dddddd'>
-                        <View style={styles.calloutText}>
-                          <Text>{marker.name}</Text>
-                        </View>
-                      </TouchableHighlight> */}
+                    <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
+                    <MapView.Callout tooltip style={styles.customView}>         
                     </MapView.Callout>
                   </MapView.Marker> 
                 )
@@ -509,7 +502,8 @@ class MapScreen extends React.Component{
         { this.state.showProfileModal && 
           ( <Modal 
               businessData = {this.state.selectedMarker ? this.state.selectedMarker : allSpots[0]} 
-              currentView = {this.state.currentView} show = {this.state.showProfileModal} 
+              currentView = {this.state.currentView} 
+              show = {this.state.showProfileModal} 
               closeModal = {()=> { this.setState({ showProfileModal: false }) }}
               addToFavourites = {()=> this.addToFavourite()} 
             /> 
@@ -524,11 +518,12 @@ class MapScreen extends React.Component{
 
 
 const mapStateToProps = (state) => {
-  const { business, vibe, category} = state
+  const { business, vibe, category, user} = state;
   return { 
     business: business,
     vibe: vibe.vibe.vibe,
-    category: category.category.category
+    category: category.category.category,
+    user
   }
 };
 const mapDispatchToProps = dispatch => (

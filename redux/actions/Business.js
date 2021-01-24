@@ -48,7 +48,6 @@ export const addToFavourite = (id) => async (dispatch, getState) => {
           name
           totalUserCountRating
           ageInterval
-          ratioType
           customBusiness
           customData{
             address
@@ -191,7 +190,6 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
             }
             totalUserCountRating
             ageInterval
-            ratioType
             customData{
               address
               phoneNo
@@ -231,18 +229,22 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
     }
 }
 
-export const getNearLocationBusiness = ({ latitude, longitude }) => async (dispatch, getState) => {
+export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) => async (dispatch, getState) => {
   const { user } = getState();
   let { radius } = user.user.user;
+  let finalRadius = updatedRadius ? updatedRadius : radius
   const { token } = await getUserData();
+  
   latitude = 32.7970465;
   longitude = -117.254522;
-  radius = 100000;
+  finalRadius = 100000;
+
+  console.log(` the latitude ${latitude.toFixed(2)}  and longitude ${longitude.toFixed(2)} and final Radius radius ${finalRadius} `)
 
   const body = {
       query:`
       query{
-        getNearByLocationBusiness(locationInput: { latitude: ${latitude}, longitude: ${longitude}, radius: ${radius} }){
+        getNearByLocationBusiness(locationInput: { latitude: ${latitude.toFixed(5)}, longitude: ${longitude.toFixed(5)}, radius: ${finalRadius} }){
         _id
         placeId
         category{
@@ -259,7 +261,6 @@ export const getNearLocationBusiness = ({ latitude, longitude }) => async (dispa
         }
         totalUserCountRating
         ageInterval
-        ratioType
         customData{
           address
           phoneNo
@@ -289,6 +290,7 @@ export const getNearLocationBusiness = ({ latitude, longitude }) => async (dispa
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
+  
     dispatch({
       type: Near_Location_Business,
       payload: res.data.data.getNearByLocationBusiness,
@@ -301,7 +303,7 @@ export const getNearLocationBusiness = ({ latitude, longitude }) => async (dispa
 
 export const getfilteredBusiness = ( selectedMainCategory, search, favourite) => async (dispatch, getState) => {
 
-  const { vibe, business, category } = getState();
+  const { vibe, business, category, user } = getState();
   const data = business.business.businesses;
   const searchData = business.business.searchResults;
   const favouriteEstablishments = business.business.favouriteBusiness;
@@ -334,19 +336,21 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
       filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, selectedCategory)
     }
     const { allSpots } = filterCategoryBusinessVibe;
-   
-    // let { latitude, longitude } = user.user.user;
-    var latitude = 32.7970465;
-    var longitude = -117.254522;
-    var userLocation = { lat: latitude.toFixed(5) , lng: longitude.toFixed(5) }
+    let { latitude, longitude } = user.user.location;
+    
+    // For User Testing
+    latitude = 32.7970465;
+    longitude = -117.254522;
+    
+    var userLocation = { lat: latitude , lng: longitude }
     var destinationLocation = {};
     const markerList = allSpots.map((marker)=>{
-      destinationLocation = { lat: marker.latitude.toFixed(5) , lng: marker.longitude.toFixed(5) }
+      destinationLocation = { lat: marker.latitude , lng: marker.longitude }
       return {...marker, distanceAway:  getMiles(haversine(userLocation, destinationLocation)).toFixed(2)}
     })
   
     filterCategoryBusinessVibe.allSpots = sortSpotsByDistanceAway(markerList)
-    // console.log("here the filer vibe data", filterCategoryBusinessVibe)
+    
     dispatch({
       type: FILTERED_BUSINESS,
       payload: filterCategoryBusinessVibe,

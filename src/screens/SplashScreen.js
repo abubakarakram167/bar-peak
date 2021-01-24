@@ -24,18 +24,14 @@ import { bindActionCreators } from 'redux';
       } catch (e) {
         console.warn(e);
       }
-      setTimeout(()=>{ this.prepareResources() }, 100)
-
+      this.prepareResources()
     })
   }
 
   async performAPICalls() {
     const { navigation } = this.props;
     const { token, userId } =  await getUserData();
-    console.log("calling splash")
     const user = await this.props.getUser()
-    console.log("in splash", user)
-     console.log(`token is ${token} and userId is ${userId}`);
     if(token && userId && user === "ok" )
       navigation.navigate('HomeApp')
     else{
@@ -48,16 +44,17 @@ import { bindActionCreators } from 'redux';
   prepareResources = async () => {
     console.log("calling")
     await this.performAPICalls();
-
-    this.setState({ appIsReady: true }, async () => {
+    
+    this.setState({ appIsReady: true }, async () => {  
       await SplashScreen.hideAsync();
     });
+    
   };
 
   render() {
-    if (!this.state.appIsReady) {
-      return null;
-    }
+    // if (!this.state.appIsReady) {
+    //   return null;
+    // }
 
     return (
       <View style={styles.container}>

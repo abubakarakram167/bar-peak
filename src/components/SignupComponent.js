@@ -48,12 +48,14 @@ class SignUpComponent extends React.Component {
 		this.state = {
       date : new Date(), 
       showPicker: false,
-      email: "",
-      firstName: "",
-      lastName: "",
+      email: null,
+      firstName: null,
+      lastName: null,
       showAlert: true,
       message: "",
-      showError: false
+      showError: false,
+      gender: null,
+      errors: {}
     }
 	}
 
@@ -75,73 +77,125 @@ class SignUpComponent extends React.Component {
     setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
   }
 
-  signUp = () => {
-    this.setState({ spinner: true })
-    const {navigation, phoneNumber} = this.props;
-    let accountType = this.props.user ? 'social' : "app";
-    let finalPhoneNumber = accountType === "app" ? phoneNumber : null
-    // console.log("on sigunup", this.state);
-    // console.log("the phone Number", finalPhoneNumber)
-    
+  sendEmail = async(userId) => {
     const body = {
-      query: `
-      mutation{
-        createUser(userInput: {email: "${this.state.email}",
-        firstName: "${this.state.firstName}", lastName: "${this.state.lastName}", 
-        dob: "${this.state.date}", accountType: "${accountType}", phoneNumber: "${finalPhoneNumber}"})
-        {
-          token
-          user{
-            _id
-            firstName
-            radius
-            lastName
-            email
-            dob
-            phoneNumber
-          }
-        }
-      }
-      `
+      userId
+    }
+    console.log("the body", body)
+    try{
+      const sendEmail = await axios.post('sendEmailVerification', body);
+      return sendEmail
+    }catch(err){
+      console.log("the error", err)
+    }
+  }
+
+  validate = () => {
+    let errors = {}
+    let isValid = true;
+   
+    if(!this.state.gender){
+      isValid = false;
+      errors["gender"] = "Please input gender"
+    }
+    if(!this.state.firstName){
+      isValid = false;
+      errors["firstName"] = "Please input first Name"
+    }
+    if(!this.state.lastName){
+      isValid = false;
+      errors["lastName"] = "Please input last Name"
+    }
+    if(!this.state.date){
+      isValid = false;
+      errors["date"] = "Please input you Birthday"
+    }
+    if(!this.state.email){
+      isValid = false;
+      errors["email"] = "Please input your email"
     }
     
+    if(isValid){
+      return true
+    }
+    this.setState({ errors })
+    return false
+  }
+
+  signUp = () => {
+    if(this.validate()){
+      this.setState({ spinner: true })
+      const {navigation, phoneNumber} = this.props;
+      let accountType = this.props.user ? 'social' : "app";
+      let finalPhoneNumber = accountType === "app" ? phoneNumber : null
+      const body = {
+        query: `
+        mutation{
+          createUser(userInput: {email: "${this.state.email}",
+          firstName: "${this.state.firstName}", lastName: "${this.state.lastName}",
+          gender: "${this.state.gender}", 
+          dob: "${this.state.date}", accountType: "${accountType}", phoneNumber: "${finalPhoneNumber}"})
+          {
+            token
+            user{
+              _id
+              firstName
+              radius
+              lastName
+              email
+              dob
+              phoneNumber
+            }
+          }
+        }
+        `
+      }
+      
     axios.post('graphql?',body).then( async (res)=>{
-      console.log("after sign up", res.data.data);
       if(res.data.data.createUser){
         storeUserData(res.data.data.createUser)
-        this.setState({ spinner: false })
         this.props.closeModal();
         const user = await this.props.getUser();
+        const getEmail = await this.sendEmail(res.data.data.createUser.user._id)
+        this.setState({ spinner: false })
         if(user === 'ok')
           navigation.navigate('HomeApp');
       }
-      
-    }).catch(err =>{
-      const { errors } = err.response.data;
-      const { message } = errors[0];
-      console.log("the error", errors) 
-      this.setState({ spinner: false, message, showError: true })
-    })
+        
+      }).catch(err =>{
+        console.log("the error in sign up", err);
+        const { errors } = err.response.data;
+        const { message } = errors[0];
+        console.log("the error", errors) 
+        this.setState({ spinner: false, message, showError: true })
+      })
+    }
   }
 
   
 	render(){
+    const { errors } = this.state;
+
 		return (
       <View style = {styles.container} >
-        {/* <Image style = { styles.ImageLogo }  source = {{ uri: "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png" }}  /> */}
-        { this.state.showError && <AlertComponent 
+       
+        { this.state.showError && 
+          <AlertComponent 
             showError = {this.state.showError}  
             message = {this.state.message} 
             closeModal = { ()=> this.setState({ showError: false  }) }  
-        />}
-         <Text style = {{ color: "black", fontSize: 20, marginBottom: 20, fontWeight: "500" }} >Finish Signing Up </Text>
+          />
+        }
+        <Text style = {{ color: "black", fontSize: 20, marginBottom: 20, fontWeight: "500" }} >Finish Signing Up </Text>
         <View style = {styles.inputForm} >
           
           <ScrollView  
             contentContainerStyle = {{justifyContent: "flex-end"}}
             style = {{ backgroundColor: 'white', width: '80%'}}>
            
-            <KeyboardAwareScrollView  style ={{ flex:1}} >       
+            <KeyboardAwareScrollView  
+              style ={{ flex:1}} 
+            >       
               <TextInput
                 style={[ pickerSelectStyles.inputIOS]}
                 placeholder="First Name"
@@ -156,7 +210,8 @@ class SignUpComponent extends React.Component {
                 onChangeText={val => this.onChangeText('lastName', val)}
                 value = {this.state.lastName}
               />
-          
+              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.firstName }</Text>
+              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.lastName }</Text>
               <View style={styles.inputView} >
                 <DatePicker 
                   onChange = { (date)=> { 
@@ -164,9 +219,9 @@ class SignUpComponent extends React.Component {
                   }}
                   dob = {null}
                   value = { this.state.date  } 
-                />
-                
+                />    
               </View>
+              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.date }</Text>
               <Text style = {styles.ageInfoText} >
                 To Sign up, you need to be atleast 21.Your birthday won't be shared with other people who use Bar Peak
               </Text>
@@ -181,28 +236,13 @@ class SignUpComponent extends React.Component {
                   editable={ this.props.user ? false : true   }
                 />
               </View>
+              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.email }</Text>
               { this.props.user &&
                 (<View > 
                   <Text style = {{lineHeight: 14, marginTop: 10}} >This info came from {this.props.user &&  this.props.user.socialSource} and not editable.</Text>
                 </View>
                 )
               }
-              {/* { !this.props.user &&(
-                <View style = {[ styles.inputView, { marginBottom: 20 }] } >
-                  <View  >
-                    <TextInput
-                      style={styles.inputText}
-                      placeholder="Password"
-                      placeholderTextColor="#003f5c"
-                      onChangeText={val => this.onChangeText('password', val)}
-                      secureTextEntry
-                    />
-                   <Text style = {{lineHeight: 14, marginTop: 15, color: 'gray'}} >Password must be atleast 5 key words</Text>
-                  </View>
-                </View>
-                
-              )
-              } */}
               <View style = { [styles.inputView, { padding: 0, paddingLeft: 20 }] } >
                 <RNPickerSelect
                   style={[styles.inputText ]}
@@ -210,9 +250,10 @@ class SignUpComponent extends React.Component {
                   placeholderTextColor="black"
 
                   placeholder = {
-                    { label: 'Female', value: 'female', color: 'black' }
+                    { label: 'Please Select Your Gender', value: 'female', color: 'black' }
                   }
                   items={[
+                      { label: 'Female', value: 'female', color: 'black' },
                       { label: 'Male', value: 'male' },
                       { label: 'Other', value: 'other' },
                   ]}
@@ -221,6 +262,7 @@ class SignUpComponent extends React.Component {
                   }}
                 />
               </View>
+              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.gender }</Text>
               <TouchableOpacity style={styles.acceptButton} onPress = { ()=>{this.signUp()} } >
                 <Text style={styles.SignUpText}>Accept and Continue</Text>
               </TouchableOpacity>

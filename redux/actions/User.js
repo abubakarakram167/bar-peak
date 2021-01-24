@@ -27,7 +27,7 @@ export const updateRadius = (radius) => async (dispatch, getState) => {
       type: Update_Radius,
       payload: res.data.data.updateRadius.radius,
     })
-    return Promise.resolve('ok');
+    return Promise.resolve(res.data.data.updateRadius.radius);
   }catch(err){
     console.log("hte errorsss", err.response.data)
   }
@@ -137,4 +137,5 @@ export const setProgressionBar = (data) => async (dispatch, getState) => {
     payload: data
   })
 }
+
 
