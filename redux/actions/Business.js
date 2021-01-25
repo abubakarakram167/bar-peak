@@ -237,7 +237,7 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
   
   latitude = 32.7970465;
   longitude = -117.254522;
-  finalRadius = 100000;
+  finalRadius = 1000;
 
   console.log(` the latitude ${latitude.toFixed(2)}  and longitude ${longitude.toFixed(2)} and final Radius radius ${finalRadius} `)
 

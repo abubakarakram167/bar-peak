@@ -32,7 +32,8 @@ class HomeScreen extends Component {
       selectedItem: {},
       selectedBusiness: {},
       showIndicator: false,
-      spinner: false
+      spinner: false,
+      makeAnimate: false
     }
   }
 
@@ -51,7 +52,7 @@ class HomeScreen extends Component {
       }
       await this.props.getfilteredBusiness(null, null, null);
       await this.props.getFavouritesBusinessAction();
-      this.setState({ spinner: false })
+      this.setState({ spinner: false , makeAnimate: true})
      
     }catch(error){
       console.log("the error", error)

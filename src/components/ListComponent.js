@@ -5,7 +5,7 @@ import Modal from './Modal';
 import CategoryAddModal from './CategoryAddOrRemoveAlert';
 import { addToFavourite } from '../../redux/actions/Business';
 import { bindActionCreators } from 'redux';
-
+import ShowVibeModal from "./showVibeModal";
 
 class ListComponent extends React.Component{
 
@@ -17,7 +17,8 @@ class ListComponent extends React.Component{
       showProfileModal: false,
       showCategoryAddPopUp: false,
       message: '',
-      totalCategoriesName: ''
+      totalCategoriesName: '',
+      showVibeModal: false
     }
   }
 
@@ -127,7 +128,7 @@ class ListComponent extends React.Component{
               >
                 <TouchableOpacity
                   style = {styles.setVibeButton}
-                  onPress = {() => navigation.navigate('vibeTabNavigator')}
+                  onPress = {() =>  this.setState({ showVibeModal: true }) }
                 >
                   <Text
                     style = {styles.setVibeButtonText}
@@ -200,21 +201,28 @@ class ListComponent extends React.Component{
             <CategoryAddModal  
               show = {this.state.showCategoryAddPopUp} 
               message = {this.state.totalCategoriesName} 
-            /> 
+            />
+            <ShowVibeModal 
+              show = {this.state.showVibeModal} 
+              onClose = {()=> { this.setState({ showVibeModal: false }) }}
+              navigation = {navigation} 
+            />  
             { allSpots && allSpots.slice(this.state.currentPageNumber * 10 ).length > 10 &&
                 <View style = {{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
                 { this.state.currentPageNumber >0  &&
-                  (<TouchableOpacity
+                  <TouchableOpacity
                     style = {styles.paginationButton}
                     onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber - 1) }}
                   >
                     <Text
                       style = {{ fontWeight: '700' }}
-                    >Previous Page</Text>
-                  </TouchableOpacity>)
+                    >
+                      Previous Page
+                    </Text>
+                  </TouchableOpacity>
                 }
               
-                  (<TouchableOpacity
+                  <TouchableOpacity
                     style = {[styles.paginationButton, { marginRight: 30 }]}
                     onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber + 1) }}
                   >
@@ -223,7 +231,7 @@ class ListComponent extends React.Component{
                         fontWeight: '700' 
                       }}
                     >Next Page</Text>
-                  </TouchableOpacity>)
+                  </TouchableOpacity>
                 </View>
             }
           </View>

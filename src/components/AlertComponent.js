@@ -33,19 +33,9 @@ export default class App extends React.Component {
     console.log("the props", this.props)
     return (
       <View style={styles.container}>
- 
-        {/* <Text>I'm AwesomeAlert</Text>
-        <TouchableOpacity onPress={() => {
-          this.showAlert();
-        }}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Try me!</Text>
-          </View>
-        </TouchableOpacity> */}
- 
         <AwesomeAlert
           show={this.props.showError}
-          title="SuccessFul"
+          title="Success!"
           titleStyle ={{ fontWeight: '700', fontSize: 20 }}
           messageStyle = {{ textAlign: 'center', fontWeight: '500', fontSize: 16, color: '#f0357c' }}
           message= {this.props.message ? this.props.message : "This is testing error messag etext"}

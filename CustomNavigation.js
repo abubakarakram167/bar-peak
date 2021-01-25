@@ -171,7 +171,7 @@ const SecondScreenNavigator = () => {
     return (
       <Stack.Navigator >
         <Stack.Screen
-          name="MyFavourites"
+          name="My Favorites"
           component={MyFavouritesScreen}
           options = { ()=> {return screenOptions} }
         />

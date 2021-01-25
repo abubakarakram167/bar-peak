@@ -31,6 +31,7 @@ class ProgressionBar extends React.Component {
       borderRadius: 0,
       borderColor: 'orange',
     };
+    console.log("the progression", this.props.progressionBar)
     return (
       
 

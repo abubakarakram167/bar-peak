@@ -18,61 +18,61 @@ const survey = [
     {
         questionType: 'SelectionGroup',
         questionText:
-            'What level of Fun you found?',
+            'What is the Fun Factor?',
         questionId: 'fun',
         options: [
-            {
-                optionText: 'Not Fun',
-                value: 1
-            },
-            {
-                optionText: 'Sort of Fun',
-                value: 2
-            },
-            {
-                optionText: 'Decent',
-                value: 3
-            },
-            {
-                optionText: 'Very Fun',
-                value: 4
-            },
-            {
-                optionText: 'All Time',
-                value: 5
-            }
+          {
+            optionText: 'All Time',
+            value: 5
+          },
+          {
+            optionText: 'Very Fun',
+            value: 4
+          },
+          {
+            optionText: 'Decent',
+            value: 3
+          },
+          {
+            optionText: 'Sort of Fun',
+            value: 2
+          },
+          {
+            optionText: 'Not Fun',
+            value: 1
+          }        
         ]
     },
     {
       questionType: 'SelectionGroup',
-      questionText:'How much Crowd is present?',
+      questionText:'What is the Crowd Factor?',
       questionId: 'crowd',
       options: [
-          {
-              optionText: 'Dead',
-              value: 1
-          },
-          {
-              optionText: 'Some People',
-              value: 2
-          },
-          {
-              optionText: 'Decent Level of Crowd',
-              value: 3
-          },
-          {
-              optionText: 'Gettin Pretty Crowded',
-              value: 4
-          },
-          {
-              optionText: 'Packed-in Like Sardines',
-              value: 5
-          }
+        {
+          optionText: 'Packed-in Like Sardines',
+          value: 5
+        },
+        {
+          optionText: 'Gettin Pretty Crowded',
+          value: 4
+        },
+        {
+          optionText: 'Decent Level of Crowd',
+          value: 3
+        },
+        {
+          optionText: 'Some People',
+          value: 2
+        },
+        {
+          optionText: 'Dead',
+          value: 1
+        } 
       ]
     },
     {
       questionType: 'SelectionGroup',
-      questionText:'Do you find Difficulty Getting In?',
+      questionText:'What is the Difficulty Getting In?',
       questionId: 'difficultyGettingIn',
       options: [
         {
@@ -99,7 +99,7 @@ const survey = [
     },
     {
       questionType: 'SelectionGroup',
-      questionText:'Which Gender composition you find Best?',
+      questionText:'What is the Gender Breakdown?',
       questionId: 'genderComposition',
       options: [
         {
@@ -118,7 +118,7 @@ const survey = [
     },
     {
       questionType: 'SelectionGroup',
-      questionText:' Do you find Difficulty Getting a Drink?',
+      questionText:'What is the Difficulty Getting a Drink?',
       questionId: 'difficultyGettingADrink',
       options: [
         {
@@ -250,13 +250,13 @@ export class SurveyComponent extends Component {
 
     renderQuestionText= (questionText)=> {
       console.log("the question text", questionText)
-      if(questionText === "What level of Fun you found?")
+      if(questionText === "What is the Fun Factor?")
         this.props.setProgressionBar(20)
-      else if(questionText === "How much Crowd is present?")
+      else if(questionText === "What is the Crowd Factor?")
         this.props.setProgressionBar(40)
-      else if(questionText === "Do you find Difficulty Getting In?")
+      else if(questionText === "What is the Difficulty Getting In?")
         this.props.setProgressionBar(60)
-      else if (questionText === "Which Gender composition you find Best?")
+      else if (questionText === "What is the Gender Breakdown?")
         this.props.setProgressionBar(80)
       else 
         this.props.setProgressionBar(100)
@@ -397,8 +397,8 @@ export class SurveyComponent extends Component {
                     this.setState({ showConfirmation: false }) 
                   }} 
                   rating = {false} 
-                  showError = {this.state.showConfirmation} 
-                  message = "Rating Succesffully Submitted" 
+                  showError = {this.state.showConfirmation } 
+                  message = "Rating Successfully Submitted" 
                 />)
             }
           </View>    

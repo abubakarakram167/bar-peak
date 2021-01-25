@@ -19,7 +19,12 @@ const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 3;
 const CARD_WIDTH = CARD_HEIGHT + 50;
 
-class MapScreen extends React.Component{
+const ASPECT_RATIO = width / height
+const LATITUDE_DELTA = 0.05 //Very high zoom level
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
+const mapRef = React.createRef();
+
+class MapScreen extends React.PureComponent{
 
   constructor(props){
     super(props);
@@ -35,11 +40,13 @@ class MapScreen extends React.Component{
       currentView: 'map',
       currentCategory: null,
       searchValue: '',
-      showCard: true,
+      showCard: false,
       spinner: false,
       showVibeModal: false,
       showCategoryAddPopUp: false,
-      totalCategoriesName: ''
+      totalCategoriesName: '',
+      showMarkerName: false,
+      tracksViewChanges: false
     }
   }
 
@@ -66,6 +73,24 @@ class MapScreen extends React.Component{
 
   markerClick = (marker) => {
     this.setState({ selectedMarker: marker, showCard: true })
+  }
+  componentDidMount(){
+    setTimeout(()=> {
+      this.setState({tracksViewChanges: true })
+    }, 4000)
+   
+  }
+  
+  makeAnimate = () => {
+    const {user} = this.props;
+    const { location } = user.user;
+
+    mapRef.current.animateToRegion({
+      latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
+      longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
+      latitudeDelta: 0.009,
+      longitudeDelta: 0.009
+    })
   }
 
   showSpecificCategoryMarkers = (category) => {
@@ -152,13 +177,22 @@ class MapScreen extends React.Component{
     })
   }
 
+ 
+
   render(){
     const { filterBusinesses } = this.props.business.business;
     const { goodSpots, averageSpots, badSpots, allSpots } = filterBusinesses;
     const vibe = this.props.vibe;
     const {navigation, user} = this.props;
     const { location } = user.user;
-    console.log("the location", location)
+    if(allSpots){
+      // mapRef.current.animateToRegion({
+      //   latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
+      //   longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
+      //   latitudeDelta: 0.009,
+      //   longitudeDelta: 0.009
+      // })
+    }
     return(
       <View style={styles.container}>
         <View 
@@ -268,28 +302,69 @@ class MapScreen extends React.Component{
         { this.state.currentView === "map" && location.latitude && location.longitude ?
         <View style = {{ flex: 12 }} >
           <MapView
-            ref={map => this.map = map}
+            ref={mapRef}
             provider = {PROVIDER_GOOGLE}
             style={styles.mapStyle} 
             initialRegion={{
-            latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
-            longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+              latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
+              longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
+              latitudeDelta: LATITUDE_DELTA,
+              longitudeDelta: LONGITUDE_DELTA,
             }}
+            followsUserLocation = {true}
             showsUserLocation = {true}
             showsPointsOfInterest = {true}
+            cacheEnabled = {true}
+            onRegionChange = { (region)=> {
+              let showMarker;
+              let tracksViewChanges = false;
+              const { latitudeDelta } = region;
+              if(latitudeDelta <= 0.009)
+                tracksViewChanges = false
+              else{
+                if(latitudeDelta<= 0.1 && latitudeDelta >= 0.0045){
+                  tracksViewChanges = true
+                }
+                if(latitudeDelta<= 0.1  ){
+                  tracksViewChanges = true
+                }           
+                if(latitudeDelta >= 0.021 && latitudeDelta <= 0.030 )
+                  tracksViewChanges = true              
+              }
+
+              if(latitudeDelta <= 0.01){
+                showMarker = true;
+              }
+              if(latitudeDelta >= 0.02)
+              showMarker = false  
+              
+                 
+              this.setState({ showMarkerName: showMarker, tracksViewChanges  }) 
+            } }
             customMapStyle = {CustomMapData}
             mapType = "standard"
             showsCompass = {true}
             showsMyLocationButton={true}
-            minZoomLevel = {5}
+            minZoomLevel = { 5 }
             userLocationAnnotationTitle = "You"
             showsScale = {true}
             maxZoomLevel = {20}
             showsIndoorLevelPicker = {true}
             loadingEnabled = {true}
           > 
+           <MapView.Circle
+            center = {{
+              latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
+              longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
+              }
+            }
+            radius = {1000}
+            zIndex = {0}
+            strokeWidth = {1}
+            lineJoin = "milter"
+           >
+
+           </MapView.Circle>
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker, index)=> {
                 const url = this.getImagePath(marker.types, 'green')
@@ -303,9 +378,11 @@ class MapScreen extends React.Component{
                     onPress={()=>this.markerClick(marker)}
                     title={marker.name}
                     description = "this is marker description"
+                    tracksViewChanges={ this.state.tracksViewChanges  }
                     
                   > 
                     <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
+                    {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
                     <MapView.Callout tooltip style={styles.customView}>
                     </MapView.Callout>
                   </MapView.Marker> 
@@ -326,10 +403,17 @@ class MapScreen extends React.Component{
                     onPress={()=>this.markerClick(marker)}
                     title={marker.name}
                     description = "this is marker description"
-                    
-                    
+                    tracksViewChanges={ this.state.tracksViewChanges }
                   >
-                    <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
+                    <Image 
+                      source={url} 
+                      style={{ 
+                        height: height * 0.09, 
+                        width: width * 0.13 
+                      }} 
+                    />
+                    {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
+                    
                     <MapView.Callout tooltip style={styles.customView}>
                     </MapView.Callout>
                   </MapView.Marker> 
@@ -350,10 +434,12 @@ class MapScreen extends React.Component{
                     onPress={()=>this.markerClick(marker)}
                     title={marker.name}
                     description = "this is marker description"
+                    tracksViewChanges={ this.state.tracksViewChanges  }
 
-                  >
+                  > 
                     <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
-                    <MapView.Callout tooltip style={styles.customView}>         
+                    {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
+                    <MapView.Callout tooltip style={styles.customView}>       
                     </MapView.Callout>
                   </MapView.Marker> 
                 )
@@ -371,7 +457,7 @@ class MapScreen extends React.Component{
           >
             <TouchableOpacity
               style = {styles.setVibeButton}
-              onPress = {() => navigation.navigate('vibeTabNavigator')}
+              onPress = {() =>  this.setState({ showVibeModal: true }) }
             >
             <Text
               style = {styles.setVibeButtonText}
@@ -388,7 +474,7 @@ class MapScreen extends React.Component{
               alignSelf: 'flex-end' 
             }}
           >
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress = {() => {
                 
                 this.setState({ showVibeModal: true }) 
@@ -400,7 +486,7 @@ class MapScreen extends React.Component{
                 size = {40}
                 color = "black"  
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
         :
@@ -509,7 +595,11 @@ class MapScreen extends React.Component{
             /> 
           ) 
         } 
-         <ShowVibeModal show = {this.state.showVibeModal} onClose = {()=> { this.setState({ showVibeModal: false }) }} /> 
+        <ShowVibeModal 
+          show = {this.state.showVibeModal} 
+          onClose = {()=> { this.setState({ showVibeModal: false }) }}
+          navigation = {this.props.navigation} 
+        /> 
       </View>
     )
   }

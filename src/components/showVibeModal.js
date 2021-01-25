@@ -21,7 +21,7 @@ class showVibeModal extends Component {
   }
 
   render() {
-    const { vibe } = this.props;
+    const { vibe, navigation } = this.props;
     
     return (
       <View style={styles.centeredView}>
@@ -39,7 +39,16 @@ class showVibeModal extends Component {
               <View
                 style = {{ width: width * 0.7 }}
               >
-               <Text style = {styles.vibeCategoryText} >{ vibe.vibeCategory }</Text>
+                <Text style = {styles.vibeCategoryText} >{ vibe.vibeCategory }</Text>
+                <TouchableHighlight
+                  style={styles.vibeChangeButton}
+                  onPress={() => {
+                    this.props.onClose()
+                    navigation.navigate('vibeTabNavigator')
+                  }}
+                >
+                  <Text style={styles.textStyle}>Change Vibe</Text>
+                </TouchableHighlight>
               </View>
             </View>
             <TouchableHighlight
@@ -63,6 +72,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 22
+  },
+  vibeChangeButton: {
+    backgroundColor: "black",
+    borderRadius: 8,
+    padding: 5,
+    paddingTop: 10,
+    paddingBottom: 10,
+    width: '50%',
+    textAlign: 'center',
+    alignSelf: 'center',
+    marginTop: 30
   },
   vibeCategoryText:{
     textAlign: 'center',
