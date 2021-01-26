@@ -77,9 +77,8 @@ class ListComponent extends React.Component{
     else if(category.types.includes("Restaurant") && ! (category.types.includes("Night Clubs") ||  category.types.includes("Bar") ) )
       return 'Only food';
   }
-  getCurrentCategorySelected = (categories) => {
+  getCurrentCategorySelected = (categories, markerName) => {
     const {currentCategory} = this.props;
-  
     if(currentCategory === "food")
       return categories.includes("Restaurant") &&  ! (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false
     else if(currentCategory === "drinks")   
@@ -102,6 +101,31 @@ class ListComponent extends React.Component{
         this.setState({ showCategoryAddPopUp: false })
       }, 5000)
     })
+  }
+
+  getOnlyCurrentCategoryList = (allSpots) => {
+    const { currentCategory } = this.props;
+    let specificSpots;
+
+    if(currentCategory){
+      if(currentCategory === "food"){
+        specificSpots = allSpots.filter((spot)=> {
+          return spot.types.includes("Restaurant") &&  ! (spot.types.includes("Night Clubs") ||  spot.types.includes("Bar") ) ? true : false
+        }) 
+      }   
+      else if(currentCategory === "drinks"){
+        specificSpots = allSpots.filter((spot)=> {
+          return !spot.types.includes("Restaurant") &&  (spot.types.includes("Night Clubs") ||  spot.types.includes("Bar") ) ? true : false 
+        }) 
+      }           
+      else 
+        specificSpots = allSpots
+    }
+    else 
+      specificSpots = allSpots
+    
+    console.log("the all spots", specificSpots)  
+    return specificSpots  
   }
 
   render(){
@@ -156,7 +180,7 @@ class ListComponent extends React.Component{
             } 
             <View style = {{ flex:10, borderWidth: 0 }} >
               <ScrollView >
-                {  allSpots && allSpots.slice(this.state.currentPageNumber * 10, this.state.currentPageNumber * 10 + 10).map((marker, index)=>{
+                {  allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * 10, this.state.currentPageNumber * 10 + 10).map((marker, index)=>{
                     
                     if( this.getCurrentCategorySelected(marker.types, marker.name) ){
                       return(
@@ -206,8 +230,21 @@ class ListComponent extends React.Component{
               show = {this.state.showVibeModal} 
               onClose = {()=> { this.setState({ showVibeModal: false }) }}
               navigation = {navigation} 
-            />  
-            { allSpots && allSpots.slice(this.state.currentPageNumber * 10 ).length > 10 &&
+            /> 
+            {
+              // !(allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * 10 ).length > 10) || true &&        
+              //   (<TouchableOpacity
+              //     style = {styles.paginationButton}
+              //     onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber - 1) }}
+              //   >
+              //     <Text
+              //       style = {{ fontWeight: '700' }}
+              //     >
+              //       Previous Pagess
+              //     </Text>
+              //   </TouchableOpacity>)
+            } 
+            { allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * 10 ).length > 10 &&
                 <View style = {{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
                 { this.state.currentPageNumber >0  &&
                   <TouchableOpacity

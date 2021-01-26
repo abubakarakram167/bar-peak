@@ -22,21 +22,19 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
   };
   let { vibeCategory } = userVibeData; 
   if(vibeCategory === "Professional Party Time"){
-    data.map(business => {
-     
+    data.map(business => {    
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id) ) ){
         const { rating } = business;
         const {difficultyGettingIn, fun, crowd } = rating;
-        console.log(` ${difficultyGettingIn} , ${fun} , ${crowd} `)
-        if(crowd >= 4 && crowd <= 5 && difficultyGettingIn>=4 && fun>=3 ){
+       
+        if( crowd >= 4 && crowd <= 5 && difficultyGettingIn>=4 && fun>=3)
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if( crowd >= 2 && crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<4 && fun>=2 && fun <3 ){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if( crowd >= 1 && crowd <= 2.0 && difficultyGettingIn<=2 && fun <= 2){
+      
+        else if( crowd <= 2 &&  difficultyGettingIn<=2 && fun <= 2)
           filterVibeCategoryData.badSpots.push(business)
-        }
+        
+        else 
+          filterVibeCategoryData.averageSpots.push(business)  
       }
     })
     return getMapData(filterVibeCategoryData);
@@ -46,17 +44,15 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
     data.map(business => {
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){  
         const { rating} = business;
-        const {difficultyGettingIn, fun } = rating
+        const {difficultyGettingIn, fun, crowd } = rating
         
-        if(rating.crowd >= 4 && rating.crowd <= 5 && difficultyGettingIn>=3 && fun>=3){
+        if(crowd >= 4 && crowd <= 5 && difficultyGettingIn>=3 && fun>=3)
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if(rating.crowd >= 2.1 && rating.crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<3 && fun>=2 && fun <3){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if(rating.crowd >= 1 && rating.crowd <= 2.0 && difficultyGettingIn>=1 &&  difficultyGettingIn<2 && fun < 2){
+        else if(crowd <= 2 && difficultyGettingIn<=2 && fun <= 2)
           filterVibeCategoryData.badSpots.push(business)
-        }
+        else
+          filterVibeCategoryData.averageSpots.push(business)
+        
       }
     })
     return getMapData(filterVibeCategoryData);
@@ -65,16 +61,14 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
     data.map(business => {
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
         const { rating} = business;
-        const {difficultyGettingIn, fun } = rating
-        if(rating.crowd >= 3 && rating.crowd <= 4 && difficultyGettingIn>=1 && difficultyGettingIn <= 2 && fun>=3 ){
+        const {difficultyGettingIn, fun, crowd } = rating
+        
+        if(crowd >= 3 && crowd <= 4 && difficultyGettingIn <= 2 && fun>=3 )
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if(rating.crowd >= 2.1 && rating.crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<3 && fun>=2 && fun <3 ){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if(rating.crowd >= 1 && rating.crowd <= 2.0 && difficultyGettingIn>=1 &&  difficultyGettingIn<2 && fun < 2){
+        else if(crowd <= 2 && difficultyGettingIn>=4 && fun <3)
           filterVibeCategoryData.badSpots.push(business)
-        }
+        else 
+          filterVibeCategoryData.averageSpots.push(business)
       }
     })
     return getMapData(filterVibeCategoryData);
@@ -83,16 +77,13 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
     data.map(business => {
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
         const { rating } = business;
-        const {difficultyGettingIn} = rating
-        if(rating.crowd <2 && difficultyGettingIn<2){
+        const {difficultyGettingIn, crowd} = rating
+        if(crowd <=2 && difficultyGettingIn<=2)
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if(rating.crowd >= 2 && rating.crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<3){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if(rating.crowd >= 1 && rating.crowd <= 2.0 && difficultyGettingIn>=1 &&  difficultyGettingIn<2 ){
+        else if(crowd >= 3 && difficultyGettingIn>=3 )
           filterVibeCategoryData.badSpots.push(business)
-        }
+        else 
+          filterVibeCategoryData.averageSpots.push(business)
       }
     })
     return getMapData(filterVibeCategoryData);
@@ -101,15 +92,14 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
     data.map(business => {
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
         const { rating } = business;
-        if(rating.crowd <=1){
+        const { crowd, difficultyGettingIn } = rating;
+
+        if(crowd <=1 && difficultyGettingIn <= 1 )
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if(rating.crowd >1 && rating.crowd<=2 ){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if(rating.crowd >=2.1 ){
+        else if(crowd >=3 && difficultyGettingIn >= 4 )
           filterVibeCategoryData.badSpots.push(business)
-        }
+        else 
+          filterVibeCategoryData.averageSpots.push(business)
       }
     })
     return getMapData(filterVibeCategoryData);
@@ -129,87 +119,76 @@ export const getSearchData = (userVibeData, data, selectedBusinessIds) => {
     data.map(business => {
       if( business.category.length !== 0 && selectedBusinessIds.includes(business._id)){
         const { rating } = business;
-        const {difficultyGettingIn, fun } = rating
-        if(rating.crowd >= 4 && rating.crowd <= 5 && difficultyGettingIn>=4 && fun>=3){
+        const {difficultyGettingIn, fun, crowd } = rating
+        if( crowd >= 4 && crowd <= 5 && difficultyGettingIn>=4 && fun>=3)
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if(rating.crowd >= 2.1 && business.rating.crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<4 && fun>=2 && fun <3){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0 && difficultyGettingIn>=1 && difficultyGettingIn<2 && fun < 2){
+        
+        else if( crowd <= 2 &&  difficultyGettingIn<=2 && fun <= 2)
           filterVibeCategoryData.badSpots.push(business)
-        }
+        
+        else 
+          filterVibeCategoryData.averageSpots.push(business)    
       }
     })
     return getMapData(filterVibeCategoryData);
   }
   else if(vibeCategory === "Moderate Party Time"){
     data.map(business => {
-      if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
+      if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
         const { rating } = business;
-        const {difficultyGettingIn, fun } = rating
-        if(rating.crowd >= 4 && rating.crowd <= 5 && difficultyGettingIn>=3 && fun>=3){
+        const {difficultyGettingIn, fun, crowd } = rating
+        if(crowd >= 4 && crowd <= 5 && difficultyGettingIn>=3 && fun>=3)
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if(rating.crowd >= 2.1 && business.rating.crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<3 && fun>=2 && fun <3){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if(business.rating.crowd >= 1 && business.rating.crowd <= 2.0 && difficultyGettingIn>=1 &&  difficultyGettingIn<2 && fun < 2){
+        else if(crowd <= 2 && difficultyGettingIn<=2 && fun <= 2)
           filterVibeCategoryData.badSpots.push(business)
-        }
+        else
+          filterVibeCategoryData.averageSpots.push(business)
+        
       }
     })
     return getMapData(filterVibeCategoryData);
   }
   else if(vibeCategory === "Social Drinking"){
     data.map(business => {
-      if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
+      if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
         const { rating } = business;
-        const {difficultyGettingIn, fun } = rating
-        if(rating.crowd >= 3 && rating.crowd <= 4 && difficultyGettingIn>=1 && difficultyGettingIn <= 2 && fun>=3 ){
+        const {difficultyGettingIn, fun, crowd } = rating
+        if(crowd >= 3 && crowd <= 4 && difficultyGettingIn <= 2 && fun>=3 )
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if(rating.crowd >= 2.1 && rating.crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<3 && fun>=2 && fun <3 ){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if(rating.crowd >= 1 && rating.crowd <= 2.0 && difficultyGettingIn>=1 &&  difficultyGettingIn<2 && fun < 2){
+        else if(crowd <= 2 && difficultyGettingIn>=4 && fun <3)
           filterVibeCategoryData.badSpots.push(business)
-        }
+        else 
+          filterVibeCategoryData.averageSpots.push(business)
       }
     })
     return getMapData(filterVibeCategoryData);
   }
   else if(vibeCategory === "Baby Party Time"){
     data.map(business => {
-      if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
+      if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
         const { rating } = business;
-        const {difficultyGettingIn } = rating
-        if(rating.crowd <2 && difficultyGettingIn<2){
+        const { difficultyGettingIn, crowd } = rating
+        if(crowd <=2 && difficultyGettingIn<=2)
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if(rating.crowd >= 2 && rating.crowd <= 3.9 && difficultyGettingIn>=2 &&  difficultyGettingIn<3){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if(rating.crowd >= 1 && rating.crowd <= 2.0 && difficultyGettingIn>=1 &&  difficultyGettingIn<2 ){
+        else if(crowd >= 3 && difficultyGettingIn>=3 )
           filterVibeCategoryData.badSpots.push(business)
-        }
+        else 
+          filterVibeCategoryData.averageSpots.push(business)
       }
     })
     return getMapData(filterVibeCategoryData);
   }
   else{
     data.map(business => {
-      if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
+      if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
         const { rating } = business;
-        if(rating.crowd <=1){
+        const { crowd, difficultyGettingIn } = rating;
+        if(crowd <=1 && difficultyGettingIn <= 1 )
           filterVibeCategoryData.goodSpots.push(business)
-        }
-        else if(rating.crowd >1 && rating.crowd<=2 ){
-          filterVibeCategoryData.averageSpots.push(business)
-        }
-        else if(rating.crowd >=2.1 ){
+        else if(crowd >=3 && difficultyGettingIn >= 4 )
           filterVibeCategoryData.badSpots.push(business)
-        }
+        else 
+          filterVibeCategoryData.averageSpots.push(business)
       }
     })
     return getMapData(filterVibeCategoryData);

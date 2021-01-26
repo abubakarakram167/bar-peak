@@ -177,14 +177,29 @@ class MapScreen extends React.PureComponent{
     })
   }
 
- 
+  getCurrentCategorySelected = (categories) => {
+    const { currentCategory } = this.state;
+  
+    if(currentCategory){
+      if(currentCategory === "food")
+      return categories.includes("Restaurant") &&  ! (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false
+    else if(currentCategory === "drinks")   
+      return !categories.includes("Restaurant") &&  (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false     
+    else 
+      return true
+    }
+    else 
+      return true
+
+  }
+
 
   render(){
     const { filterBusinesses } = this.props.business.business;
     const { goodSpots, averageSpots, badSpots, allSpots } = filterBusinesses;
     const vibe = this.props.vibe;
     const {navigation, user} = this.props;
-    const { location } = user.user;
+    const { location, radius } = user.user;
     if(allSpots){
       // mapRef.current.animateToRegion({
       //   latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
@@ -198,7 +213,11 @@ class MapScreen extends React.PureComponent{
         <View 
           style={styles.searchBar}
         >
-          <ProfileModalIcon name="ios-beer" size={20} style={{ color: 'green',flex: 1, textAlign: 'right', marginRight: 10 }} />
+          <ProfileModalIcon 
+            name="ios-beer" 
+            size={20} 
+            style={{ color: 'green',flex: 1, textAlign: 'right', marginRight: 10 }} 
+          />
           <TextInput
             underlineColorAndroid="transparent"
             placeholder="Search For a Spot?"
@@ -306,8 +325,8 @@ class MapScreen extends React.PureComponent{
             provider = {PROVIDER_GOOGLE}
             style={styles.mapStyle} 
             initialRegion={{
-              latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
-              longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
+              latitude:  parseFloat( location.latitude ? location.latitude : 32.7970465 ),
+              longitude: parseFloat( location.longitude ? location.longitude: -117.254522 ),
               latitudeDelta: LATITUDE_DELTA,
               longitudeDelta: LONGITUDE_DELTA,
             }}
@@ -353,96 +372,99 @@ class MapScreen extends React.PureComponent{
             loadingEnabled = {true}
           > 
            <MapView.Circle
-            center = {{
-              latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
-              longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
-              }
-            }
-            radius = {1000}
-            zIndex = {0}
-            strokeWidth = {1}
-            lineJoin = "milter"
+              center = {{
+                latitude:  parseFloat( location.latitude ? location.latitude : 32.7970465 ),
+                longitude: parseFloat( location.longitude ? location.longitude: -117.254522 ),
+              }}
+              radius = {radius}
+              zIndex = {0}
            >
 
            </MapView.Circle>
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker, index)=> {
                 const url = this.getImagePath(marker.types, 'green')
-                return(
-                  <MapView.Marker
-                    key = {index}
-                    coordinate={{ 
-                      latitude: marker.latitude,
-                      longitude: marker.longitude,
-                      }}
-                    onPress={()=>this.markerClick(marker)}
-                    title={marker.name}
-                    description = "this is marker description"
-                    tracksViewChanges={ this.state.tracksViewChanges  }
-                    
-                  > 
-                    <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
-                    {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
-                    <MapView.Callout tooltip style={styles.customView}>
-                    </MapView.Callout>
-                  </MapView.Marker> 
-                )
+                if(this.getCurrentCategorySelected(marker.types) ){
+                  return(
+                    <MapView.Marker
+                      key = {index}
+                      coordinate={{ 
+                        latitude: marker.latitude,
+                        longitude: marker.longitude,
+                        }}
+                      onPress={()=>this.markerClick(marker)}
+                      title={marker.name}
+                      description = "this is marker description"
+                      tracksViewChanges={ this.state.tracksViewChanges  }
+                      
+                    > 
+                      <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
+                      {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
+                      <MapView.Callout tooltip style={styles.customView}>
+                      </MapView.Callout>
+                    </MapView.Marker> 
+                  )
+                }   
               })   
             }
 
             {  
                 averageSpots && averageSpots.length> 0 && averageSpots.map((marker, index)=> {
                   const url = this.getImagePath(marker.types, 'yellow')
-                return(
-                  <MapView.Marker
-                    key = {index}
-                    coordinate={{ 
-                      latitude: marker.latitude,
-                      longitude: marker.longitude,
-                      }}
-                    onPress={()=>this.markerClick(marker)}
-                    title={marker.name}
-                    description = "this is marker description"
-                    tracksViewChanges={ this.state.tracksViewChanges }
-                  >
-                    <Image 
-                      source={url} 
-                      style={{ 
-                        height: height * 0.09, 
-                        width: width * 0.13 
-                      }} 
-                    />
-                    {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
-                    
-                    <MapView.Callout tooltip style={styles.customView}>
-                    </MapView.Callout>
-                  </MapView.Marker> 
-                )
-              })   
+                  if(this.getCurrentCategorySelected(marker.types) ){
+                    return(
+                      <MapView.Marker
+                        key = {index}
+                        coordinate={{ 
+                          latitude: marker.latitude,
+                          longitude: marker.longitude,
+                          }}
+                        onPress={()=>this.markerClick(marker)}
+                        title={marker.name}
+                        description = "this is marker description"
+                        tracksViewChanges={ this.state.tracksViewChanges }
+                      >
+                        <Image 
+                          source={url} 
+                          style={{ 
+                            height: height * 0.09, 
+                            width: width * 0.13 
+                          }} 
+                        />
+                        {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
+                        
+                        <MapView.Callout tooltip style={styles.customView}>
+                        </MapView.Callout>
+                      </MapView.Marker> 
+                    )
+                  }
+                })   
             }
 
             {  
               badSpots && badSpots.length> 0 &&  badSpots.map((marker, index)=> {
                 const url = this.getImagePath(marker.types, 'red')
-                return(
-                  <MapView.Marker
-                    key = {index}
-                    coordinate={{ 
-                      latitude: marker.latitude,
-                      longitude: marker.longitude,
-                      }}
-                    onPress={()=>this.markerClick(marker)}
-                    title={marker.name}
-                    description = "this is marker description"
-                    tracksViewChanges={ this.state.tracksViewChanges  }
+                if(this.getCurrentCategorySelected(marker.types) ){
+                  return(
+                    <MapView.Marker
+                      key = {index}
+                      coordinate={{ 
+                        latitude: marker.latitude,
+                        longitude: marker.longitude,
+                        }}
+                      onPress={()=>this.markerClick(marker)}
+                      title={marker.name}
+                      description = "this is marker description"
+                      tracksViewChanges={ this.state.tracksViewChanges  }
 
-                  > 
-                    <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
-                    {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
-                    <MapView.Callout tooltip style={styles.customView}>       
-                    </MapView.Callout>
-                  </MapView.Marker> 
-                )
+                    > 
+                      <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
+                      {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
+                      <MapView.Callout tooltip style={styles.customView}>       
+                      </MapView.Callout>
+                    </MapView.Marker> 
+                  )
+                }
               })   
             }        
          

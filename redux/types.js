@@ -14,4 +14,6 @@ export const Progression_Bar = "Progression_Bar";
 export const getFavouritesBusiness = "getFavouriteBusiness"
 export const selectSpecifcCategoryEstablishments = "selectSpecifcCategoryEstablishments";
 export const add_Favourite = "add_Favourite";
-export const Show_Rating_modal = "show_rating_modal"
+export const Show_Rating_modal = "show_rating_modal";
+export const Show_Rating_button = "show_Rating_button";
+export const Set_CountDown_timer = "Set_CountDown_timer"

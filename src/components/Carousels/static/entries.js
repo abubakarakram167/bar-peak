@@ -25,7 +25,7 @@ export const Entries = (props) => {
       label: "Party",
       data:[
         {  
-          title: 'Bar',
+          title: 'Bars',
           illustration: 'https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610942434/BarPeak/bar-bara-peak_zb7okx.jpg',
         },
         {   
@@ -36,7 +36,7 @@ export const Entries = (props) => {
     },
     { 
       number: 3,
-      question: "What types of Bar Are you Looking For?",
+      question: "What types of bar are you looking for?",
       label: "Bar",
       data:[
         {  
@@ -89,6 +89,7 @@ export const Entries = (props) => {
     }
   ];
   
+  const order = [8, 7, 5, 4, 3, 1, 9, 6, 0, 10, 11, 2, 12, 13, 14, 15, 16, 18, 19, 20, 21 ]
 
   const data = ENTRIES1.map((entry)=> {
     if(entry.label === "Bar"){
@@ -96,25 +97,30 @@ export const Entries = (props) => {
        question: entry.question, 
        label:entry.label, 
        data: [ {
-        title: "All Bars",
-        illustration: "https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610942434/BarPeak/bar-bara-peak_zb7okx.jpg",
-        id: "AllBarsId"
-      }, ...props.filter((category)=>{
+          title: "All Bars",
+          illustration: "https://res.cloudinary.com/developer-inn/image/upload/q_100/v1610942434/BarPeak/bar-bara-peak_zb7okx.jpg",
+          id: "AllBarsId"
+        }, ...props.filter((category)=>{
           if(category.type === "sub_bar")
             return true
           return false   
-        }).map(category => {
+        }).map((category, index) => {
             return{
               title: category.title,
               illustration: category.imageUrl,
-              id: category._id
+              id: category._id,
+              orderNo: order[index]
             }
-        })]
+        }).sort(function(a, b) {
+            return a.orderNo - b.orderNo;
+          })
+      ]
       }
     }
     else
       return entry 
   })
+  console.log("the data to", data[2]);
  
   return data;
 

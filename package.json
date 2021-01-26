@@ -128,6 +128,7 @@
   "devDependencies": {
     "@babel/core": "^7.8.6",
     "babel-jest": "~25.2.6",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-preset-expo": "^8.3.0",
     "jest": "~25.2.6",
     "react-test-renderer": "~16.11.0"

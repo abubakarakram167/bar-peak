@@ -17,16 +17,15 @@ import { Icon } from 'react-native-elements';
 import StarRatings from 'react-native-star-rating'
 import _ from 'underscore';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import call from 'react-native-phone-call';
-import { getUserData } from './localStorage'; 
+import call from 'react-native-phone-call'; 
 import Spinner from 'react-native-loading-spinner-overlay';
-import AlertComponent from './AlertComponent';
 import ProgressionBar from './ProgressionBar';
 import haversine from 'haversine-distance';
 import SurveyComponent from './Survey';
 import PreviousWeekDayRating from './Modals/PreviousWeekDayRating';
-import { showRatingModal } from '../../redux/actions/Components';
+import { showRatingModal, showRatingButton } from '../../redux/actions/Components';
 import { bindActionCreators } from 'redux';
+import CountDown from 'react-native-countdown-component';
 const { height } = Dimensions.get("window");
 
 
@@ -121,27 +120,8 @@ class ProfileModal extends Component {
     }
   }
   
-  makeShowRateItButton = async() => {
-    const { businessData } = this.props;
-    const { token } = await getUserData();
-    const rateButtonBody = {
-      query: `
-      query{
-        showRateItButtonUntilNextHours(businessId: "${businessData.markerId}") 
-      }`
-    }
-    const responseShowRate = await axios.post(`graphql?`, rateButtonBody,{ 
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }});
-    if(!responseShowRate.data.data.showRateItButtonUntilNextHours){
-      this.setState({ showRateIt: false })  
-    }
-  }
-
   async componentDidMount(){
     const { businessData } = this.props;
-   
     const body = {
       query:`
       query{
@@ -162,7 +142,8 @@ class ProfileModal extends Component {
       const res = await axios.post(`graphql?`,body);
       const defaultRating = await axios.get('/getdefaultSettings');
       const { isRunning, noOfUsersUntilShowDefault, rating } = defaultRating.data.settings;
-      this.makeShowRateItButton()
+      this.props.showRatingButton(businessData.markerId)
+      
       this.setState( { 
         getPreviousWeekDayRating: res.data.data.getCurrentDayExactTimeRating,
         defaultRating: rating,
@@ -264,13 +245,12 @@ class ProfileModal extends Component {
 
   checkUserRatingAvailableDistance = () => {
     const { businessData } = this.props;
-    console.log("the user location", this.props.location);
     const { longitude, latitude } = businessData;
     var userLocation = { lat: parseFloat(this.props.location.latitude).toFixed(5) , lng: parseFloat(this.props.location.longitude).toFixed(5) }
     var destinationLocation = { lat: latitude.toFixed(5) , lng: longitude.toFixed(5)  };
     var DistanceInMiles  =  haversine(userLocation, destinationLocation).toFixed(2)
     console.log("the total distance distnce in meters", DistanceInMiles)
-    if(! DistanceInMiles>=80) return false;
+    if(DistanceInMiles>=80) return false;
     return true;
   }
 
@@ -295,13 +275,14 @@ class ProfileModal extends Component {
 
   render() {
     const { show, component } = this.props;
-    const { showRatingModal } = component.component;
+    const { showRatingModal, showRatingButton, untilNextRateInSeconds } = component.component;
     const { businessProfile, defaultRating } = this.state;
     const { businessData } = this.props;  
     const { vibe } = this.props.vibe.vibe;
     const { rating } = businessData
     const allPhotos = businessData && businessData.images.map((photo)=> photo.secure_url);
 
+    console.log("the show rating button", showRatingButton)
     return (
       <View style={styles.centeredView}>
         <Modal
@@ -523,18 +504,42 @@ class ProfileModal extends Component {
                       <Text style = {{ color: 'white', textAlign: 'center', fontSize: 12, width: 100 }} >This Time Last Week</Text>
                     </TouchableOpacity>
                   </View>
-                {  this.checkUserRatingAvailableDistance() && this.state.showRateIt && 
-                  (<View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
-                    <TouchableOpacity
-                      style = {{ borderRadius: 6, borderWidth:1,height: '100%', width: '40%',backgroundColor: '#050505' }}
-                      onPress = {() => { 
-                        this.props.showRatingModal(true) 
-                      }}
+                {/* {  
+                  ! showRatingButton  &&
+                    <View
+                      style = {{ flex: 1, marginTop: 20}}
                     >
-                      <Text style = {styles.rateButtonStyling} > Rate It! </Text>
-                    </TouchableOpacity>
-                  </View>)
-                }
+                      <Text style = {{ fontSize: 20, fontWeight: '600' }} >You cannot rate next until:</Text>
+                      <CountDown
+                        until={ untilNextRateInSeconds }
+                        size={20}
+                        digitStyle={{backgroundColor: '#FFF'}}
+                        digitTxtStyle={{color: '#1CC625', padding: 0 }}
+                        timeToShow={['M', 'S']}
+                        timeLabels={{m: 'MM', s: 'SS'}}
+                      />
+                    </View>     
+                } */}
+                  { 
+                    !showRatingButton && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You can't Rate next until 60 minutes..  </Text>
+                  }
+                   { 
+                    !this.checkUserRatingAvailableDistance()  && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You must have to be near around 80 meters of that Establishment to Rate it! </Text>
+                  }
+                  
+                    <View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
+                      <TouchableOpacity
+                        style = { this.checkUserRatingAvailableDistance() && showRatingButton ? styles.activeRateButton : styles.disableRateButton }
+                        disabled={ this.checkUserRatingAvailableDistance() && showRatingButton ? false : true }
+                        activeOpactity = {0.2}
+                        onPress = {() => { 
+                          this.props.showRatingModal(true) 
+                        }}
+                      >
+                        <Text style = { this.checkUserRatingAvailableDistance() && showRatingButton ? styles.activeRateButtonStyling:  styles.disableRateButtonStyling } > Rate It! </Text>
+                      </TouchableOpacity>
+                    </View>
+                  
                 { showRatingModal && 
                   <RateModal  
                     rating = {this.state.rating}
@@ -584,7 +589,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
-    showRatingModal
+    showRatingModal,
+    showRatingButton
   }, dispatch)
 );
 
@@ -695,11 +701,33 @@ class RateModal extends React.Component{
 }
 
 const styles = StyleSheet.create({
-  rateButtonStyling: { 
+  activeRateButton: { 
+    borderRadius: 6, 
+    borderWidth:1,
+    height: '100%', 
+    width: '40%',
+    backgroundColor: '#050505' 
+  },
+  disableRateButton: {
+    borderRadius: 6, 
+    borderWidth:1,
+    height: '100%', 
+    width: '40%',
+    backgroundColor: '#d9dbda' 
+  },
+  activeRateButtonStyling: { 
     textAlign: 'center',
     fontSize: 16,
     color: 'white',
     fontWeight: '700',
+    paddingTop: 15, 
+    paddingBottom: 15 
+  },
+  disableRateButtonStyling: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: 'black',
+    fontWeight: '400',
     paddingTop: 15, 
     paddingBottom: 15 
   },

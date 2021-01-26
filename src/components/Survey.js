@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Button, ScrollView, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Button, Text, TextInput, View } from 'react-native';
 import { SimpleSurvey } from 'react-native-simple-survey';
 import { COLORS } from './validColors';
 import {setProgressionBar} from '../../redux/actions/User'; 
@@ -9,7 +9,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { getUserData } from './localStorage'; 
 import axios  from '../api/axios';
 import AlertComponent from './AlertComponent';
-import { showRatingModal } from '../../redux/actions/Components';
+import { showRatingModal, showRatingButton, setCountDowntimer } from '../../redux/actions/Components';
 
 const GREEN = 'rgba(32, 168, 68,1)';
 const PURPLE = 'rgba(108,48,237,1)';
@@ -141,7 +141,7 @@ const survey = [
     }
 ];
 
-export class SurveyComponent extends Component {
+export class SurveyComponent extends React.PureComponent {
     static navigationOptions = () => {
       return {
           headerStyle: {
@@ -349,11 +349,16 @@ export class SurveyComponent extends Component {
         const res = await axios.post(`graphql?`,body,{ headers: {
           'Authorization': `Bearer ${token}`
         } });
-    
-        // this.props.updateRating(res.data.data.addRating);
+        
         this.setState({ spinner: false, showConfirmation: true },()=>{
           setTimeout(()=>{  
             this.props.showRatingModal(false)
+            this.props.setCountDowntimer(120)
+            this.props.showRatingButton(data.markerId)
+            setInterval(() => {
+              console.log("hey called")
+              this.props.showRatingButton(data.markerId)
+            }, 1000 * 110); 
           }, 2000)
         })
       }catch(err){
@@ -411,7 +416,9 @@ export class SurveyComponent extends Component {
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
     setProgressionBar,
-    showRatingModal 
+    showRatingModal,
+    showRatingButton,
+    setCountDowntimer
   }, dispatch)
 );
 

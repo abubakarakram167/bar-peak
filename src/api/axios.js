@@ -9,7 +9,7 @@ if(environment === "development"){
   url = optix
 }
 else
-  url = 'https://barpeak-backend.herokuapp.com/'
+  url = 'https://counterflowbarpeak-backend-app.herokuapp.com/'
 
 export default axios.create({
   baseURL: url

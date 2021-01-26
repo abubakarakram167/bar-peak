@@ -28,13 +28,13 @@ class App extends Component {
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-              <Text style={styles.modalText}>Not Practical Choice!</Text>
-              <Text style = {{ fontSize: 18 , textAlign: 'center'}} >Seems! That you not make logical choices.Please Restart Vibe process again to facilitate better. </Text>
+              <Text style={styles.modalText}>Nice work! Your choices defy logic!</Text>
+              <Text style = {{ fontSize: 18 , textAlign: 'center'}} > Please restart the vibe process. </Text>
               <TouchableOpacity 
                 onPress = {()=> this.props.onRestart() }
                 style = {{ marginTop: 50, backgroundColor: '#eb347a', padding: 10, borderRadius: 10 }}
               >
-                <Text style = {{ fontSize: 25, color: 'white'}} > Restart Vibe </Text>
+                <Text style = {{ fontSize: 22, color: 'white'}} > Restart Vibe </Text>
               </TouchableOpacity>  
             </View>
           </View>

@@ -79,14 +79,15 @@ class HomeScreen extends Component {
     await Location.watchPositionAsync(
       {
         enableHighAccuracy: true,
-        distanceInterval: 100,
-        timeInterval: 5000
+        distanceInterval: 2,
+        timeInterval: 2000
       },
       newLocation => {
+        console.log('the new location', newLocation)
         let { coords } = newLocation;
         this.props.setUserLocation(coords);
       },
-      error => console.log(error)
+      error => console.log( "thwe error", error)
     );
   }
 

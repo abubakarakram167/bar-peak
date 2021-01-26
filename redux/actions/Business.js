@@ -219,6 +219,7 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
     }
     try{  
       const res = await axios.post(`graphql?`,body);
+      console.log("the search results", res.data.data.searchByUser)
       dispatch({
         type: Search_Results,
         payload: res.data.data.searchByUser,
@@ -235,9 +236,9 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
   let finalRadius = updatedRadius ? updatedRadius : radius
   const { token } = await getUserData();
   
-  latitude = 32.7970465;
-  longitude = -117.254522;
-  finalRadius = 1000;
+  // latitude = 32.7970465;
+  // longitude = -117.254522;
+  // finalRadius = 100000;
 
   console.log(` the latitude ${latitude.toFixed(2)}  and longitude ${longitude.toFixed(2)} and final Radius radius ${finalRadius} `)
 
@@ -323,7 +324,7 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
   try{ 
     let filterCategoryBusinessVibe; 
     if(search){
-      let searchBusinessIds = searchData.map(business => business._id) 
+      let searchBusinessIds = searchData.map(business => business._id)
       filterCategoryBusinessVibe = getSearchData(actualVibe , data, searchBusinessIds)
     }
     else if(favourite){
@@ -339,8 +340,8 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
     let { latitude, longitude } = user.user.location;
     
     // For User Testing
-    latitude = 32.7970465;
-    longitude = -117.254522;
+    // latitude = 32.7970465;
+    // longitude = -117.254522;
     
     var userLocation = { lat: latitude , lng: longitude }
     var destinationLocation = {};
