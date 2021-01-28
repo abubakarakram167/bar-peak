@@ -11,9 +11,20 @@ const { width, height } = Dimensions.get("window");
 
 class SpecificCategoryFavourite extends React.Component {
 
+
+  getCurrentCategoryFavourite = () => {
+    const { categoryFavourite } = this.props.route.params;
+    const { favouriteEstablishments } = this.props;
+    return categoryFavourite.filter((establishment)=>{
+      if(favouriteEstablishments.map(establishment =>  establishment._id).includes(establishment._id))
+        return true
+    }).length
+  }
+
   render(){
     const { categoryFavourite, category } = this.props.route.params;
-    const { navigation } = this.props;
+    const { navigation, favouriteEstablishments } = this.props;
+    console.log("the favoruite", favouriteEstablishments)
 
     return(
       <View style={styles.screen}>
@@ -28,7 +39,7 @@ class SpecificCategoryFavourite extends React.Component {
           <Text
             style = { styles.favouriteHeading }
           >
-            { categoryFavourite.length } Favorites
+            { this.getCurrentCategoryFavourite() } Favorites
           </Text>
         </View>
         <View
@@ -37,8 +48,9 @@ class SpecificCategoryFavourite extends React.Component {
           <ScrollView>
             {
               categoryFavourite.map((establishment)=>{
+                if(favouriteEstablishments.map(establishment =>  establishment._id).includes(establishment._id))
                 return (
-                  <CategorySpecificBusiness establishment = {establishment} />
+                  <CategorySpecificBusiness establishment = {establishment} categoryId = {category}  />
                 )
               })
             }   
@@ -49,7 +61,6 @@ class SpecificCategoryFavourite extends React.Component {
           onPress = {async()=>{ 
             const data =  await this.props.selectSpecifcCategoryEstablishmentsAction(category._id)
             this.props.getfilteredBusiness(null, null, true)
-            console.log("the data", data)
             navigation.navigate('Home');
           }}
         > 
@@ -78,8 +89,9 @@ const mapDispatchToProps = dispatch => (
 );
 
 const mapStateToProps = (state) => {
-  const { category} = state
+  const { category, business} = state
   return { 
+    favouriteEstablishments: business.business.favouriteBusiness,
     category: category.category.category
   }
 };

@@ -1,6 +1,7 @@
 /*This is an Example to Align a View at the Bottom of Screen in React Native */
 import React, { Component } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
+
 export default class App extends Component {
   render() {
     return (

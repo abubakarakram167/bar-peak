@@ -16,6 +16,7 @@ export default class MyDatePicker extends Component {
         value={ this.props.dob ? new Date(this.props.dob) : new Date(this.props.value)}
         mode="date"
         placeholder="select date"
+        display="default"
         format="YYYY-MM-DD"
         minDate="1960-05-01"
         maxDate="2030-06-01"

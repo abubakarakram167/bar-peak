@@ -1,6 +1,6 @@
 import React from 'react';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
-import { View, Text, Dimensions, Animated,Image, TouchableOpacity, TextInput} from 'react-native';
+import { View, Text, Dimensions, Animated,Image, TouchableOpacity, TextInput, Keyboard} from 'react-native';
 import CustomMapData from './CustomMapData';
 import {getfilteredBusiness, getSearchBusinesses, addToFavourite } from '../../redux/actions/Business';
 import { connect } from 'react-redux';
@@ -118,6 +118,7 @@ class MapScreen extends React.PureComponent{
     else
       this.props.getfilteredBusiness(null, null, null);
     })
+    Keyboard.dismiss()
   }
 
   getSearchResults = async() => {
@@ -182,15 +183,19 @@ class MapScreen extends React.PureComponent{
   
     if(currentCategory){
       if(currentCategory === "food")
-      return categories.includes("Restaurant") &&  ! (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false
+      return categories.includes("Restaurant")  ? true : false
     else if(currentCategory === "drinks")   
-      return !categories.includes("Restaurant") &&  (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false     
+      return  categories.includes("Night Clubs") ||  categories.includes("Bar")  ? true : false     
     else 
       return true
     }
     else 
       return true
 
+  }
+  changedView = (view) => {
+    this.setState({ currentView: view })
+    Keyboard.dismiss()
   }
 
 
@@ -217,19 +222,18 @@ class MapScreen extends React.PureComponent{
             name="ios-beer" 
             size={20} 
             style={{ color: 'green',flex: 1, textAlign: 'right', marginRight: 10 }} 
-          />
-          <TextInput
-            underlineColorAndroid="transparent"
-            placeholder="Search For a Spot?"
-            placeholderTextColor="black"
-            style={styles.searchBarInput}
-            onChangeText = {(text)=> {
-              if(text.length === 0 )
-                this.showSpecificCategoryMarkers(this.state.currentCategory)
-              this.setState({ searchValue: text })
-            }}
-           
-          />
+          />        
+            <TextInput
+              underlineColorAndroid="transparent"
+              placeholder="Search For a Spot?"
+              placeholderTextColor="black"
+              style={styles.searchBarInput}
+              onChangeText = {(text)=> {
+                if(text.length === 0 )
+                  this.showSpecificCategoryMarkers(this.state.currentCategory)
+                this.setState({ searchValue: text })
+              }}
+            />
           <TouchableOpacity
             onPress = {async()=>{ 
               await this.getSearchResults()
@@ -255,7 +259,7 @@ class MapScreen extends React.PureComponent{
           <View style = {{ marginLeft: 3, flex:3, flexDirection: 'row', alignItems: 'flex-end' }} >
             <View style = {{ flex:1 }} >
               <TouchableOpacity
-                onPress = {()=> this.setState({ currentView: "map" })}
+                onPress = {()=> this.changedView('map') }
                 style = { this.state.currentView === "map" ? styles.activeViewButtons : styles.viewButtons}
               >
                 <Text
@@ -267,8 +271,8 @@ class MapScreen extends React.PureComponent{
             </View>
             <View style = {{ flex:1 }} >
               <TouchableOpacity
-               style = { this.state.currentView === "list" ? styles.activeViewButtons : styles.viewButtons}
-               onPress = {()=> this.setState({ currentView: "list" })}
+                style = { this.state.currentView === "list" ? styles.activeViewButtons : styles.viewButtons}
+                onPress = {()=> this.changedView('list') }
               >
                 <Text
                   style = { this.state.currentView === "list" ? styles.activeButtonTextColor :styles.buttonTextColor}
@@ -337,6 +341,7 @@ class MapScreen extends React.PureComponent{
             onRegionChange = { (region)=> {
               let showMarker;
               let tracksViewChanges = false;
+              Keyboard.dismiss()
               const { latitudeDelta } = region;
               if(latitudeDelta <= 0.009)
                 tracksViewChanges = false
@@ -370,6 +375,7 @@ class MapScreen extends React.PureComponent{
             maxZoomLevel = {20}
             showsIndoorLevelPicker = {true}
             loadingEnabled = {true}
+            onPress = {()=> Keyboard.dismiss()}
           > 
            <MapView.Circle
               center = {{
@@ -379,8 +385,7 @@ class MapScreen extends React.PureComponent{
               radius = {radius}
               zIndex = {0}
            >
-
-           </MapView.Circle>
+          </MapView.Circle>
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker, index)=> {
                 const url = this.getImagePath(marker.types, 'green')
@@ -479,7 +484,7 @@ class MapScreen extends React.PureComponent{
           >
             <TouchableOpacity
               style = {styles.setVibeButton}
-              onPress = {() =>  this.setState({ showVibeModal: true }) }
+              onPress = { ()=> navigation.navigate('vibeTabNavigator')  }
             >
             <Text
               style = {styles.setVibeButtonText}

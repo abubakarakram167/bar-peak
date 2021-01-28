@@ -25,9 +25,10 @@ import SurveyComponent from './Survey';
 import PreviousWeekDayRating from './Modals/PreviousWeekDayRating';
 import { showRatingModal, showRatingButton } from '../../redux/actions/Components';
 import { bindActionCreators } from 'redux';
+import RatingComponent from './ReUsable/ratingDisplay';
 import CountDown from 'react-native-countdown-component';
 const { height } = Dimensions.get("window");
-
+import moment from 'moment';
 
 const iconsList = [
   {
@@ -121,6 +122,7 @@ class ProfileModal extends Component {
   }
   
   async componentDidMount(){
+    console.log("hey")
     const { businessData } = this.props;
     const body = {
       query:`
@@ -273,16 +275,28 @@ class ProfileModal extends Component {
     return originalRating;  
   }
 
+  getShowRatingButton = () => {
+    const { component } = this.props;
+    const { showRatingButton, ratingStartTime } = component.component;
+    console.log(`showRating ${showRatingButton} and rating Start  ${ ratingStartTime }  `)
+    if(!showRatingButton){
+      var now = moment(new Date()); //todays date
+      var duration = moment.duration(now.diff(ratingStartTime));
+      var days = duration.asSeconds();
+      console.log( " the total seconds",  parseInt(days))
+    }
+    return showRatingButton
+  }
+
   render() {
     const { show, component } = this.props;
-    const { showRatingModal, showRatingButton, untilNextRateInSeconds } = component.component;
+    const { showRatingModal, showRatingButton } = component.component;
     const { businessProfile, defaultRating } = this.state;
     const { businessData } = this.props;  
     const { vibe } = this.props.vibe.vibe;
     const { rating } = businessData
     const allPhotos = businessData && businessData.images.map((photo)=> photo.secure_url);
 
-    console.log("the show rating button", showRatingButton)
     return (
       <View style={styles.centeredView}>
         <Modal
@@ -441,7 +455,53 @@ class ProfileModal extends Component {
                       <Text style = {{ textAlign: 'left', borderWidth:0, fontSize: 20, marginBottom:15, fontWeight: '600' }} >Rating</Text>
                     </View>
                   </View>
-                  <View 
+
+                  <RatingComponent 
+                    defaultRating = {defaultRating.crowd}
+                    rating = {rating.crowd}
+                    ratingHeading = "Crowd Factor"
+                    ratingCase = "crowd"
+                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
+                    isRunning = {this.state.isRunning}
+                    businessData = {this.props.businessData}
+                  /> 
+                  <RatingComponent 
+                    defaultRating = {defaultRating.fun}
+                    rating = {rating.fun}
+                    ratingHeading = "Fun Factor"
+                    ratingCase = "fun"
+                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
+                    isRunning = {this.state.isRunning}
+                    businessData = {this.props.businessData}
+                  /> 
+                  <RatingComponent 
+                    defaultRating = {defaultRating.difficultyGettingIn}
+                    rating = {rating.difficultyGettingIn}
+                    ratingHeading = "DifficultyGettingIn"
+                    ratingCase = "difficultyGettingIn"
+                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
+                    isRunning = {this.state.isRunning}
+                    businessData = {this.props.businessData}
+                  /> 
+                   <RatingComponent 
+                    defaultRating = {defaultRating.genderBreakdown}
+                    rating = {rating.genderBreakdown}
+                    ratingHeading = "Gender Breakdown"
+                    ratingCase = "genderBreakdown"
+                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
+                    isRunning = {this.state.isRunning}
+                    businessData = {this.props.businessData}
+                  /> 
+                   <RatingComponent 
+                    defaultRating = {defaultRating.difficultyGettingIn}
+                    rating = {rating.difficultyGettingIn}
+                    ratingHeading = "DifficultyGettingDrink"
+                    ratingCase = "difficultyGettingADrink"
+                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
+                    isRunning = {this.state.isRunning}
+                    businessData = {this.props.businessData}
+                  /> 
+                  {/* <View 
                     style = {[styles.starComponent, { marginTop:0 }]} 
                   >
                     <Text style = {styles.heading } >Crowd Factor</Text>
@@ -450,8 +510,8 @@ class ProfileModal extends Component {
                     >
                       <Text style = {styles.ratingLabel} >{ this.getRatingCase("crowd",  this.getOriginalOrDefaultRating(defaultRating.crowd, rating.crowd) ) }</Text>
                     </TouchableOpacity>
-                  </View>
-                  <View 
+                  </View> */}
+                  {/* <View 
                     style = {styles.starComponent} 
                   >
                     <Text style = {styles.heading } >Fun Factor</Text>
@@ -490,7 +550,7 @@ class ProfileModal extends Component {
                     >
                       <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingADrink", this.getOriginalOrDefaultRating(defaultRating.difficultyGettingDrink, rating.difficultyGettingDrink )  ) }</Text>
                     </TouchableOpacity>
-                  </View>        
+                  </View>         */}
                 </View>
                 
                 <View
@@ -521,7 +581,7 @@ class ProfileModal extends Component {
                     </View>     
                 } */}
                   { 
-                    !showRatingButton && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You can't Rate next until 60 minutes..  </Text>
+                    !this.getShowRatingButton() && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You can't Rate next until 60 minutes..  </Text>
                   }
                    { 
                     !this.checkUserRatingAvailableDistance()  && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You must have to be near around 80 meters of that Establishment to Rate it! </Text>
@@ -529,14 +589,14 @@ class ProfileModal extends Component {
                   
                     <View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
                       <TouchableOpacity
-                        style = { this.checkUserRatingAvailableDistance() && showRatingButton ? styles.activeRateButton : styles.disableRateButton }
-                        disabled={ this.checkUserRatingAvailableDistance() && showRatingButton ? false : true }
+                        style = { this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? styles.activeRateButton : styles.disableRateButton }
+                        disabled={ this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? false : true }
                         activeOpactity = {0.2}
                         onPress = {() => { 
                           this.props.showRatingModal(true) 
                         }}
                       >
-                        <Text style = { this.checkUserRatingAvailableDistance() && showRatingButton ? styles.activeRateButtonStyling:  styles.disableRateButtonStyling } > Rate It! </Text>
+                        <Text style = { this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? styles.activeRateButtonStyling:  styles.disableRateButtonStyling } > Rate It! </Text>
                       </TouchableOpacity>
                     </View>
                   

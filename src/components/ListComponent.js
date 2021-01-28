@@ -80,9 +80,9 @@ class ListComponent extends React.Component{
   getCurrentCategorySelected = (categories, markerName) => {
     const {currentCategory} = this.props;
     if(currentCategory === "food")
-      return categories.includes("Restaurant") &&  ! (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false
+      return categories.includes("Restaurant") 
     else if(currentCategory === "drinks")   
-      return !categories.includes("Restaurant") &&  (categories.includes("Night Clubs") ||  categories.includes("Bar") ) ? true : false     
+      return  categories.includes("Night Clubs") ||  categories.includes("Bar")  ? true : false     
     else 
       return true
   }
@@ -110,12 +110,12 @@ class ListComponent extends React.Component{
     if(currentCategory){
       if(currentCategory === "food"){
         specificSpots = allSpots.filter((spot)=> {
-          return spot.types.includes("Restaurant") &&  ! (spot.types.includes("Night Clubs") ||  spot.types.includes("Bar") ) ? true : false
+          return spot.types.includes("Restaurant") 
         }) 
       }   
       else if(currentCategory === "drinks"){
         specificSpots = allSpots.filter((spot)=> {
-          return !spot.types.includes("Restaurant") &&  (spot.types.includes("Night Clubs") ||  spot.types.includes("Bar") ) ? true : false 
+          return  spot.types.includes("Night Clubs") ||  spot.types.includes("Bar")  ? true : false 
         }) 
       }           
       else 
@@ -152,7 +152,7 @@ class ListComponent extends React.Component{
               >
                 <TouchableOpacity
                   style = {styles.setVibeButton}
-                  onPress = {() =>  this.setState({ showVibeModal: true }) }
+                  onPress = {()=> navigation.navigate('vibeTabNavigator')}
                 >
                   <Text
                     style = {styles.setVibeButtonText}

@@ -1,19 +1,80 @@
 // Screen1.js
 import React from 'react'                                       
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity,  Dimensions } from 'react-native';
 import StarRatings from 'react-native-star-rating'
 import { Icon } from 'react-native-elements'; 
-const { width, height } = Dimensions.get("window");
 import { SliderBox } from "react-native-image-slider-box";
+import { addToFavourite, selectSpecifcCategoryEstablishmentsAction } from '../../redux/actions/Business';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import CategoryAddModal from './CategoryAddOrRemoveAlert';
+const { width, height } = Dimensions.get("window");
+
 
 class MyFavouritesTile extends React.Component {
 
-  render(){
+  
+
+  constructor(props){
+    super(props)
+
+    this.state = {
+      showCategoryAddPopUp: false,
+      totalCategoriesName: '',
+      totalMessage: ''
+    }
+  }
+
+  addToFavourites = async() => {
+    const { category, categoryId } = this.props;
     const { establishment } = this.props;
+    console.log("here the establishment", establishment)
+    const addOrRemove = await this.props.addToFavourite(establishment._id);
+    await this.props.getFavouritesBusinessAction()
+    let TotalCategoriesName = category.filter(category => {
+      return establishment.types.includes(category.title) && category.type === "main_category"
+    }).map(category => category.title)
+    let totalMessage = addOrRemove.toUpperCase() + " to " + TotalCategoriesName.map(name => name + " ")
+    this.setState({ showCategoryAddPopUp: true , totalCategoriesName: totalMessage }, ()=>{
+      setTimeout(()=>{ 
+        this.setState({ showCategoryAddPopUp: false })
+      }, 5000)
+    })
+  }
+
+  getBusinessCategories = (category) => {
+    return category.map(category => {
+      return category.type;
+    })
+  }
+  getBusinessCategoriesId = (category) => {
+    return category.map(category => {
+      return category._id;
+    })
+  }  
+
+  getTotalCategoryFavourites = (singleCategory) => {
+    const { favouriteEstablishments } = this.props;
+    
+      if(singleCategory.title === "Bar"){
+        return favouriteEstablishments.filter((business)=>{ 
+          return this.getBusinessCategories(business.category).includes("sub_bar")         
+        })
+      }
+      else{
+        return favouriteEstablishments.filter((business)=>{ 
+          return this.getBusinessCategoriesId(business.category).includes(singleCategory._id)         
+        })
+      }
+    
+  }
+
+  render(){
+    const { establishment, categoryId } = this.props;
     const rating = establishment.customBusiness ? establishment.customData.rating : establishment.googleBusiness.rating;
     const address = establishment.customBusiness ? establishment.customData.address : establishment.googleBusiness.formatted_address;
-
-    return(  
+    return( 
+       this.getTotalCategoryFavourites(categoryId) ?
       <View
         style = { styles.completeTile }
       >
@@ -85,12 +146,33 @@ class MyFavouritesTile extends React.Component {
           <Text style = {styles.categoryTitle} >{ establishment.name }</Text>
           <Text style = {styles.businessAddress} >{ address}</Text>
         </View>
-      </View>
+        <CategoryAddModal  
+          show = {this.state.showCategoryAddPopUp} 
+          message = {this.state.totalCategoriesName} 
+        /> 
+      </View>  : null
     )
   }
-}             
+}
 
-export default MyFavouritesTile
+const mapStateToProps = (state) => {
+  const { category, business } = state;
+  return { 
+    category: category.category.category,
+    favouriteEstablishments: business.business.favouriteBusiness
+  }
+};
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    addToFavourite,
+    selectSpecifcCategoryEstablishmentsAction,
+   
+  }, dispatch)
+);
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(MyFavouritesTile);
+
 
 const styles = StyleSheet.create({
   businessAddress: {

@@ -4,7 +4,9 @@ import {
     StyleSheet,
     SafeAreaView,
     Dimensions,
-    Image
+    Image,
+    TouchableWithoutFeedback,
+    Keyboard
 } from "react-native";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -18,6 +20,12 @@ import VibeRequirePopUp from '../components/Modals/VibeRequiredPopupModal';
 import _, { map } from 'underscore';
 import Modal from '../components/Modal';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
+
+const DismissKeyboard = ({ children }) => (
+  <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+    {children}
+  </TouchableWithoutFeedback>
+);
 
 const { height, width } = Dimensions.get('window')
 class HomeScreen extends Component {
@@ -79,8 +87,8 @@ class HomeScreen extends Component {
     await Location.watchPositionAsync(
       {
         enableHighAccuracy: true,
-        distanceInterval: 2,
-        timeInterval: 2000
+        distanceInterval: 5,
+        timeInterval: 4000
       },
       newLocation => {
         console.log('the new location', newLocation)
@@ -105,40 +113,42 @@ class HomeScreen extends Component {
   render() {  
     const {navigation} = this.props;
     return (
-      <SafeAreaView style = {{ flex: 1 }} >
-        <View style={{ flex: 1 }}>
-          <MapComponent navigation = {navigation}/>
-          { this.state.showModal &&
-            < VibeRequirePopUp 
-              show = {this.state.showModal} 
-              closeModal = {()=> this.setState({ showModal: false })} 
-              navigation = {this.props.navigation} 
-            /> 
-          }
-          { this.state.showProfileModal && 
-            ( <Modal  
-                item  = {this.state.selectedItem}  
-                businessData = {this.state.selectedBusiness}  
-                show = {this.state.showProfileModal} 
-                closeModal = {()=> { this.setState({ showProfileModal: false }) }} 
+      <DismissKeyboard> 
+        <SafeAreaView style = {{ flex: 1 }} >
+          <View style={{ flex: 1 }}>
+            <MapComponent navigation = {navigation}/>
+            { this.state.showModal &&
+              < VibeRequirePopUp 
+                show = {this.state.showModal} 
+                closeModal = {()=> this.setState({ showModal: false })} 
+                navigation = {this.props.navigation} 
+              /> 
+            }
+            { this.state.showProfileModal && 
+              ( <Modal  
+                  item  = {this.state.selectedItem}  
+                  businessData = {this.state.selectedBusiness}  
+                  show = {this.state.showProfileModal} 
+                  closeModal = {()=> { this.setState({ showProfileModal: false }) }} 
+                />
+              ) 
+            }   
+            <OrientationLoadingOverlay
+              visible={this.state.spinner}
+              message = "Loading..."
+              color="white"
+              indicatorSize="large"
+              messageFontSize={24}
+            >
+            <View>
+              <Image
+                source={require('../../assets/loadingIndicator.gif')}
               />
-            ) 
-          }   
-          <OrientationLoadingOverlay
-            visible={this.state.spinner}
-            message = "Loading..."
-            color="white"
-            indicatorSize="large"
-            messageFontSize={24}
-          >
-          <View>
-            <Image
-              source={require('../../assets/loadingIndicator.gif')}
-            />
+            </View>
+          </OrientationLoadingOverlay>         
           </View>
-        </OrientationLoadingOverlay>         
-        </View>
-      </SafeAreaView>    
+        </SafeAreaView>
+      </DismissKeyboard>      
     );
   }
 }

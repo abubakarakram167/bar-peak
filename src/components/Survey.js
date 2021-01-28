@@ -9,6 +9,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { getUserData } from './localStorage'; 
 import axios  from '../api/axios';
 import AlertComponent from './AlertComponent';
+import moment from 'moment';
 import { showRatingModal, showRatingButton, setCountDowntimer } from '../../redux/actions/Components';
 
 const GREEN = 'rgba(32, 168, 68,1)';
@@ -334,7 +335,8 @@ export class SurveyComponent extends React.PureComponent {
               difficultyGettingIn: ${rating.difficultyGettingIn.toFixed(2)},
               difficultyGettingDrink: ${rating.difficultyGettingADrink.toFixed(2)}    
             },
-            businessId: "${data.markerId}"
+            businessId: "${data.markerId}",
+            ratingSaveTime: "${moment.utc(moment())}"
             ){
               fun,
               crowd,
@@ -349,16 +351,13 @@ export class SurveyComponent extends React.PureComponent {
         const res = await axios.post(`graphql?`,body,{ headers: {
           'Authorization': `Bearer ${token}`
         } });
+        console.log("after gettingg done", res.data.data.addRating)
         
         this.setState({ spinner: false, showConfirmation: true },()=>{
           setTimeout(()=>{  
             this.props.showRatingModal(false)
-            this.props.setCountDowntimer(120)
+            // this.props.setCountDowntimer(120)
             this.props.showRatingButton(data.markerId)
-            setInterval(() => {
-              console.log("hey called")
-              this.props.showRatingButton(data.markerId)
-            }, 1000 * 110); 
           }, 2000)
         })
       }catch(err){

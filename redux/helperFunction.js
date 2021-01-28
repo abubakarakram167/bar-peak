@@ -107,7 +107,7 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
 
 }
 
-export const getSearchData = (userVibeData, data, selectedBusinessIds) => {
+export const getSearchData = (userVibeData, searchData) => {
   let filterVibeCategoryData = {
     goodSpots: [],
     averageSpots: [],
@@ -115,17 +115,15 @@ export const getSearchData = (userVibeData, data, selectedBusinessIds) => {
   };
   let { vibeCategory } = userVibeData; 
 
-  if(vibeCategory === "Professional Party Time" ){
-    data.map(business => {
-      if( business.category.length !== 0 && selectedBusinessIds.includes(business._id)){
+  if( vibeCategory === "Professional Party Time" ){
+    searchData.map(business => {
+      if( business.category.length !== 0 ){
         const { rating } = business;
         const {difficultyGettingIn, fun, crowd } = rating
         if( crowd >= 4 && crowd <= 5 && difficultyGettingIn>=4 && fun>=3)
           filterVibeCategoryData.goodSpots.push(business)
-        
         else if( crowd <= 2 &&  difficultyGettingIn<=2 && fun <= 2)
           filterVibeCategoryData.badSpots.push(business)
-        
         else 
           filterVibeCategoryData.averageSpots.push(business)    
       }
@@ -133,7 +131,7 @@ export const getSearchData = (userVibeData, data, selectedBusinessIds) => {
     return getMapData(filterVibeCategoryData);
   }
   else if(vibeCategory === "Moderate Party Time"){
-    data.map(business => {
+    searchData.map(business => {
       if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
         const { rating } = business;
         const {difficultyGettingIn, fun, crowd } = rating
@@ -149,7 +147,7 @@ export const getSearchData = (userVibeData, data, selectedBusinessIds) => {
     return getMapData(filterVibeCategoryData);
   }
   else if(vibeCategory === "Social Drinking"){
-    data.map(business => {
+    searchData.map(business => {
       if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
         const { rating } = business;
         const {difficultyGettingIn, fun, crowd } = rating
@@ -164,7 +162,7 @@ export const getSearchData = (userVibeData, data, selectedBusinessIds) => {
     return getMapData(filterVibeCategoryData);
   }
   else if(vibeCategory === "Baby Party Time"){
-    data.map(business => {
+    searchData.map(business => {
       if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
         const { rating } = business;
         const { difficultyGettingIn, crowd } = rating
@@ -179,7 +177,7 @@ export const getSearchData = (userVibeData, data, selectedBusinessIds) => {
     return getMapData(filterVibeCategoryData);
   }
   else{
-    data.map(business => {
+    searchData.map(business => {
       if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
         const { rating } = business;
         const { crowd, difficultyGettingIn } = rating;

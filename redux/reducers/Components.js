@@ -4,7 +4,8 @@ import { Show_Rating_modal, Show_Rating_button, Set_CountDown_timer } from '../t
 const INITIAL_STATE = {
   showRatingModal: false,
   showRatingButton: true,
-  untilNextRateInSeconds: 30
+  untilNextRateInSeconds: 30,
+  ratingStartTime: ''
 };
 
 const componentReducer = (state = INITIAL_STATE, action) => {
@@ -17,7 +18,8 @@ const componentReducer = (state = INITIAL_STATE, action) => {
     case Show_Rating_button:
       return{
         ...state,
-        showRatingButton: action.payload
+        showRatingButton: action.payload.showRateItButton,
+        ratingStartTime: action.payload.ratingSaveTime
       }
     case Set_CountDown_timer:
       return{

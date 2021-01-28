@@ -27,6 +27,8 @@ export const addToFavourite = (id) => async (dispatch, getState) => {
   else
     addOrRemove = "add";
 
+  console.log("add", addOrRemove)
+
   const body = {
     query:
     ` mutation{
@@ -125,7 +127,6 @@ export const getFavouritesBusinessAction = () => async (dispatch, getState) => {
             name
             totalUserCountRating
             ageInterval
-            ratioType
             customBusiness
             customData{
               address
@@ -163,7 +164,7 @@ export const getFavouritesBusinessAction = () => async (dispatch, getState) => {
       payload: res.data.data.getFavouriteEstablishments
     })
   }catch(err){
-    console.log("the err", err)
+    console.log("the err in fvrites", err)
   }
 
 
@@ -172,7 +173,7 @@ export const getFavouritesBusinessAction = () => async (dispatch, getState) => {
 export const getSearchBusinesses = (searchValue) => async (dispatch, getState) => { 
     const body = {
       query:
-    ` query{
+      `query{
         searchByUser(searchValue: "${searchValue}")
          {   _id
             placeId
@@ -323,19 +324,16 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
 
   try{ 
     let filterCategoryBusinessVibe; 
-    if(search){
-      let searchBusinessIds = searchData.map(business => business._id)
-      filterCategoryBusinessVibe = getSearchData(actualVibe , data, searchBusinessIds)
-    }
+    if(search)
+      filterCategoryBusinessVibe = getSearchData(actualVibe , searchData)
     else if(favourite){
       let favouriteBusiness = favouriteEstablishments.filter((business)=> {
         return business.category.map(category=> category._id).includes(favouriteEstablishmentCategory)
       }).map(business => business._id)
       filterCategoryBusinessVibe = getSearchData(actualVibe , data, favouriteBusiness)
     }
-    else{
+    else
       filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, selectedCategory)
-    }
     const { allSpots } = filterCategoryBusinessVibe;
     let { latitude, longitude } = user.user.location;
     

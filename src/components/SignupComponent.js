@@ -13,6 +13,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AlertComponent from '../components/AlertComponent';
 import DatePicker from './DatePicker';
+import NativeDatePicker from '../components/DatePicker/DatePicker'
+
 const { width, height } = Dimensions.get("window");
 
 const shadowOpt = {
@@ -213,6 +215,8 @@ class SignUpComponent extends React.Component {
               <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.firstName }</Text>
               <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.lastName }</Text>
               <View style={styles.inputView} >
+                {/* <NativeDatePicker 
+                /> */}
                 <DatePicker 
                   onChange = { (date)=> { 
                     this.changeDate(date)
