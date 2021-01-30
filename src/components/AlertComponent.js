@@ -28,8 +28,6 @@ export default class App extends React.Component {
   }
  
   render() {
-    const {showAlert} = this.state;
-    const { navigation } = this.props;
     console.log("the props", this.props)
     return (
       <View style={styles.container}>
@@ -39,10 +37,12 @@ export default class App extends React.Component {
           titleStyle ={{ fontWeight: '700', fontSize: 20 }}
           messageStyle = {{ textAlign: 'center', fontWeight: '500', fontSize: 16, color: '#f0357c' }}
           message= {this.props.message ? this.props.message : "This is testing error messag etext"}
-          closeOnTouchOutside={true}
+          closeOnTouchOutside={false}
           contentContainerStyle = {{ minWidth: 250, maxWidth: 250 }}
           closeOnHardwareBackPress={false}
+          confirmText = "ok"
           showCancelButton={false}
+          onConfirmPressed = {()=> this.props.closeModal() }
           showConfirmButton={ this.props.rating}
           confirmText="ok"
           confirmButtonColor="#29adc4"

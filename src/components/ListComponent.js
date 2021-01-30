@@ -70,11 +70,19 @@ class ListComponent extends React.Component{
   }
 
   getMarkerCategoryName = (category) => {
-    if(category.types.includes("Restaurant") && (category.types.includes("Night Clubs") || category.types.includes("Bar")) )
-      return "food + drinks"
-    if( (category.types.includes("Night Clubs") || category.types.includes("Bar") ) && !category.types.includes("Restaurant") )
+    const {currentCategory} = this.props;
+    const types = category.types;
+    if(currentCategory === "food+drinks" ){
+      if(types.includes("Restaurant") &&  (types.includes("Night Clubs") || types.includes("Bar") ) )
+        return "food+drinks";
+      else if(!types.includes("Restaurant") &&  (types.includes("Night Clubs") || types.includes("Bar") ) )
+        return "only drinks";
+      else
+        return "only food";    
+    }
+    else if( currentCategory === "drinks" )
       return 'Only drinks';
-    else if(category.types.includes("Restaurant") && ! (category.types.includes("Night Clubs") ||  category.types.includes("Bar") ) )
+    else 
       return 'Only food';
   }
   getCurrentCategorySelected = (categories, markerName) => {
@@ -231,19 +239,6 @@ class ListComponent extends React.Component{
               onClose = {()=> { this.setState({ showVibeModal: false }) }}
               navigation = {navigation} 
             /> 
-            {
-              // !(allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * 10 ).length > 10) || true &&        
-              //   (<TouchableOpacity
-              //     style = {styles.paginationButton}
-              //     onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber - 1) }}
-              //   >
-              //     <Text
-              //       style = {{ fontWeight: '700' }}
-              //     >
-              //       Previous Pagess
-              //     </Text>
-              //   </TouchableOpacity>)
-            } 
             { allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * 10 ).length > 10 &&
                 <View style = {{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
                 { this.state.currentPageNumber >0  &&

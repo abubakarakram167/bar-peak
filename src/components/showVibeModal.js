@@ -22,7 +22,8 @@ class showVibeModal extends Component {
 
   render() {
     const { vibe, navigation } = this.props;
-    
+    const { barOrNightClub } = vibe;
+   
     return (
       <View style={styles.centeredView}>
         <Modal
@@ -36,29 +37,32 @@ class showVibeModal extends Component {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>Your Current Vibe</Text>
+              <Text style = {styles.vibeCategoryText} >{ vibe.vibeCategory }</Text>
+              <Text style={styles.modalText} >Looking For  </Text>
+              <Text style = {styles.vibeCategoryText} >{ barOrNightClub === 'nightClub' ? 'Night Club' : 'Bar' }</Text>
+
               <View
                 style = {{ width: width * 0.7 }}
               >
-                <Text style = {styles.vibeCategoryText} >{ vibe.vibeCategory }</Text>
                 <TouchableHighlight
                   style={styles.vibeChangeButton}
                   onPress={() => {
                     this.props.onClose()
-                    navigation.navigate('vibeTabNavigator')
                   }}
                 >
                   <Text style={styles.textStyle}>Change Vibe</Text>
                 </TouchableHighlight>
+                <TouchableHighlight
+                  style={styles.vibeChangeButton}
+                  onPress={() => {
+                    this.props.onClose()
+                    navigation.navigate('Screen 1')
+                  }}
+                >
+                  <Text style={styles.textStyle}>No</Text>
+                </TouchableHighlight>
               </View>
             </View>
-            <TouchableHighlight
-              style={styles.openButton}
-              onPress={() => {
-                this.props.onClose()
-              }}
-            >
-              <Text style={styles.textStyle}>Close</Text>
-            </TouchableHighlight>
           </View>
         </Modal>
       </View>
@@ -86,7 +90,7 @@ const styles = StyleSheet.create({
   },
   vibeCategoryText:{
     textAlign: 'center',
-    fontSize: 25
+    fontSize: 20
   },
   bottomLine: {
     borderBottomColor: 'gray',
@@ -121,10 +125,11 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   modalText: {
+    marginTop: 10,
     marginBottom: 15,
     textAlign: "center",
     fontWeight: '700',
-    fontSize: 20
+    fontSize: 24
   },
   wholeContainer: {
     flex: 1,

@@ -14,6 +14,8 @@ import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
 import ShowVibeModal from "./showVibeModal";
 import CategoryAddModal from './CategoryAddOrRemoveAlert';
 import styles from './CSS/MapComponent';
+import ToggleSwitch from '../components/ReUsable/Toggle';
+import InfoModal from './Modals/infoAnimatedModal';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 3;
@@ -45,8 +47,10 @@ class MapScreen extends React.PureComponent{
       showVibeModal: false,
       showCategoryAddPopUp: false,
       totalCategoriesName: '',
-      showMarkerName: false,
-      tracksViewChanges: false
+      showMarkerName: true,
+      tracksViewChanges: true,
+      isActiveToggle: false,
+      showInfoModal: false
     }
   }
 
@@ -77,7 +81,8 @@ class MapScreen extends React.PureComponent{
   componentDidMount(){
     setTimeout(()=> {
       this.setState({tracksViewChanges: true })
-    }, 4000)
+      this.makeAnimate()
+    }, 2000)
    
   }
   
@@ -85,16 +90,18 @@ class MapScreen extends React.PureComponent{
     const {user} = this.props;
     const { location } = user.user;
 
-    mapRef.current.animateToRegion({
-      latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
-      longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
-      latitudeDelta: 0.009,
-      longitudeDelta: 0.009
-    })
+    let r = 
+    {
+      latitude:  parseFloat( location.latitude ? location.latitude : 32.7970465 ),
+      longitude: parseFloat( location.longitude ? location.longitude: -117.254522 ),
+      latitudeDelta: 0.0009,
+      longitudeDelta: 0.0009
+    }
+    this.mapView.animateToRegion(r, 2000);
   }
 
   showSpecificCategoryMarkers = (category) => {
-    this.setState({ currentCategory: category }, ()=>{
+    this.setState({ currentCategory: category, isActiveToggle: true }, ()=>{
     if(this.state.currentCategory){  
       let categories  = [];
       let allCategories = this.props.category;
@@ -205,16 +212,13 @@ class MapScreen extends React.PureComponent{
     const vibe = this.props.vibe;
     const {navigation, user} = this.props;
     const { location, radius } = user.user;
-    if(allSpots){
-      // mapRef.current.animateToRegion({
-      //   latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
-      //   longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
-      //   latitudeDelta: 0.009,
-      //   longitudeDelta: 0.009
-      // })
-    }
+   
     return(
       <View style={styles.container}>
+        <InfoModal 
+          show = {this.state.showInfoModal}
+          onClose = {() => this.setState({ showInfoModal: false })}
+        />
         <View 
           style={styles.searchBar}
         >
@@ -325,7 +329,7 @@ class MapScreen extends React.PureComponent{
         { this.state.currentView === "map" && location.latitude && location.longitude ?
         <View style = {{ flex: 12 }} >
           <MapView
-            ref={mapRef}
+            ref = {(ref)=>this.mapView=ref}
             provider = {PROVIDER_GOOGLE}
             style={styles.mapStyle} 
             initialRegion={{
@@ -339,35 +343,19 @@ class MapScreen extends React.PureComponent{
             showsPointsOfInterest = {true}
             cacheEnabled = {true}
             onRegionChange = { (region)=> {
-              let showMarker;
-              let tracksViewChanges = false;
+              let showMarker = true;
               Keyboard.dismiss()
               const { latitudeDelta } = region;
-              if(latitudeDelta <= 0.009)
-                tracksViewChanges = false
-              else{
-                if(latitudeDelta<= 0.1 && latitudeDelta >= 0.0045){
-                  tracksViewChanges = true
-                }
-                if(latitudeDelta<= 0.1  ){
-                  tracksViewChanges = true
-                }           
-                if(latitudeDelta >= 0.021 && latitudeDelta <= 0.030 )
-                  tracksViewChanges = true              
-              }
-
-              if(latitudeDelta <= 0.01){
+          
+              if(latitudeDelta <= 0.006)
                 showMarker = true;
-              }
-              if(latitudeDelta >= 0.02)
-              showMarker = false  
-              
-                 
-              this.setState({ showMarkerName: showMarker, tracksViewChanges  }) 
+              else
+                showMarker = false;     
+              this.setState({ showMarkerName: showMarker }) 
             } }
             customMapStyle = {CustomMapData}
             mapType = "standard"
-            showsCompass = {true}
+            showsCompass = {false}
             showsMyLocationButton={true}
             minZoomLevel = { 5 }
             userLocationAnnotationTitle = "You"
@@ -400,7 +388,7 @@ class MapScreen extends React.PureComponent{
                       onPress={()=>this.markerClick(marker)}
                       title={marker.name}
                       description = "this is marker description"
-                      tracksViewChanges={ this.state.tracksViewChanges  }
+                      // tracksViewChanges={ this.state.tracksViewChanges  }
                       
                     > 
                       <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
@@ -427,7 +415,7 @@ class MapScreen extends React.PureComponent{
                         onPress={()=>this.markerClick(marker)}
                         title={marker.name}
                         description = "this is marker description"
-                        tracksViewChanges={ this.state.tracksViewChanges }
+                        // tracksViewChanges={ this.state.tracksViewChanges }
                       >
                         <Image 
                           source={url} 
@@ -460,7 +448,7 @@ class MapScreen extends React.PureComponent{
                       onPress={()=>this.markerClick(marker)}
                       title={marker.name}
                       description = "this is marker description"
-                      tracksViewChanges={ this.state.tracksViewChanges  }
+                      // tracksViewChanges={ this.state.tracksViewChanges  }
 
                     > 
                       <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
@@ -474,6 +462,46 @@ class MapScreen extends React.PureComponent{
             }        
          
           </MapView>
+          <View
+            style={{
+              position: 'absolute',//use absolute position to show button on top of the map
+              top: '5%', //for center align
+              right: '1%',
+              alignSelf: 'flex-end', //for align to right
+            }}
+          > 
+            <TouchableOpacity
+              onPress = {()=> { this.setState({ showInfoModal: true }) }}
+            >
+              <Image 
+                source = {require('../../assets/icons/info.png')}
+                style = {{ width: 25, height: 25, alignSelf: 'center' }}
+              />
+            </TouchableOpacity>          
+            <ToggleSwitch
+              isActiveToggle = {this.state.isActiveToggle} 
+              onChange = {(toggle)=> {
+                this.setState({ isActiveToggle: toggle},()=> {
+                  if(toggle){
+                    if(this.state.currentCategory === null)
+                      this.showSpecificCategoryMarkers('food')
+                    else
+                      this.showSpecificCategoryMarkers(this.state.currentCategory)
+                  }
+                  else{
+                    this.setState({ currentCategory: null })
+                    this.props.getfilteredBusiness(null, null, null);
+                  }
+                    
+                })
+              }}
+            />
+            <Text 
+              style = {{ fontSize: 12, fontWeight: '600',width: '80%',alignSelf: 'center', textAlign: 'center' }} 
+            >
+              { this.state.isActiveToggle ? "All Venues" : "Venue by Vibe" } 
+            </Text>
+          </View>
           <View
             style={{
               position: 'absolute',//use absolute position to show button on top of the map

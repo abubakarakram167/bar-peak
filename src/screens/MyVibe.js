@@ -1,6 +1,6 @@
 import React from 'react'
-import { Text, View, Button, Dimensions, ActivityIndicator, TouchableOpacity, Image, ScrollView } from 'react-native'
-import {submitVibe} from '../../redux/actions/Vibe';
+import { View } from 'react-native'
+import {submitVibe, getVibe} from '../../redux/actions/Vibe';
 import {updateVibe} from '../../redux/actions/Vibe';
 import { getAllCategories } from '../../redux/actions/Category';
 import { connect } from 'react-redux';
@@ -9,29 +9,48 @@ import Style from './css/myVibe';
 import _, { map } from 'underscore';
 import {getfilteredBusiness, emptyBusiness} from '../../redux/actions/Business';
 import ProgressiveBar from "../components/ProgressiveBar/progressStepsBar";
+import ShowVibeModal from "../components/showVibeModal";
 
 class MyVibe extends React.Component{
 
   constructor(props){
     super(props);
     this.state = {
-      
+      showVibeModal: true,
+      isVibeEmpty: false
     };
  
   }
 
-  async componentDidMount(){     
+  async componentDidMount(){ 
+    const { vibe } = this.props;
+    setTimeout(()=> {
+      this.setState({
+        showVibeModal: true,
+        isVibeEmpty: _.isEmpty(vibe)
+      }, ()=> console.log("the stae", this.state))
+    }, 300)    
     await this.props.getAllCategories();
   }
 
   render(){
-    const { navigation } = this.props;
+    const { navigation, vibe } = this.props;
+    
     return (
       <View style={Style.screen}>
         <View 
           style = {Style.ProgressiveBar}
-        >
-          <ProgressiveBar navigation = {navigation} />
+        > 
+          { (this.state.showVibeModal && !this.state.isVibeEmpty) &&
+            (<ShowVibeModal 
+              show = {this.state.showVibeModal}
+              onClose = {() => { this.setState({ showVibeModal: false }) }}
+              navigation = {navigation}
+            />)
+          } 
+          <ProgressiveBar 
+            navigation = {navigation} 
+          />
         </View>
 
       </View>
@@ -43,7 +62,7 @@ class MyVibe extends React.Component{
 const mapStateToProps = (state) => {
   const { vibe, category } = state
   return { 
-    vibe: vibe, 
+    vibe: vibe.vibe.vibe, 
     category 
   }
 };

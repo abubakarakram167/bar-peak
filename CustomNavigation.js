@@ -3,6 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from "./src/screens/HomeScreen";
 import userSettings from "./src/screens/userSettings";
+import TestScreen from './src/screens/testScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import MyVibeScreen from './src/screens/MyVibe';
@@ -14,7 +15,7 @@ import editProfileScreen from "./src/screens/EditProfile";
 import MyFavouritesScreen from "./src/screens/MyFavourites";
 import SpecificCategoryScreen from "./src/screens/specificCategoryFavourite";
 import { Icon } from 'react-native-elements'
-import {Text} from 'react-native'
+import {Text, Image, StyleSheet} from 'react-native'
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();  // creates object for Stack Navigator
@@ -60,15 +61,19 @@ function HomeApp() {
           tabBarVisible: true,
           tabBarLabel: 'Home',
           unmountOnBlur: false,
-          tabBarIcon: ({ tintColor }) => (
-            <Icon
-             name='ios-home'
-             type = 'ionicon'
-             size={35}
-             color = {tintColor}  
-            />
-            // <Icon name="heart"  color = {tintColor} size = {24} ></Icon>
-          )
+          tabBarIcon: ( data) => {    
+            const { focused } = data;   
+            return (
+              <Image 
+                source = { focused ? require('./assets/icons/ativeHome.png') : require('./assets/icons/home.png')  }
+                style = {{ width: 28, height: 28}}
+              />
+            )      
+          },
+          tabBarLabel: (data)=> {
+            const { focused } = data;
+            return <Text style = {  focused ? styles.activeButtonText  : styles.buttonText } >Home</Text>
+          }
         }      
       }}
     />
@@ -80,14 +85,19 @@ function HomeApp() {
         {
           tabBarLabel: 'My Favorites',
           unmountOnBlur: true,
-          tabBarIcon: ({ tintColor }) => (
-            <Icon 
-              name="ios-heart"
-              type = 'ionicon'
-              size = {35}  
-              color = {tintColor} 
-            />
-          )
+          tabBarIcon: (data) => {    
+            const { focused } = data;   
+            return (
+              <Image 
+                source = { focused ? require('./assets/icons/activeHeart.png') : require('./assets/icons/heart.png')  }
+                style = {{ width: 28, height: 28}}
+              />
+            )      
+          },
+          tabBarLabel: (data)=> {
+            const { focused } = data;
+            return <Text style = {  focused ? styles.activeButtonText  : styles.buttonText } >Favorites</Text>
+          }
         }
       }
     />
@@ -99,14 +109,19 @@ function HomeApp() {
         {
           tabBarLabel: 'My Vibe',
           unmountOnBlur: true,
-          tabBarIcon: ({ tintColor }) => (
-            <Icon 
-              name="ios-thermometer"
-              type = 'ionicon'  
-              color = {tintColor} 
-              size = {35}
-            />
-          )
+          tabBarIcon: (data) => {
+            const { focused } = data;   
+            return (
+              <Image 
+                source = { focused ? require('./assets/icons/activeThermometer.png') : require('./assets/icons/thermometer.png')  }
+                style = {{ width: 28, height: 28}}
+              />
+            )  
+          },
+          tabBarLabel: (data)=> {
+            const { focused } = data;
+            return <Text style = {  focused ? styles.activeButtonText  : styles.buttonText } >My Vibe</Text>
+          }
         }
       }
     />
@@ -115,18 +130,24 @@ function HomeApp() {
       component={userProfile}  // Replaced Screen 3
       options = 
       {
-        {
+        { 
           tabBarLabel: 'Profile',
           unmountOnBlur: true,
-          tabBarIcon: ({ tintColor }) => (
-            <Icon 
-              name="ios-person"
-              type = 'ionicon'  
-              color = {tintColor}
-              size = {35} 
-            />
-          )
+          tabBarIcon: (data) => {
+            const { focused } = data;   
+            return (
+              <Image 
+                source = { focused ? require('./assets/icons/activeProfile.png') : require('./assets/icons/profile.png')  }
+                style = {{ width: 28, height: 28}}
+              />
+            )  
+          },
+          tabBarLabel: (data)=> {
+            const { focused } = data;
+            return <Text style = {  focused ? styles.activeButtonText  : styles.buttonText } >Profile</Text>
+          }
         }
+        
       }
     />
   </Tab.Navigator>
@@ -159,6 +180,11 @@ const FirstScreenNavigator = () => {
       <Stack.Screen
         name="SignUpScreen"
         component={SignUpScreen}
+        options = { ()=> {return screenOptions} }
+      />
+      <Stack.Screen
+        name="TestScreen"
+        component={TestScreen}
         options = { ()=> {return screenOptions} }
       />
     </Stack.Navigator>
@@ -270,3 +296,14 @@ const HomeTabScreen = () => {
   }
   
   export {userProfile}; 
+
+  const styles= StyleSheet.create({
+    activeButtonText:{ 
+      fontSize: 14, 
+      fontWeight: '600', 
+      color: 'black' 
+    },
+    buttonText: {
+      fontSize: 12
+    }
+  })

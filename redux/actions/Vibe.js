@@ -116,7 +116,6 @@ export const getVibe = () => async (dispatch, getState) => {
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-    console.log("the getting vibe", res.data.data.getVibe)
     let transformCategories = res.data.data.getVibe.selectedCategories.length> 0 ?  res.data.data.getVibe.selectedCategories.split(','): []
     dispatch({
       type: Set_Vibe,

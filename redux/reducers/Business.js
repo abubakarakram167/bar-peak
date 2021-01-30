@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments, add_Favourite } from '../types'; 
+import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments, add_Favourite, Update_Rating } from '../types'; 
 
 const INITIAL_STATE = {
   businesses: [],
@@ -53,6 +53,20 @@ const businessReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         rating: action.payload
+      }
+    case Update_Rating:
+      console.log("the action.payload", action.payload.markerId)
+      console.log("the business", state.businesses[0])
+      const index = state.businesses.findIndex(todo => todo._id === action.payload.markerId)
+      const newArray = [...state.businesses]
+      newArray[index].rating = action.payload.rating
+      
+      
+      console.log("......///////////////////.////////////////")
+      console.log("after updating", newArray[index])
+      return {
+        ...state,
+        businesses:  newArray
       }    
     default:
       return state

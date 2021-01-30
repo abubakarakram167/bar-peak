@@ -132,7 +132,7 @@ export const getSearchData = (userVibeData, searchData) => {
   }
   else if(vibeCategory === "Moderate Party Time"){
     searchData.map(business => {
-      if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
+      if(business.category.length !== 0 ){
         const { rating } = business;
         const {difficultyGettingIn, fun, crowd } = rating
         if(crowd >= 4 && crowd <= 5 && difficultyGettingIn>=3 && fun>=3)
@@ -148,7 +148,7 @@ export const getSearchData = (userVibeData, searchData) => {
   }
   else if(vibeCategory === "Social Drinking"){
     searchData.map(business => {
-      if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
+      if(business.category.length !== 0 ){
         const { rating } = business;
         const {difficultyGettingIn, fun, crowd } = rating
         if(crowd >= 3 && crowd <= 4 && difficultyGettingIn <= 2 && fun>=3 )
@@ -163,7 +163,7 @@ export const getSearchData = (userVibeData, searchData) => {
   }
   else if(vibeCategory === "Baby Party Time"){
     searchData.map(business => {
-      if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
+      if(business.category.length !== 0 ){
         const { rating } = business;
         const { difficultyGettingIn, crowd } = rating
         if(crowd <=2 && difficultyGettingIn<=2)
@@ -178,7 +178,7 @@ export const getSearchData = (userVibeData, searchData) => {
   }
   else{
     searchData.map(business => {
-      if(business.category.length !== 0 && selectedBusinessIds.includes(business._id) ){
+      if(business.category.length !== 0 ){
         const { rating } = business;
         const { crowd, difficultyGettingIn } = rating;
         if(crowd <=1 && difficultyGettingIn <= 1 )

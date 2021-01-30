@@ -1,4 +1,4 @@
-import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments , add_Favourite} from '../types'; 
+import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments , Update_Rating} from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
@@ -26,8 +26,6 @@ export const addToFavourite = (id) => async (dispatch, getState) => {
     addOrRemove = "remove";
   else
     addOrRemove = "add";
-
-  console.log("add", addOrRemove)
 
   const body = {
     query:
@@ -220,7 +218,6 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
     }
     try{  
       const res = await axios.post(`graphql?`,body);
-      console.log("the search results", res.data.data.searchByUser)
       dispatch({
         type: Search_Results,
         payload: res.data.data.searchByUser,
@@ -240,8 +237,6 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
   // latitude = 32.7970465;
   // longitude = -117.254522;
   // finalRadius = 100000;
-
-  console.log(` the latitude ${latitude.toFixed(2)}  and longitude ${longitude.toFixed(2)} and final Radius radius ${finalRadius} `)
 
   const body = {
       query:`
@@ -373,6 +368,13 @@ export const emptyBusiness = () => async (dispatch, getState) => {
 export const addRating = (data) => async (dispatch, getState) => {
   dispatch({
     type: ADD_Rating,
+    payload: data,
+  })
+}
+
+export const updateSpecificBusinessRating = (data) => async (dispatch, getState) => {
+  dispatch({
+    type: Update_Rating,
     payload: data,
   })
 }

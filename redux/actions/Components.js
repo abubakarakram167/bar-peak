@@ -36,11 +36,8 @@ export const showRatingButton = (markerId) => async (dispatch, getState) => {
       headers: {
         'Authorization': `Bearer ${token}`
       }});
-      console.log("the data", responseShowRate)
+      
     const dataMoment = responseShowRate.data.data.showRateItButtonUntilNextHours
-    
-    console.log("the .................................................................................", dataMoment.ratingSaveTime);
-    console.log("heresss", moment(parseInt(dataMoment.ratingSaveTime)).local().format('YYYY-MM-DD HH:mm:ss') )
     dispatch({
       type: Show_Rating_button,
       payload: {...dataMoment, ratingSaveTime: moment(parseInt(dataMoment.ratingSaveTime)).local()}

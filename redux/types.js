@@ -17,3 +17,4 @@ export const add_Favourite = "add_Favourite";
 export const Show_Rating_modal = "show_rating_modal";
 export const Show_Rating_button = "show_Rating_button";
 export const Set_CountDown_timer = "Set_CountDown_timer"
+export const Update_Rating = "Update_Rating"

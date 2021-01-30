@@ -10,7 +10,14 @@ export default StyleSheet.create({
     borderColor: 'black',
     borderStyle: 'solid',
     alignItems: 'center',
-    justifyContent: 'center'  
+    justifyContent: 'center'
+  },
+  testing: {
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 3,  
+    elevation: 5
   },
   starComponent: {
     flex:1,
@@ -29,11 +36,14 @@ export default StyleSheet.create({
   },
   ratingCaseText: { 
     lineHeight: 13, 
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 11.5,
+    fontWeight: '500',
     width: '80%', 
     color: 'white',
-    textAlign: 'center'
+    textAlign: 'center',
+    textShadowColor: '#474747',
+    textShadowOffset: {width: 2, height: 1},
+    textShadowRadius: 2
   }
     
 })

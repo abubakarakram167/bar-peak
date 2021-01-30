@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text, KeyboardAvoidingView , ScrollView, Alert, Modal, Dimensions} from 'react-native';
+import { StyleSheet, TextInput, View, Image, TouchableOpacity, Text, KeyboardAvoidingView , ScrollView, Alert, Modal, Dimensions, Keyboard} from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -13,8 +13,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AlertComponent from '../components/AlertComponent';
 import DatePicker from './DatePicker';
-import NativeDatePicker from '../components/DatePicker/DatePicker'
-
+import CalendarModal from './Modals/CalendarModal';
+import NativeDatePicker from './DatePicker/DatePicker';
 const { width, height } = Dimensions.get("window");
 
 const shadowOpt = {
@@ -48,7 +48,7 @@ class SignUpComponent extends React.Component {
 	constructor(props){
 		super(props)
 		this.state = {
-      date : new Date(), 
+      date : moment().format("YYYY-MM-DD"), 
       showPicker: false,
       email: null,
       firstName: null,
@@ -57,7 +57,8 @@ class SignUpComponent extends React.Component {
       message: "",
       showError: false,
       gender: null,
-      errors: {}
+      errors: {},
+      showDatePicker: false
     }
 	}
 
@@ -75,6 +76,7 @@ class SignUpComponent extends React.Component {
   }
 
   changeDate = (date) => {
+    // console.log("the date", date)
     this.setState({ date: moment(date).format("YYYY-MM-DD"), showPicker: false })
     setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
   }
@@ -186,12 +188,14 @@ class SignUpComponent extends React.Component {
             showError = {this.state.showError}  
             message = {this.state.message} 
             closeModal = { ()=> this.setState({ showError: false  }) }  
+            rating = {true}
           />
         }
         <Text style = {{ color: "black", fontSize: 20, marginBottom: 20, fontWeight: "500" }} >Finish Signing Up </Text>
         <View style = {styles.inputForm} >
           
-          <ScrollView  
+          <ScrollView 
+            showsVerticalScrollIndicator={false} 
             contentContainerStyle = {{justifyContent: "flex-end"}}
             style = {{ backgroundColor: 'white', width: '80%'}}>
            
@@ -214,17 +218,25 @@ class SignUpComponent extends React.Component {
               />
               <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.firstName }</Text>
               <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.lastName }</Text>
-              <View style={styles.inputView} >
-                {/* <NativeDatePicker 
-                /> */}
-                <DatePicker 
-                  onChange = { (date)=> { 
-                    this.changeDate(date)
-                  }}
-                  dob = {null}
-                  value = { this.state.date  } 
-                />    
+              <TouchableOpacity
+                  onPress = {()=> this.setState({ showDatePicker: !this.state.showDatePicker }) }
+                >
+              <View
+                style = {{ flex:1, flexDirection: 'row' }}
+              >
+                <Text style = {[{ fontSize: 16 }, this.state.showDatePicker && { color: 'red', fontWeight: '600' } ]} > {moment(this.state.date).format('MMM Do YYYY').toString() } </Text>
+                <Image  
+                  source = { this.state.showDatePicker? require('../../assets/icons/closeArrow.png') :require('../../assets/icons/downArrow.png') } 
+                  style = {{ width: 20, height: 20 }}
+                />
               </View>
+              </TouchableOpacity>
+              <NativeDatePicker 
+                show = {this.state.showDatePicker} 
+                onClose = { ()=> { this.setState({ showDatePicker: false }) } }  
+                date = {this.state.date}
+                changeDate = { (date)=> this.changeDate(date) }
+              />    
               <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.date }</Text>
               <Text style = {styles.ageInfoText} >
                 To Sign up, you need to be atleast 21.Your birthday won't be shared with other people who use Bar Peak
@@ -364,7 +376,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: "center",
     margin: 0,
-    borderWidth: 0
+    borderWidth: 0,
+    zIndex: 1
   }
 }) 
 

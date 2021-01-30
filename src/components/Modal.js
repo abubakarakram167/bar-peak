@@ -82,7 +82,6 @@ class ProfileModal extends Component {
   getIconName = (icons) => {
     const { category } = this.props;
     let specificCategory = category.filter(category => category.title === icons)[0]
-    console.log("the specific category", specificCategory);
     let data;
     if(specificCategory.type === "sub_bar" || specificCategory.title === "Bar"){
       data =  iconsList.filter((icon) => icon.type === 'bar')[0]
@@ -98,7 +97,6 @@ class ProfileModal extends Component {
   }
 
   getBusinessRating = async (placeId) =>{
-    console.log("placeId", placeId)
     const body = {
       query:`
       query{
@@ -157,90 +155,6 @@ class ProfileModal extends Component {
     }
   }
 
-  getRatingCase = (ratingCase, value) => {
-    console.log(`the rating case ${ratingCase} and value is ${value}`)
-    if(ratingCase === "crowd"){
-      if(value >= 0 && value <= 0.9)
-        return "Dead";
-      else if (value >= 1 && value <= 1.9)
-        return "Some People";
-      else if (value >= 2 && value <= 2.9)
-        return "Decent Level of Crowd";
-      else if(value >= 3 && value <= 3.9)
-        return "Getting Pretty Crowded";
-      else if(value >= 4 && value <= 5)
-        return "Packed-in Like Sardines";
-    }
-    else if(ratingCase === "fun"){
-      if(value >= 0 && value <= 1)
-        return "Not Fun";
-      else if (value > 1 && value <= 2)
-        return "Sort Of Fun";
-      else if (value >= 2.1 && value <= 3)
-        return "Decent";
-      else if(value >= 3.1 && value <= 4)
-        return "Very Fun";
-      else if(value >= 4.1 && value <= 5)
-        return "All Time";
-    }
-    else if(ratingCase === "difficultyGettingIn"){
-      if(value >= 0 && value <= 1)
-        return "No Problem ";
-      else if (value > 1 && value <= 2)
-        return "Less than 5-minute wait";
-      else if (value > 2 && value <= 3 )
-        return "5 - 15-Minute Wait";
-      else if(value > 3 && value <= 4)
-        return "15 - 30-Minute Wait";
-      else if(value > 4 && value <= 5)
-        return "Over 30-Minute Wait ";
-    }
-    else if(ratingCase === 'genderBreakdown'){
-      if(value >= 0 && value <= 1)
-        return "Equal Girls and Guys";
-      else if (value > 1 && value <= 2)
-        return "More Guys than Girls";
-      else if (value >= 2.1 && value <= 3)
-        return "More Girls than Guys";
-    }
-    else if(ratingCase === "difficultyGettingADrink"){
-      if(value >= 0 && value <= 1)
-        return "No Problem";
-      else if (value >= 1 && value <= 2)
-        return "A Little Slow";
-      else if (value > 2 && value <= 3)
-        return "Starting to Get Annoying";
-      else if (value > 3 && value <= 4)
-        return "Forget About It";
-    }
-  }
-
-  getCaseColor = (value) => {
-    if(value>= 0.1 && value <=5)
-      return "red";
-    else if(value>= 5.1 && value <=7)  
-      return "orange";
-    else if(value>= 7.1 && value <=10)
-      return "green";  
-  }
-  getVibeCaseColor = (ratingCase, value) => {
-    const { vibe } = this.props.vibe.vibe;
-    if(ratingCase === "crowdy"){
-      if(vibe.crowdedPlace){
-        if(value>=0 && value<=2)
-          return "#ed4928"
-        else if (value >=3 && value <= 5)
-          return "#2bb552"  
-      }
-      else{
-        if(value>=0 && value<=2)
-          return "#14a843"
-        else if (value >=3 && value <= 5)
-          return "#ed4928" 
-      }
-      return "#d5db16";
-    }
-  }
   getMiles = (i) => {
     return i*0.000621371192;
   }
@@ -251,7 +165,7 @@ class ProfileModal extends Component {
     var userLocation = { lat: parseFloat(this.props.location.latitude).toFixed(5) , lng: parseFloat(this.props.location.longitude).toFixed(5) }
     var destinationLocation = { lat: latitude.toFixed(5) , lng: longitude.toFixed(5)  };
     var DistanceInMiles  =  haversine(userLocation, destinationLocation).toFixed(2)
-    console.log("the total distance distnce in meters", DistanceInMiles)
+    
     if(DistanceInMiles>=80) return false;
     return true;
   }
@@ -259,7 +173,7 @@ class ProfileModal extends Component {
   getFavouriteEstablishmentColor = (marker) => {
     const { favouriteBusiness } = this.props.business.business;
     const allEstablishmentIds = favouriteBusiness.map(business => business._id)
-    console.log("the allEstablishments", allEstablishmentIds)
+   
     if(allEstablishmentIds.includes(marker))
       return "red"
     else
@@ -267,7 +181,6 @@ class ProfileModal extends Component {
   }
 
   getOriginalOrDefaultRating = (defaultRating, originalRating) => {
-    console.log(`default rating ${defaultRating} and original rating: ${ originalRating } `)
     const { businessData } = this.props;
     const { noOfUsersUntilShowDefault: defaultRatingUsers , isRunning} = this.state;
     if(businessData.totalUserCountRating >= defaultRatingUsers && isRunning )
@@ -278,7 +191,7 @@ class ProfileModal extends Component {
   getShowRatingButton = () => {
     const { component } = this.props;
     const { showRatingButton, ratingStartTime } = component.component;
-    console.log(`showRating ${showRatingButton} and rating Start  ${ ratingStartTime }  `)
+   
     if(!showRatingButton){
       var now = moment(new Date()); //todays date
       var duration = moment.duration(now.diff(ratingStartTime));
@@ -340,7 +253,7 @@ class ProfileModal extends Component {
                     margin: 0,
                     backgroundColor: "rgba(128, 128, 128, 0.92)"
                   }}
-                  ImageComponentStyle={{borderRadius: 15, borderWidth: 1 ,width: '100%', height: height * 0.3 ,marginTop: 5}}
+                  ImageComponentStyle={{borderRadius: 15, borderWidth: 1 ,width: '100%', height: 270 ,marginTop: 5}}
                   imageLoadingColor="#2196F3"
                 />
               </View> 
@@ -464,6 +377,7 @@ class ProfileModal extends Component {
                     noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
                     isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
+                    currentVibe = {vibe}
                   /> 
                   <RatingComponent 
                     defaultRating = {defaultRating.fun}
@@ -473,6 +387,7 @@ class ProfileModal extends Component {
                     noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
                     isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
+                    currentVibe = {vibe}
                   /> 
                   <RatingComponent 
                     defaultRating = {defaultRating.difficultyGettingIn}
@@ -482,6 +397,7 @@ class ProfileModal extends Component {
                     noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
                     isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
+                    currentVibe = {vibe}
                   /> 
                    <RatingComponent 
                     defaultRating = {defaultRating.genderBreakdown}
@@ -491,6 +407,7 @@ class ProfileModal extends Component {
                     noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
                     isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
+                    currentVibe = {vibe}
                   /> 
                    <RatingComponent 
                     defaultRating = {defaultRating.difficultyGettingIn}
@@ -500,59 +417,9 @@ class ProfileModal extends Component {
                     noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
                     isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
+                    currentVibe = {vibe}
                   /> 
-                  {/* <View 
-                    style = {[styles.starComponent, { marginTop:0 }]} 
-                  >
-                    <Text style = {styles.heading } >Crowd Factor</Text>
-                    <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: this.getVibeCaseColor('crowdy', this.getOriginalOrDefaultRating(defaultRating.crowd, rating.crowd))}]}
-                    >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("crowd",  this.getOriginalOrDefaultRating(defaultRating.crowd, rating.crowd) ) }</Text>
-                    </TouchableOpacity>
-                  </View> */}
-                  {/* <View 
-                    style = {styles.starComponent} 
-                  >
-                    <Text style = {styles.heading } >Fun Factor</Text>
-                    <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
-                    >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("fun", this.getOriginalOrDefaultRating(defaultRating.fun, rating.fun)) }</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View 
-                    style = {styles.starComponent} 
-                  >
-                    <Text style = {styles.heading }  >Gender Breakdown</Text>
-                    <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
-                    >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("genderBreakdown", this.getOriginalOrDefaultRating(defaultRating.ratioInput, rating.ratioInput ) ) }</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View 
-                    style = {styles.starComponent} 
-                  >
-                    <Text style = {styles.heading }  >Difficulty Getting in</Text>
-                    <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
-                    >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingIn", this.getOriginalOrDefaultRating(defaultRating.difficultyGettingIn, rating.difficultyGettingIn )) }</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View 
-                    style = {styles.starComponent} 
-                  >
-                    <Text style = {styles.heading }>Difficulty Getting a Drink</Text>
-                    <TouchableOpacity
-                      style = {[styles.ratingButtonToggle, { backgroundColor: '#5878d1'}]}
-                    >
-                      <Text style = {styles.ratingLabel} >{ this.getRatingCase("difficultyGettingADrink", this.getOriginalOrDefaultRating(defaultRating.difficultyGettingDrink, rating.difficultyGettingDrink )  ) }</Text>
-                    </TouchableOpacity>
-                  </View>         */}
                 </View>
-                
                 <View
                   style={[styles.divider, { marginBottom: 20 }]}
                 />
@@ -581,7 +448,7 @@ class ProfileModal extends Component {
                     </View>     
                 } */}
                   { 
-                    !this.getShowRatingButton() && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You can't Rate next until 60 minutes..  </Text>
+                    !this.getShowRatingButton() && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You already rated this spot! Come back in an hour. </Text>
                   }
                    { 
                     !this.checkUserRatingAvailableDistance()  && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You must have to be near around 80 meters of that Establishment to Rate it! </Text>
@@ -591,12 +458,18 @@ class ProfileModal extends Component {
                       <TouchableOpacity
                         style = { this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? styles.activeRateButton : styles.disableRateButton }
                         disabled={ this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? false : true }
-                        activeOpactity = {0.2}
+                        activeOpactity = {0.9}
                         onPress = {() => { 
                           this.props.showRatingModal(true) 
                         }}
                       >
-                        <Text style = { this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? styles.activeRateButtonStyling:  styles.disableRateButtonStyling } > Rate It! </Text>
+                        <Text 
+                          style = { 
+                            this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? styles.activeRateButtonStyling:  styles.disableRateButtonStyling 
+                          } 
+                        > 
+                          Rate It! 
+                        </Text>
                       </TouchableOpacity>
                     </View>
                   
@@ -688,7 +561,6 @@ class RateModal extends React.Component{
 
   componentDidMount(){
     const { rating } = this.props
-    console.log("the rating with props", rating);
     this.setState({ 
       fun: rating.fun,
       crowd: rating.crowd,
@@ -770,10 +642,11 @@ const styles = StyleSheet.create({
   },
   disableRateButton: {
     borderRadius: 6, 
-    borderWidth:1,
+    borderWidth:0.3,
+    borderColor: 'gray',
     height: '100%', 
     width: '40%',
-    backgroundColor: '#d9dbda' 
+    backgroundColor: '#e8e8e8'
   },
   activeRateButtonStyling: { 
     textAlign: 'center',
@@ -786,7 +659,7 @@ const styles = StyleSheet.create({
   disableRateButtonStyling: {
     textAlign: 'center',
     fontSize: 16,
-    color: 'black',
+    color: 'gray',
     fontWeight: '400',
     paddingTop: 15, 
     paddingBottom: 15 

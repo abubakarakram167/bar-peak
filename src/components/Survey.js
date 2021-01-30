@@ -10,6 +10,7 @@ import { getUserData } from './localStorage';
 import axios  from '../api/axios';
 import AlertComponent from './AlertComponent';
 import moment from 'moment';
+import { updateSpecificBusinessRating, getfilteredBusiness } from '../../redux/actions/Business';
 import { showRatingModal, showRatingButton, setCountDowntimer } from '../../redux/actions/Components';
 
 const GREEN = 'rgba(32, 168, 68,1)';
@@ -322,6 +323,8 @@ export class SurveyComponent extends React.PureComponent {
         ratioInput: FinalAnswers[3].value,
         difficultyGettingADrink: FinalAnswers[4].value
       }
+      console.log("....///////")
+      console.log("the rating answers", rating)
       this.setState({ spinner: true })
       const { token } = await getUserData();
       const { data } = this.props;
@@ -337,6 +340,7 @@ export class SurveyComponent extends React.PureComponent {
             },
             businessId: "${data.markerId}",
             ratingSaveTime: "${moment.utc(moment())}"
+            performTime: "${moment().format()}"
             ){
               fun,
               crowd,
@@ -356,12 +360,16 @@ export class SurveyComponent extends React.PureComponent {
         this.setState({ spinner: false, showConfirmation: true },()=>{
           setTimeout(()=>{  
             this.props.showRatingModal(false)
-            // this.props.setCountDowntimer(120)
+            this.props.updateSpecificBusinessRating({
+              markerId: data.markerId,
+              rating: res.data.data.addRating 
+            })
+            this.props.getfilteredBusiness(null, null, null);
             this.props.showRatingButton(data.markerId)
           }, 2000)
         })
       }catch(err){
-        console.log("hte errorsss", err)
+        console.log("the error in survey", err)
       }
   
     }
@@ -417,7 +425,9 @@ const mapDispatchToProps = dispatch => (
     setProgressionBar,
     showRatingModal,
     showRatingButton,
-    setCountDowntimer
+    setCountDowntimer,
+    updateSpecificBusinessRating,
+    getfilteredBusiness
   }, dispatch)
 );
 

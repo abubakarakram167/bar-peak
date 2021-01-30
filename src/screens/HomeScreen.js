@@ -87,8 +87,8 @@ class HomeScreen extends Component {
     await Location.watchPositionAsync(
       {
         enableHighAccuracy: true,
-        distanceInterval: 5,
-        timeInterval: 4000
+        distanceInterval: 10,
+        timeInterval: 6000
       },
       newLocation => {
         console.log('the new location', newLocation)

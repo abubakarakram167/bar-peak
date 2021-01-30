@@ -144,5 +144,20 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     marginTop: 15
-  }
+  },
+  back: {
+    width: 100,
+    height: 100,
+    backgroundColor: 'blue',
+    zIndex: 0
+},
+front: {
+    position: 'absolute',
+    top:25,
+    left:25,
+    width: 50,
+    height:50,
+    backgroundColor: 'red',
+    zIndex: 1
+}
 });
