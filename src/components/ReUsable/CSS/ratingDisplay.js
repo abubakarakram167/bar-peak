@@ -3,9 +3,9 @@ import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   ratingCircle:{
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     borderWidth: 1,
     borderColor: 'black',
     borderStyle: 'solid',
@@ -30,13 +30,14 @@ export default StyleSheet.create({
   heading: {
     textAlign: 'left',
     width: '35%',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '500',
     flex: 2
+
   },
   ratingCaseText: { 
     lineHeight: 13, 
-    fontSize: 11.5,
+    fontSize: 9,
     fontWeight: '500',
     width: '80%', 
     color: 'white',

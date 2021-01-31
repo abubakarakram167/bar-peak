@@ -81,7 +81,7 @@ class MapScreen extends React.PureComponent{
   componentDidMount(){
     setTimeout(()=> {
       this.setState({tracksViewChanges: true })
-      this.makeAnimate()
+      // this.makeAnimate()
     }, 2000)
    
   }
@@ -202,6 +202,12 @@ class MapScreen extends React.PureComponent{
   }
   changedView = (view) => {
     this.setState({ currentView: view })
+    if(view === 'map'){
+      this.setState({ showCard: false })
+      setTimeout(()=>{
+        this.makeAnimate() 
+      }, 200)
+    }
     Keyboard.dismiss()
   }
 

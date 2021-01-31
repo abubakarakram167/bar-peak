@@ -198,6 +198,7 @@ class ProfileModal extends Component {
       var days = duration.asSeconds();
       console.log( " the total seconds",  parseInt(days))
     }
+    console.log("show rating button", showRatingButton)
     return showRatingButton
   }
 
@@ -392,7 +393,7 @@ class ProfileModal extends Component {
                   <RatingComponent 
                     defaultRating = {defaultRating.difficultyGettingIn}
                     rating = {rating.difficultyGettingIn}
-                    ratingHeading = "DifficultyGettingIn"
+                    ratingHeading = "Difficulty Getting In"
                     ratingCase = "difficultyGettingIn"
                     noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
                     isRunning = {this.state.isRunning}
@@ -412,7 +413,7 @@ class ProfileModal extends Component {
                    <RatingComponent 
                     defaultRating = {defaultRating.difficultyGettingIn}
                     rating = {rating.difficultyGettingIn}
-                    ratingHeading = "DifficultyGettingDrink"
+                    ratingHeading = "Difficulty Getting a Drink"
                     ratingCase = "difficultyGettingADrink"
                     noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
                     isRunning = {this.state.isRunning}

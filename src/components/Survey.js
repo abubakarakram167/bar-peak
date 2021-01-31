@@ -400,6 +400,8 @@ export class SurveyComponent extends React.PureComponent {
                 visible={this.state.spinner}
                 textContent={'Loading...'}
                 textStyle={styles.spinnerTextStyle}
+                color = "white"
+                animation = "fade"
               />
             </View>
             { 
