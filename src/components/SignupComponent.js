@@ -98,10 +98,6 @@ class SignUpComponent extends React.Component {
     let errors = {}
     let isValid = true;
    
-    if(!this.state.gender){
-      isValid = false;
-      errors["gender"] = "Please input gender"
-    }
     if(!this.state.firstName){
       isValid = false;
       errors["firstName"] = "Please input first Name"
@@ -201,26 +197,37 @@ class SignUpComponent extends React.Component {
            
             <KeyboardAwareScrollView  
               style ={{ flex:1}} 
-            >       
+            > 
+               <Text 
+                style = {{ fontSize: 16, marginBottom: 5 }} 
+              > 
+                FirstName 
+              </Text> 
               <TextInput
-                style={[ pickerSelectStyles.inputIOS]}
-                placeholder="First Name"
-                placeholderTextColor="#003f5c"
+                style={[ pickerSelectStyles.inputIOS, {marginBottom: 25}]}
+                placeholder="Please Select Your First Name."
+                placeholderTextColor="#c2c0be"
                 onChangeText={val => this.onChangeText('firstName', val)}
                 value = {this.state.firstName}
-              />      
+              /> 
+              <Text 
+                style = {{ fontSize: 16, marginBottom: 5 }} 
+              > 
+                LastName
+              </Text>      
               <TextInput
-                style={styles.customInputText}
+                style={[styles.customInputText]}
                 placeholder="Last Name"
-                placeholderTextColor="#003f5c"
+                placeholderTextColor="#c2c0be"
                 onChangeText={val => this.onChangeText('lastName', val)}
                 value = {this.state.lastName}
               />
               <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.firstName }</Text>
               <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.lastName }</Text>
               <TouchableOpacity
-                  onPress = {()=> this.setState({ showDatePicker: !this.state.showDatePicker }) }
-                >
+                onPress = {()=> this.setState({ showDatePicker: !this.state.showDatePicker }) }
+              >
+              <Text style = {{ fontSize: 16, marginBottom: 5 }} > Date of Birth </Text>  
               <View
                 style = {{ flex:1, flexDirection: 'row' }}
               >
@@ -241,12 +248,13 @@ class SignUpComponent extends React.Component {
               <Text style = {styles.ageInfoText} >
                 To Sign up, you need to be atleast 21.Your birthday won't be shared with other people who use Bar Peak
               </Text>
-              <View style={styles.inputView} >
+              <Text style = {{ fontSize: 16, marginBottom: 5, marginTop:10 }} > Email </Text> 
+              <View style={[styles.inputView, {marginTop: 5}]} >  
                 <TextInput
                   style={ styles.inputText }
-                  placeholder="Email"
+                  placeholder="Please Select Your Email."
                   ref= "email"
-                  placeholderTextColor="#003f5c"
+                  placeholderTextColor="#c2c0be"
                   value = {this.state.email}
                   onChangeText={val => this.onChangeText('email', val)}
                   editable={ this.props.user ? false : true   }
@@ -259,26 +267,30 @@ class SignUpComponent extends React.Component {
                 </View>
                 )
               }
-              <View style = { [styles.inputView, { padding: 0, paddingLeft: 20 }] } >
+              <Text 
+                style = {{ fontSize: 16, marginBottom: 5 }} 
+              > 
+                Gender 
+              </Text> 
+              <View style = { [styles.inputView, { padding: 0, paddingLeft: 20, marginTop: 5 }] } >
                 <RNPickerSelect
-                  style={[styles.inputText ]}
+                  style={[styles.inputText, { inputIOS:{ placeholder: {  color: 'black' }  } } ]}
                   onValueChange={(value) => console.log(value)}
-                  placeholderTextColor="black"
 
                   placeholder = {
-                    { label: 'Please Select Your Gender', value: 'female', color: 'black' }
+                    { label: 'Please Select Your Gender (Optional)', value: null, color: 'black' }
                   }
                   items={[
                       { label: 'Female', value: 'female', color: 'black' },
                       { label: 'Male', value: 'male' },
                       { label: 'Other', value: 'other' },
                   ]}
+                  value = {this.state.gender}
                   onValueChange={(value) => {
                     this.setState({ gender: value })
                   }}
                 />
               </View>
-              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.gender }</Text>
               <TouchableOpacity style={styles.acceptButton} onPress = { ()=>{this.signUp()} } >
                 <Text style={styles.SignUpText}>Accept and Continue</Text>
               </TouchableOpacity>
@@ -307,7 +319,8 @@ const styles = StyleSheet.create({
   ageInfoText: {
     lineHeight: 16, 
     marginTop: 10, 
-    color: 'gray',
+    color: '#818282',
+    fontWeight: '500',
     fontSize: 12,
     fontWeight: "300"
   },
@@ -366,10 +379,9 @@ const styles = StyleSheet.create({
     color: "gray",
     borderWidth:0.5, 
     paddingLeft: 10,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-    paddingTop: 20,
-    paddingBottom: 20
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderRadius: 8,
   },
   container: {
     flex: 1,
@@ -384,14 +396,11 @@ const styles = StyleSheet.create({
 const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
     fontSize: 14,
-    paddingVertical: 20,
+    paddingVertical: 16,
     paddingHorizontal: 10,
     borderWidth: 1,
-    borderBottomWidth:0.2,
     borderColor: 'gray',
     borderRadius: 8,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
     width: "100%",
     color: 'gray',
     paddingRight: 0, // to ensure the text is never behind the icon

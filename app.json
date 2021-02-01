@@ -25,7 +25,7 @@
       "config": {
         "googleMapsApiKey": "AIzaSyDYMuda8NnE5Q-b36ZOmCqZV-SKALcbdX0"
       },
-      "buildNumber": "1.0.6",
+      "buildNumber": "1.0.8",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app use the user gallery to access their photos so you can upload their photo to your profile account.",
         "NSLocationWhenInUseUsageDescription": "This allow us to use your location to suggest you the best bars and night spots you could entertain yourself. Through this you can get the accurate results."

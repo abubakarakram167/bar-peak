@@ -126,14 +126,14 @@ class ProgressStepBar extends Component {
     const { barOrNightClub, fun, crowdLevel } = vibe;
     if(fun === "Hard" && crowdLevel === "Crowded" )
       vibeCategory = "Professional Party Time";
-    else if(fun === "Moderate" && crowdLevel === "Crowded")
+    else if( (fun === "Moderate"  &&  crowdLevel === "Crowded" )  ||  (fun === "Hard"  &&  crowdLevel === "Moderate Crowd" ) )
       vibeCategory = "Moderate Party Time";
-    else if(fun === "Mellow" && barOrNightClub === 'bar' && this.getSelectedCategories(barOrNightClub).includes(onlyDiveBar) && crowdLevel === "Uncrowded" )
-    vibeCategory = "Netflix and Chill";    
-    else if(["Moderate"].includes(fun) && barOrNightClub === 'bar' && crowdLevel === "Uncrowded")
+    else if(fun === "Mellow" && barOrNightClub === 'bar' && this.getSelectedCategories(barOrNightClub).length ===1  && this.getSelectedCategories(barOrNightClub).includes(onlyDiveBar) && crowdLevel === "Uncrowded" )
+      vibeCategory = "Netflix and Chill";
+    else if(fun === "Mellow" && crowdLevel === "Uncrowded"  )
+      vibeCategory = "Baby Party Time";        
+    else if( (["Moderate", "Mellow"].includes(fun) && crowdLevel === "Moderate Crowd") ||  (fun === "Hard"  &&  crowdLevel === "Uncrowded" )  )
       vibeCategory = "Social Drinking";
-    else if(fun === "Mellow" && barOrNightClub === 'bar' && crowdLevel === "Uncrowded"  )
-      vibeCategory = "Baby Party Time";  
     else{
       this.setState({ restartVibeModal: true })
       submit = false
@@ -156,7 +156,7 @@ class ProgressStepBar extends Component {
         this.props.getfilteredBusiness(null, null, null);
         setTimeout(()=> {
           this.setState({ showIndicator: false }, ()=> {
-            navigation.navigate('Screen 1'); 
+            navigation.navigate('Screen 1', { showVibeModal: true }); 
           })
         }, 1000) 
        

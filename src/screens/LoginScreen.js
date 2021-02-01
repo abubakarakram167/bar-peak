@@ -107,7 +107,7 @@ import LoginSignupModal from "../components/ModalLogInSignUp";
     const {navigation} = this.props;
     return (
       <View style={styles.container}>
-        <Modal
+        {/* <Modal
           visible={this.state.showModal}
           animationType="fade"
           presentationStyle="overFullScreen"
@@ -124,9 +124,9 @@ import LoginSignupModal from "../components/ModalLogInSignUp";
               </View>
             </View>
           </View>
-        </Modal> 
+        </Modal>  */}
        
-        <Image style = { styles.ImageLogo }  source = {{ uri: "https://i.pinimg.com/originals/89/89/7a/89897a8a430fdc2ca10b14f579dc3551.png" }}  />
+        <Image style = { styles.ImageLogo }  source = {require('../../assets/welcomeScreen.png') }  />
  
         <View style = {styles.loginContainer} >
           {/* <TouchableOpacity style={styles.SignUpBtn} onPress = { ()=>{ this.props.navigation.navigate("SignUpScreen") } } >
@@ -136,7 +136,7 @@ import LoginSignupModal from "../components/ModalLogInSignUp";
             style={styles.SignUpBtn} 
             onPress = { ()=> this.setState({ showSignUpModal: true })  } 
           >
-            <Text style={styles.loginText}>SignUp / LOGIN</Text>
+            <Text style={styles.loginText}>Sign Up / Log In</Text>
           </TouchableOpacity>
         </View>
         <Spinner

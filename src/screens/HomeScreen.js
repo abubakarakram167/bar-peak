@@ -20,6 +20,7 @@ import VibeRequirePopUp from '../components/Modals/VibeRequiredPopupModal';
 import _, { map } from 'underscore';
 import Modal from '../components/Modal';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
+import ShowVibeModal from "../components/showVibeModal";
 
 const DismissKeyboard = ({ children }) => (
   <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -112,11 +113,21 @@ class HomeScreen extends Component {
     
   render() {  
     const {navigation} = this.props;
+    const {params} = this.props.route;
+    console.log("the params.....", params)
     return (
       <DismissKeyboard> 
         <SafeAreaView style = {{ flex: 1 }} >
           <View style={{ flex: 1 }}>
-            <MapComponent navigation = {navigation}/>
+            <MapComponent showVibe = {params} navigation = {navigation}/>
+            { (this.state.showVibeModal && !this.state.isVibeEmpty) &&
+              (<ShowVibeModal 
+                show = {this.state.showVibeModal}
+                onClose = {() => { this.setState({ showVibeModal: false }) }}
+                navigation = {navigation}
+              />
+              )
+            } 
             { this.state.showModal &&
               < VibeRequirePopUp 
                 show = {this.state.showModal} 

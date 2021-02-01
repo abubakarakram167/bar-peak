@@ -11,7 +11,7 @@ import AlertComponent from '../components/AlertComponent';
 import { removeStorageItem } from '../components/localStorage';
 import { updateUser } from '../../redux/actions/User';
 import ImageUploader from '../components/ImageUploader';
-import DatePicker from '../components/DatePicker';
+import NativeDatePicker from '../components/DatePicker/DatePicker';
 
 const { height, width } = Dimensions.get('window')
 
@@ -56,7 +56,9 @@ class SignUpComponent extends React.Component {
       showError: false,
       gender: "",
       password: "",
-      newEmail: null
+      newEmail: null, 
+      profilePic: null,
+      disableButton: false
     }
 	}
 
@@ -92,6 +94,7 @@ class SignUpComponent extends React.Component {
     const {navigation} = this.props;    
   
     try{
+      console.log("before t", this.state)
       const isSameEmail=  await this.props.updateUser(this.state)
       console.log("is Email Change", isSameEmail)
       if(!isSameEmail)
@@ -116,7 +119,16 @@ class SignUpComponent extends React.Component {
     const { user } = this.props.user.user;
 		return (
       <View style = {styles.container} >
-        <ImageUploader profilePic = {user.profilePic} onUpload = {(url)=>{  this.setState({ profilePic: url })  }} />
+        <ImageUploader 
+          profilePic = {user.profilePic} 
+          onUpload = {(url)=>{  
+            console.log("before upload", url)
+            this.setState({ profilePic: url, disableButton: false }, ()=> { 
+              console.log("the profile", this.state) 
+            })  
+          }} 
+          disable = { ()=>  this.setState({ disableButton: true })}
+        />
         { this.state.showError && <AlertComponent 
             showError = {this.state.showError}  
             message = {this.state.message} 
@@ -124,6 +136,7 @@ class SignUpComponent extends React.Component {
         />}
         <View style = {styles.inputForm} >
             <KeyboardAwareScrollView showsVerticalScrollIndicator={false} style ={{ flex:1 }} >  
+              <Text style = {{ fontSize: 16, marginLeft: 2, fontWeight: '600' }} >First Name</Text>
               <View style={styles.inputView} >
                 <TextInput
                   style={[styles.inputText]}
@@ -133,7 +146,8 @@ class SignUpComponent extends React.Component {
                   value = {this.state.firstName}
                 />
               </View>
-              <View style={styles.inputView} >
+              <Text style = {{ fontSize: 16, marginLeft: 2, fontWeight: '600', marginTop: 20 }} >Last Name</Text>
+              <View style={[styles.inputView, { marginBottom:0 }]} >
                 <TextInput
                   style={styles.inputText}
                   placeholder="Last Name"
@@ -142,14 +156,27 @@ class SignUpComponent extends React.Component {
                   value = {this.state.lastName}
                 />
               </View>
-              <View style={styles.inputView} >
-                <DatePicker 
-                  dob = { this.state.date && this.state.date }
-                  onChange = { (date)=> { 
-                    this.changeDate(date)
-                  }} 
+              {/* <TouchableOpacity
+                style = {{ marginTop: 20 }}
+                onPress = {()=> this.setState({ showDatePicker: !this.state.showDatePicker }) }
+              >
+              <View
+                style = {{ flex:1, flexDirection: 'row' }}
+              >
+                <Text style = {[{ fontSize: 16 }, this.state.showDatePicker && { color: 'red', fontWeight: '600' } ]} > {moment(this.state.date).format('MMM Do YYYY').toString() } </Text>
+                <Image  
+                  source = { this.state.showDatePicker? require('../../assets/icons/closeArrow.png') :require('../../assets/icons/downArrow.png') } 
+                  style = {{ width: 20, height: 20 }}
                 />
               </View>
+              </TouchableOpacity>
+              <NativeDatePicker 
+                show = {this.state.showDatePicker} 
+                onClose = { ()=> { this.setState({ showDatePicker: false }) } }  
+                date = {this.state.date}
+                changeDate = { (date)=> this.changeDate(date) }
+              />  */}
+
             { user.accountType === "app" &&
               <View>
                 <View>
@@ -168,7 +195,7 @@ class SignUpComponent extends React.Component {
                   <View style={styles.inputView} >
                     <TextInput
                       style={ styles.inputText }
-                      placeholder="New Email"
+                      placeholder="Change Email"
                       placeholderTextColor="#003f5c"
                       value = {this.state.newEmail}
                       onChangeText={val => this.onChangeText('newEmail', val)}
@@ -183,9 +210,10 @@ class SignUpComponent extends React.Component {
                   placeholderTextColor="black"
                   value = {this.state.gender}
                   placeholder = {
-                    { label: 'Female', value: 'female', color: 'black' }
+                    { label: 'Please Select Your Gender (Optional)', value: null, color: 'black' }
                   }
                   items={[
+                      { label: 'Female', value: 'female', color: 'black' },
                       { label: 'Male', value: 'male' },
                       { label: 'Other', value: 'other' },
                   ]}
@@ -194,11 +222,13 @@ class SignUpComponent extends React.Component {
                   }}
                 />
               </View>
-              <TouchableOpacity style={{ width: '40%',alignSelf: 'center' ,backgroundColor: 'black', marginTop: '10%', borderRadius: '10%' }} onPress = { ()=>{this.updateUser()} } >
+              <TouchableOpacity 
+                style={styles.updateButton} 
+                onPress = { ()=>{this.updateUser()} }
+                disabled = {this.state.disableButton}
+              >
                 <Text style={styles.SignUpText}>Update</Text>
               </TouchableOpacity>
-            {/* </KeyboardAvoidingView>
-          </ScrollView> */} 
           </KeyboardAwareScrollView>   
         </View>
         <Spinner
@@ -227,6 +257,14 @@ const mapDispatchToProps = dispatch => (
 export default connect(mapStateToProps, mapDispatchToProps)(SignUpComponent);
 
 const styles = StyleSheet.create({
+  updateButton: {
+    width: '40%',
+    alignSelf: 'center' ,
+    backgroundColor: 'black', 
+    marginTop: '10%', 
+    borderRadius: 10,
+    marginBottom: 20 
+  },
   SignUpText: {
     fontSize: 25,
     color: 'white',
@@ -241,7 +279,7 @@ const styles = StyleSheet.create({
   },
   inputForm: {
     marginTop: 0,
-    flex: 1,
+    flex: 2,
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',

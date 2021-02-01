@@ -22,9 +22,9 @@ export default (props) => {
         <DialogContent>
           <Text style = {{ fontSize: 25, marginTop: 10 }} >What Below means </Text>
           <Text style = {{ fontSize: 20, marginTop: 30, fontWeight: '600' }} >Venue By Vibe:</Text>
-          <Text style = {{ marginTop: 15, color: 'gray' }} >Showing all establishments in our database. </Text>
-          <Text style = {{ fontSize: 20, marginTop: 30, fontWeight: '600' }} >All Venues:</Text>
           <Text style = {{ marginTop: 15, color: 'gray' }} >Showing only the establishments that were selected when setting your vibe. Change your vibe for different results on this setting. </Text>
+          <Text style = {{ fontSize: 20, marginTop: 30, fontWeight: '600' }} >All Venues:</Text>
+          <Text style = {{ marginTop: 15, color: 'gray' }} >Showing all establishments in our database. </Text>
         </DialogContent>
       </Dialog>
     </View>

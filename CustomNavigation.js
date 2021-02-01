@@ -7,15 +7,14 @@ import TestScreen from './src/screens/testScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import MyVibeScreen from './src/screens/MyVibe';
-import Screen2 from "./screens/Screen2";
+import MealMissionMainScreen from './src/screens/MealMission';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import vibeInfoComponent from "./src/screens/vibeInfoScreen";
 import radiusScreen from "./src/screens/radiusScreen";
 import editProfileScreen from "./src/screens/EditProfile";
 import MyFavouritesScreen from "./src/screens/MyFavourites";
 import SpecificCategoryScreen from "./src/screens/specificCategoryFavourite";
-import { Icon } from 'react-native-elements'
-import {Text, Image, StyleSheet} from 'react-native'
+import {Text, Image, StyleSheet, View} from 'react-native'
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();  // creates object for Stack Navigator
@@ -66,7 +65,7 @@ function HomeApp() {
             return (
               <Image 
                 source = { focused ? require('./assets/icons/ativeHome.png') : require('./assets/icons/home.png')  }
-                style = {{ width: 28, height: 28}}
+                style = {styles.tabImageSize }
               />
             )      
           },
@@ -90,7 +89,7 @@ function HomeApp() {
             return (
               <Image 
                 source = { focused ? require('./assets/icons/activeHeart.png') : require('./assets/icons/heart.png')  }
-                style = {{ width: 28, height: 28}}
+                style = {styles.tabImageSize }
               />
             )      
           },
@@ -114,7 +113,7 @@ function HomeApp() {
             return (
               <Image 
                 source = { focused ? require('./assets/icons/activeThermometer.png') : require('./assets/icons/thermometer.png')  }
-                style = {{ width: 28, height: 28}}
+                style = {styles.tabImageSize }
               />
             )  
           },
@@ -125,7 +124,36 @@ function HomeApp() {
         }
       }
     />
-     <Tab.Screen
+    <Tab.Screen
+      name="Meal Mission"
+      component={MealMissionTab}  // Replaced Screen 3
+      options = 
+      {
+        {
+          tabBarLabel: 'Meal Mission',
+          unmountOnBlur: true,
+          tabBarIcon: (data) => {
+            const { focused } = data;   
+            return (
+              <Image 
+                source = { focused ? require('./assets/icons/activeMealMission.png') : require('./assets/icons/mealMission.png')  }
+                style = {[styles.tabImageSize, {position: 'relative', top: 5}] }
+              />
+            )  
+          },
+          tabBarLabel: (data)=> {
+            const { focused } = data;
+            return (
+              <View style = {{ flex: 1, justifyContent: 'flex-end', position: 'relative', top: 12 }} >
+                 <Text style = {  [focused ? styles.activeButtonText  : styles.buttonText, { width: '80%' }] } >Meal Mission</Text>
+                 <Text style = {{ fontSize: 10, textAlign: 'center',color: '#f59e07', fontWeight:'900' }} >Coming Soon</Text>
+              </View>
+            ) 
+          }
+        }
+      }
+    />
+    <Tab.Screen
       name="Screen 4"
       component={userProfile}  // Replaced Screen 3
       options = 
@@ -138,7 +166,7 @@ function HomeApp() {
             return (
               <Image 
                 source = { focused ? require('./assets/icons/activeProfile.png') : require('./assets/icons/profile.png')  }
-                style = {{ width: 28, height: 28}}
+                style = {styles.tabImageSize }
               />
             )  
           },
@@ -253,6 +281,21 @@ const HomeTabScreen = () => {
   
   export {MyVibeTab}; 
 
+  const MealMissionTab = () => {
+    return (
+      <Stack.Navigator initialRouteName = "MealMission" >
+        <Stack.Screen
+          name="MealMission"
+          component={MealMissionMainScreen}
+          options = { ()=> {return screenOptions} }
+        />
+      </Stack.Navigator>
+    );
+  }
+  
+    
+  export {MealMissionTab}; // Stack-Navigator for Screen 2 Tab
+
   const userProfile = () => {
     return (
       <Stack.Navigator initialRouteName = "userSettingOptions" >
@@ -261,7 +304,7 @@ const HomeTabScreen = () => {
           component={userSettings}
           options = {
           { title: "Settings",
-            headerShown: true,
+            headerShown: false,
             headerLeft: () => {return null} 
           }}
         />
@@ -299,11 +342,15 @@ const HomeTabScreen = () => {
 
   const styles= StyleSheet.create({
     activeButtonText:{ 
-      fontSize: 14, 
+      fontSize: 13, 
       fontWeight: '600', 
       color: 'black' 
     },
     buttonText: {
       fontSize: 12
+    },
+    tabImageSize: {
+      width: 26,
+      height: 26
     }
   })

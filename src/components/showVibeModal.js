@@ -39,7 +39,7 @@ class showVibeModal extends Component {
               <Text style={styles.modalText}>Your Current Vibe</Text>
               <Text style = {styles.vibeCategoryText} >{ vibe.vibeCategory }</Text>
               <Text style={styles.modalText} >Looking For  </Text>
-              <Text style = {styles.vibeCategoryText} >{ barOrNightClub === 'nightClub' ? 'Night Club' : 'Bar' }</Text>
+              <Text style = {styles.vibeCategoryText} >{ barOrNightClub === 'nightClub' ? 'Night Clubs' : 'Bars' }</Text>
 
               <View
                 style = {{ width: width * 0.7 }}
@@ -59,7 +59,7 @@ class showVibeModal extends Component {
                     navigation.navigate('Screen 1')
                   }}
                 >
-                  <Text style={styles.textStyle}>No</Text>
+                  <Text style={styles.textStyle}>Keep Vibe</Text>
                 </TouchableHighlight>
               </View>
             </View>

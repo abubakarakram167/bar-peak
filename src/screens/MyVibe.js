@@ -29,7 +29,7 @@ class MyVibe extends React.Component{
         showVibeModal: true,
         isVibeEmpty: _.isEmpty(vibe)
       }, ()=> console.log("the stae", this.state))
-    }, 300)    
+    }, 500)    
     await this.props.getAllCategories();
   }
 

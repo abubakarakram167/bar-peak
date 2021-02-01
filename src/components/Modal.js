@@ -67,7 +67,8 @@ class ProfileModal extends Component {
     defaultRating: {},
     isRunning: false,
     noOfUsersUntilShowDefault: 0,
-    showRateIt: true
+    showRateIt: true,
+    showDistanceRateText: false
   };
 
   setModalVisible = (visible) => {
@@ -452,22 +453,21 @@ class ProfileModal extends Component {
                     !this.getShowRatingButton() && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You already rated this spot! Come back in an hour. </Text>
                   }
                    { 
-                    !this.checkUserRatingAvailableDistance()  && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You must have to be near around 80 meters of that Establishment to Rate it! </Text>
+                    !this.checkUserRatingAvailableDistance() && this.state.showDistanceRateText && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You must be within 80 yards of this establishment to rate it. </Text>
                   }
                   
                     <View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
                       <TouchableOpacity
-                        style = { this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? styles.activeRateButton : styles.disableRateButton }
-                        disabled={ this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? false : true }
+                        style = { styles.activeRateButton  }
                         activeOpactity = {0.9}
-                        onPress = {() => { 
-                          this.props.showRatingModal(true) 
+                        onPress = {() => {
+                          this.setState({ showDistanceRateText: true }) 
+                          if(this.checkUserRatingAvailableDistance() && this.getShowRatingButton())
+                            this.props.showRatingModal(true) 
                         }}
                       >
                         <Text 
-                          style = { 
-                            this.checkUserRatingAvailableDistance() && this.getShowRatingButton() ? styles.activeRateButtonStyling:  styles.disableRateButtonStyling 
-                          } 
+                          style = {styles.activeRateButtonStyling} 
                         > 
                           Rate It! 
                         </Text>
@@ -602,7 +602,7 @@ class RateModal extends React.Component{
                   />   
                 </View>
               </View>
-              <Text style = {styles.surveyHeading} >Please submit this seriously to help us imrove more next time.Thanks!</Text>
+              <Text style = {styles.surveyHeading} >Help others know what they are getting themselves into!</Text>
             </View>
           </ScrollView>
           <View style = {{ alignSelf : "flex-start", position: 'absolute', top: '5%', left: '5%' }}  >

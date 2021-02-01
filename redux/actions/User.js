@@ -69,7 +69,7 @@ export const getUser = () => async (dispatch, getState) => {
 
 export const updateUser = ({existingEmail,newEmail ,firstName, lastName, date, gender, profilePic}) => async (dispatch, getState) => {
   const { token } = await getUserData();
-  console.log(`${existingEmail} ,${newEmail}, ${firstName}, ${lastName}, ${date}, ${gender}`);
+  console.log(`${existingEmail} ,${newEmail}, ${firstName}, ${lastName}, ${date}, ${gender}, ${profilePic}`);
   
   let applyNewEmail = newEmail ? newEmail : "notApply"
   console.log("apple new", applyNewEmail)

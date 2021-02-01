@@ -53,7 +53,7 @@ class radiusScreen extends React.Component{
       <View style={styles.container}>
         <View style = {{flex:5, justifyContent: 'center'}} >
           <Text style={styles.infoText}>
-            The Radius ensures that in how much km you gonna see your results.
+            Select the radius of how far away you want to results displayed.
           </Text>
           <Picker
             selectedValue={ this.state.selectedValue  }

@@ -177,7 +177,7 @@ class showVibeModal extends Component {
                     <Text
                       style = {{marginTop: 10, lineHeight: 20, color: '#706f6f'}}
                     >
-                      We text you to confirm your number. Pin Will be send to your number 
+                      We will text you a verification code to confirm your number.
                     </Text>
                     }
                   </View>

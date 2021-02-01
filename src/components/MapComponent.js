@@ -11,7 +11,6 @@ import ProfileModalIcon from 'react-native-vector-icons/Ionicons'
 import { Icon } from 'react-native-elements';
 import ListComponent from './ListComponent';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
-import ShowVibeModal from "./showVibeModal";
 import CategoryAddModal from './CategoryAddOrRemoveAlert';
 import styles from './CSS/MapComponent';
 import ToggleSwitch from '../components/ReUsable/Toggle';
@@ -44,10 +43,10 @@ class MapScreen extends React.PureComponent{
       searchValue: '',
       showCard: false,
       spinner: false,
-      showVibeModal: false,
+      showVibeInfoModal: true,
       showCategoryAddPopUp: false,
       totalCategoriesName: '',
-      showMarkerName: true,
+      showMarkerName: false,
       tracksViewChanges: true,
       isActiveToggle: false,
       showInfoModal: false
@@ -77,13 +76,6 @@ class MapScreen extends React.PureComponent{
 
   markerClick = (marker) => {
     this.setState({ selectedMarker: marker, showCard: true })
-  }
-  componentDidMount(){
-    setTimeout(()=> {
-      this.setState({tracksViewChanges: true })
-      // this.makeAnimate()
-    }, 2000)
-   
   }
   
   makeAnimate = () => {
@@ -211,14 +203,38 @@ class MapScreen extends React.PureComponent{
     Keyboard.dismiss()
   }
 
+  onChangeToggle = (toggle) => {
+    this.setState({ isActiveToggle: toggle},()=> {
+      if(toggle){
+        if(this.state.currentCategory === null)
+          this.showSpecificCategoryMarkers('food')
+        else
+          this.showSpecificCategoryMarkers(this.state.currentCategory)
+      }
+      else{
+        this.setState({ currentCategory: null })
+        this.props.getfilteredBusiness(null, null, null);
+      }
+        
+    })
+  }
+
+  componentDidMount(){
+    const vibe = this.props.vibe;
+    setTimeout(()=> {
+      this.setState({tracksViewChanges: true, showVibeInfoModal: false })
+      // this.makeAnimate()
+    }, 2000)
+   
+  }
 
   render(){
     const { filterBusinesses } = this.props.business.business;
     const { goodSpots, averageSpots, badSpots, allSpots } = filterBusinesses;
     const vibe = this.props.vibe;
-    const {navigation, user} = this.props;
+    const {navigation, user, showVibe} = this.props;
     const { location, radius } = user.user;
-   
+ 
     return(
       <View style={styles.container}>
         <InfoModal 
@@ -553,7 +569,13 @@ class MapScreen extends React.PureComponent{
         :
         <ListComponent 
           navigation = {navigation}
-          currentCategory = {this.state.currentCategory} 
+          currentCategory = {this.state.currentCategory}
+          showSpecificCategoryMarkers = { (currentCategory)=> {
+            this.showSpecificCategoryMarkers(currentCategory)
+          }}
+          setCategory = {() => this.setState({ currentCategory: null }) }
+          isActiveToggle = {this.state.isActiveToggle}
+          onChangeToggle = {(toggle)=> { this.onChangeToggle(toggle) }} 
         />
 
         }
@@ -656,11 +678,6 @@ class MapScreen extends React.PureComponent{
             /> 
           ) 
         } 
-        <ShowVibeModal 
-          show = {this.state.showVibeModal} 
-          onClose = {()=> { this.setState({ showVibeModal: false }) }}
-          navigation = {this.props.navigation} 
-        /> 
       </View>
     )
   }

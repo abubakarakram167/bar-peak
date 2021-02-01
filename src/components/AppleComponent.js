@@ -128,7 +128,8 @@ export default function AppleComponent(props){
             const user = {
               email: parsedUser.email,
               firstName: fullName.givenName,
-              lastName: fullName.familyName
+              lastName: fullName.familyName,
+              socialSource: "Apple"
             }
             onCloseModalSignUp();
             navigation.navigate('SignUpScreen', { user })

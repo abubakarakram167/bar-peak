@@ -60,7 +60,7 @@ export default StyleSheet.create({
   activeCategoryButtonTextColor: {
     color: 'white',
     textAlign:'center',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '900'
   },
   searchBar:{

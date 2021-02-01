@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView} from 'react-nativ
 import { connect } from 'react-redux';
 import Modal from './Modal';
 import CategoryAddModal from './CategoryAddOrRemoveAlert';
-import { addToFavourite } from '../../redux/actions/Business';
+import { addToFavourite, getfilteredBusiness } from '../../redux/actions/Business';
 import { bindActionCreators } from 'redux';
 import ShowVibeModal from "./showVibeModal";
+import ToggleSwitch from '../components/ReUsable/Toggle';
+
 
 class ListComponent extends React.Component{
 
@@ -18,7 +20,7 @@ class ListComponent extends React.Component{
       showCategoryAddPopUp: false,
       message: '',
       totalCategoriesName: '',
-      showVibeModal: false
+      showVibeModal: false,
     }
   }
 
@@ -136,19 +138,43 @@ class ListComponent extends React.Component{
     return specificSpots  
   }
 
+  getCurrentItemsPerPage = () => {
+    const { allSpots } = this.props.business;
+    return this.getOnlyCurrentCategoryList(allSpots) && this.getOnlyCurrentCategoryList(allSpots).length
+  }
+
+
   render(){
     const { allSpots } = this.props.business;
     const { navigation } = this.props;
+    const pagesPerList = 30;
     return(
       <View style={styles.container}>
         <View style = {{ flex: 1, flexDirection: 'column' }} >
           <View style = {{ flex: 1, flexDirection: 'row' }} >
             <View
-              style = {{ flex: 2, marginTop: 20, marginLeft: 20 }}
+              style = {{ flex: 3, marginTop: 20, marginLeft: 20 }}
             >
               <Text  
                 style = {{ fontSize: 22, fontWeight: '500' }}
-              >Nearby Spots</Text>  
+              >
+                Nearby Spots
+              </Text> 
+            </View>
+            <View
+              style = {{ flex: 2 }}
+            >
+              <ToggleSwitch
+                isActiveToggle = {this.props.isActiveToggle} 
+                onChange = {(toggle)=> {
+                  this.props.onChangeToggle(toggle)  
+                }}
+              />
+               <Text 
+                style = {{ fontSize: 10, fontWeight: '600',width: '60%',alignSelf: 'center', textAlign: 'center' }} 
+              >
+              { this.props.isActiveToggle ? "All Venues" : "Venue by Vibe" } 
+            </Text>
             </View>
             <View
               style = {{ flex: 2 }}
@@ -173,6 +199,7 @@ class ListComponent extends React.Component{
           </View>
           <View style = {{ flex: 6 }}>
             <View style = {{ flexDirection: 'row',justifyContent: 'flex-end', flex:1 }} >
+              <Text style = {styles.column} >Showing { this.state.currentPageNumber * pagesPerList  + 1 } - {this.getCurrentItemsPerPage()} </Text> 
               <Text style = {styles.column} >Type</Text>
               <Text style = {styles.column} >Distance Away</Text>
             </View>
@@ -187,8 +214,8 @@ class ListComponent extends React.Component{
               ) 
             } 
             <View style = {{ flex:10, borderWidth: 0 }} >
-              <ScrollView >
-                {  allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * 10, this.state.currentPageNumber * 10 + 10).map((marker, index)=>{
+              <ScrollView  >
+                {  allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * pagesPerList, this.state.currentPageNumber * pagesPerList + pagesPerList).map((marker, index)=>{
                     
                     if( this.getCurrentCategorySelected(marker.types, marker.name) ){
                       return(
@@ -239,21 +266,30 @@ class ListComponent extends React.Component{
               onClose = {()=> { this.setState({ showVibeModal: false }) }}
               navigation = {navigation} 
             /> 
-            { allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * 10 ).length > 10 &&
-                <View style = {{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
-                { this.state.currentPageNumber >0  &&
-                  <TouchableOpacity
-                    style = {styles.paginationButton}
-                    onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber - 1) }}
-                  >
-                    <Text
-                      style = {{ fontWeight: '700' }}
+            <View
+              style = {{ flex: 1, flexDirection: 'row', position: 'relative', left: 50}} 
+            >
+            
+                <View
+                  style= {{ flex: 1, borderWidth: 0 }}
+                > 
+                  { this.state.currentPageNumber >0  &&    
+                    (<TouchableOpacity
+                      style = {styles.paginationButton}
+                      onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber - 1) }}
                     >
-                      Previous Page
-                    </Text>
-                  </TouchableOpacity>
-                }
+                      <Text
+                        style = {{ fontWeight: '700' }}
+                      >
+                        Previous Page
+                      </Text>
+                    </TouchableOpacity> )
+                  }                
+                </View>
               
+              
+                <View style = {{ flex: 1}} >
+                { allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * pagesPerList ).length > pagesPerList &&
                   <TouchableOpacity
                     style = {[styles.paginationButton, { marginRight: 30 }]}
                     onPress = {()=>{ this.changePageNumber(this.state.currentPageNumber + 1) }}
@@ -262,10 +298,14 @@ class ListComponent extends React.Component{
                       style = {{ 
                         fontWeight: '700' 
                       }}
-                    >Next Page</Text>
+                    >
+                      Next Page
+                    </Text>
                   </TouchableOpacity>
+                } 
                 </View>
-            }
+              
+            </View>
           </View>
         </View>
       </View>
@@ -287,7 +327,7 @@ const styles = StyleSheet.create({
     marginRight: 10 
   },
   container: {
-    flex: 12,
+    flex: 14,
     flexDirection: 'row',
     backgroundColor: '#f5f5f5'
   },
@@ -341,7 +381,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
-    addToFavourite
+    addToFavourite,
+    getfilteredBusiness
   }, dispatch)
 );
 

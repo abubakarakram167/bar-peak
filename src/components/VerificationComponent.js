@@ -75,57 +75,6 @@ export default function App(props) {
       >
         <Text style = {styles.continueText} >Continue</Text>
       </TouchableOpacity>
-
-      {/* <Button
-        title="Send Verification Code"
-        disabled={!phoneNumber}
-        onPress={async () => {
-          // The FirebaseRecaptchaVerifierModal ref implements the
-          // FirebaseAuthApplicationVerifier interface and can be
-          // passed directly to `verifyPhoneNumber`.
-          console.log("the inn", phoneNumber)
-          try {
-            const phoneProvider = new firebase.auth.PhoneAuthProvider();
-            console.log("the inn provider", phoneProvider)
-            const verificationId = await phoneProvider.verifyPhoneNumber(
-              phoneNumber,
-              recaptchaVerifier.current
-            );
-            console.log("the verification Id", verificationId)
-            console.log("the inn")
-            setVerificationId(verificationId);
-            showMessage({
-              text: 'Verification code has been sent to your phone.',
-            });
-          } catch (err) {
-            console.log("here the verification error", err)
-            showMessage({ text: `Error: ${err.message}`, color: 'red' });
-          }
-        }}
-      /> */}
-      {/* <Text style={{ marginTop: 20 }}>Enter Verification code</Text> */}
-      {/* <TextInput
-        style={{ marginVertical: 10, fontSize: 17 }}
-        editable={!!verificationId}
-        placeholder="123456"
-        onChangeText={setVerificationCode}
-      /> */}
-      {/* <Button
-        title="Confirm Verification Code"
-        disabled={!verificationId}
-        onPress={async () => {
-          try {
-            const credential = firebase.auth.PhoneAuthProvider.credential(
-              verificationId,
-              verificationCode
-            );
-            await firebase.auth().signInWithCredential(credential);
-            showMessage({ text: 'Phone authentication successful 👍' });
-          } catch (err) {
-            showMessage({ text: `Error: ${err.message}`, color: 'red' });
-          }
-        }}
-      /> */}
       {message ? (
         <TouchableOpacity
           style={[
