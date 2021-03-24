@@ -37,9 +37,9 @@ export default class SliderEntry extends Component {
     getSelectionColor = () => {
       const {currentStep, value, data: { title, id } } = this.props;
       if(currentStep === 3)
-        return value.includes(id) ? { borderWidth: 5, borderColor: 'darkgray', borderRadius: 20 } : {}
+        return value.includes(id) ? { borderWidth: 5, borderColor: 'white', borderRadius: 20 } : {}
       else
-        return value === title ? { borderWidth: 5, borderColor: 'darkgray', borderRadius: 20 } : {}
+        return value === title ? { borderWidth: 5, borderColor: 'white', borderRadius: 20 } : {}
     }
 
     getSelectionText = () => {
@@ -69,6 +69,9 @@ export default class SliderEntry extends Component {
           <TouchableOpacity
             activeOpacity={1}
             style={[styles.slideInnerContainer, this.getSelectionColor() ] }
+            onPress={() => { 
+              selectChoice( currentStep === 3 ? id : title, currentStep)
+            }} 
           >
             <View style={styles.shadow} />
             <View style={[styles.imageContainer, styles.imageContainerEven ]}>

@@ -120,8 +120,7 @@ export const Entries = (props) => {
     else
       return entry 
   })
-  console.log("the data to", data[2]);
- 
+  
   return data;
 
 }

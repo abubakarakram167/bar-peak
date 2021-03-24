@@ -1,11 +1,12 @@
 import { combineReducers } from 'redux';
-import { Show_Rating_modal, Show_Rating_button, Set_CountDown_timer } from '../types'; 
+import { Show_Rating_modal, Show_Rating_button, Set_CountDown_timer, Show_Vibe_Info_modal } from '../types'; 
 
 const INITIAL_STATE = {
   showRatingModal: false,
   showRatingButton: true,
   untilNextRateInSeconds: 30,
-  ratingStartTime: ''
+  ratingStartTime: '',
+  showVibeInfoModalAfterVibe: false
 };
 
 const componentReducer = (state = INITIAL_STATE, action) => {
@@ -25,7 +26,13 @@ const componentReducer = (state = INITIAL_STATE, action) => {
       return{
         ...state,
         untilNextRateInSeconds: action.payload
-      }  
+      }
+    case Show_Vibe_Info_modal:
+      console.log("hehehjwbkbndwjk", action.payload)
+      return{
+        ...state,
+        showVibeInfoModalAfterVibe: action.payload
+      }
     default:
       return state
   }

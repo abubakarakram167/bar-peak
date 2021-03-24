@@ -6,7 +6,7 @@ import {
     Dimensions,
     Image,
     TouchableWithoutFeedback,
-    Keyboard
+    Keyboard,
 } from "react-native";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -17,6 +17,7 @@ import { getAllCategories } from '../../redux/actions/Category';
 import { setUserLocation } from '../../redux/actions/User';
 import * as Location from 'expo-location';
 import VibeRequirePopUp from '../components/Modals/VibeRequiredPopupModal';
+import ShowLocationPopup from '../components/Modals/showMessagePopUp';
 import _, { map } from 'underscore';
 import Modal from '../components/Modal';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
@@ -42,11 +43,13 @@ class HomeScreen extends Component {
       selectedBusiness: {},
       showIndicator: false,
       spinner: false,
-      makeAnimate: false
+      makeAnimate: false,
+      showLocationPopup: false,
+      isVibeEmpty: true
     }
   }
 
-  async componentDidMount(){
+  makeCalls = async() => {
     try{
       await this.props.emptyBusiness()
       this.setState({ spinner: true })
@@ -59,13 +62,20 @@ class HomeScreen extends Component {
       if(!getVibe){
         setTimeout(()=> { this.setState({ showModal: true }) }, 200)      
       }
+      else
+        this.setState({ isVibeEmpty: false, showVibeModal: true })
       await this.props.getfilteredBusiness(null, null, null);
       await this.props.getFavouritesBusinessAction();
       this.setState({ spinner: false , makeAnimate: true})
      
     }catch(error){
       console.log("the error", error)
+      this.setState({ showLocationPopup: true })
     }
+  }
+
+  async componentDidMount(){
+    this.makeCalls()
   }
 
   getBusinessByCategory = async(category) => {
@@ -92,7 +102,6 @@ class HomeScreen extends Component {
         timeInterval: 6000
       },
       newLocation => {
-        console.log('the new location', newLocation)
         let { coords } = newLocation;
         this.props.setUserLocation(coords);
       },
@@ -101,30 +110,37 @@ class HomeScreen extends Component {
   }
 
   getCurrentLocation = async() => {
-    let { status } = await Location.requestPermissionsAsync();
-    if (status !== 'granted') {
-      setErrorMsg('Permission to access location was denied');
+    try{
+      let { status } = await Location.requestPermissionsAsync();
+       if(status !== 'granted'){
+          return null
+       } 
+        
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced
+      });
+      return location;
+    }catch(err){
+      return null
     }
-    let location = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Balanced
-    });
-    return location;
   }
     
   render() {  
-    const {navigation} = this.props;
-    const {params} = this.props.route;
-    console.log("the params.....", params)
+    const {navigation, route, component } = this.props;
+    const showVibeInfoAfterVibe = component && component.component.showVibeInfoModalAfterVibe
+    console.log("hehehehehe", showVibeInfoAfterVibe)
+
     return (
       <DismissKeyboard> 
         <SafeAreaView style = {{ flex: 1 }} >
           <View style={{ flex: 1 }}>
-            <MapComponent showVibe = {params} navigation = {navigation}/>
-            { (this.state.showVibeModal && !this.state.isVibeEmpty) &&
+            <MapComponent  navigation = {navigation}/>
+            { (this.state.showVibeModal && !this.state.isVibeEmpty || showVibeInfoAfterVibe ) &&
               (<ShowVibeModal 
                 show = {this.state.showVibeModal}
                 onClose = {() => { this.setState({ showVibeModal: false }) }}
                 navigation = {navigation}
+                showButtons = {false}
               />
               )
             } 
@@ -151,6 +167,11 @@ class HomeScreen extends Component {
               indicatorSize="large"
               messageFontSize={24}
             >
+            <ShowLocationPopup
+              show = {this.state.showLocationPopup}
+              message = "You have denied the access for location.Please use location services to facilitate better.After enable location restart the app."
+              onClose = {()=> this.setState({ showLocationPopup: false, spinner: false })}
+            />  
             <View>
               <Image
                 source={require('../../assets/loadingIndicator.gif')}
@@ -164,12 +185,13 @@ class HomeScreen extends Component {
   }
 }
 const mapStateToProps = (state) => {
-  const { business, vibe, user, category } = state
+  const { business, vibe, user, category, component } = state
   return { 
     business: business,
     vibe: vibe,
     category,
-    user
+    user,
+    component
   }
 };
 const mapDispatchToProps = dispatch => (

@@ -58,7 +58,8 @@ class SignUpComponent extends React.Component {
       showError: false,
       gender: null,
       errors: {},
-      showDatePicker: false
+      showDatePicker: false,
+      isDateChange: false
     }
 	}
 
@@ -76,8 +77,10 @@ class SignUpComponent extends React.Component {
   }
 
   changeDate = (date) => {
-    // console.log("the date", date)
-    this.setState({ date: moment(date).format("YYYY-MM-DD"), showPicker: false })
+    console.log("theee date from picker", date)
+    console.log("after date apply", moment(date).format("YYYY-MM-DD"))
+
+    this.setState({ date: moment(date).format("YYYY-MM-DD"), showPicker: false, isDateChange: true })
     setTimeout(()=>  this.setState({ showPicker: false }) , 1300)
   }
 
@@ -97,18 +100,18 @@ class SignUpComponent extends React.Component {
   validate = () => {
     let errors = {}
     let isValid = true;
-   
+  
     if(!this.state.firstName){
       isValid = false;
-      errors["firstName"] = "Please input first Name"
+      errors["firstName"] = "Please input First Name"
     }
     if(!this.state.lastName){
       isValid = false;
-      errors["lastName"] = "Please input last Name"
+      errors["lastName"] = "Please input Last Name"
     }
-    if(!this.state.date){
+    if(!this.state.date || !this.state.isDateChange ){
       isValid = false;
-      errors["date"] = "Please input you Birthday"
+      errors["date"] = "Please Select Your Birthday"
     }
     if(!this.state.email){
       isValid = false;
@@ -201,29 +204,29 @@ class SignUpComponent extends React.Component {
                <Text 
                 style = {{ fontSize: 16, marginBottom: 5 }} 
               > 
-                FirstName 
+                First Name 
               </Text> 
               <TextInput
-                style={[ pickerSelectStyles.inputIOS, {marginBottom: 25}]}
+                style={[ pickerSelectStyles.inputIOS, {marginBottom: 5}]}
                 placeholder="Please Select Your First Name."
                 placeholderTextColor="#c2c0be"
                 onChangeText={val => this.onChangeText('firstName', val)}
                 value = {this.state.firstName}
               /> 
+               <Text style = {styles.errorText} >{  errors && !this.state.firstName  && errors.firstName }</Text>
               <Text 
                 style = {{ fontSize: 16, marginBottom: 5 }} 
               > 
-                LastName
+                Last Name
               </Text>      
               <TextInput
                 style={[styles.customInputText]}
-                placeholder="Last Name"
+                placeholder="Please Select Your Last Name."
                 placeholderTextColor="#c2c0be"
                 onChangeText={val => this.onChangeText('lastName', val)}
                 value = {this.state.lastName}
               />
-              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.firstName }</Text>
-              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.lastName }</Text>
+              <Text style = {styles.errorText} >{  errors &&  !this.state.lastName &&  errors.lastName  }</Text>
               <TouchableOpacity
                 onPress = {()=> this.setState({ showDatePicker: !this.state.showDatePicker }) }
               >
@@ -238,17 +241,18 @@ class SignUpComponent extends React.Component {
                 />
               </View>
               </TouchableOpacity>
+              <Text style = {[styles.errorText, { marginBottom: 0 }]} >{  errors  && errors.date }</Text>
               <NativeDatePicker 
                 show = {this.state.showDatePicker} 
                 onClose = { ()=> { this.setState({ showDatePicker: false }) } }  
                 date = {this.state.date}
                 changeDate = { (date)=> this.changeDate(date) }
               />    
-              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.date }</Text>
+              
               <Text style = {styles.ageInfoText} >
-                To Sign up, you need to be atleast 21.Your birthday won't be shared with other people who use Bar Peak
+                Your birthday won't be shared with other people who use Bar Peak
               </Text>
-              <Text style = {{ fontSize: 16, marginBottom: 5, marginTop:10 }} > Email </Text> 
+              <Text style = {{ fontSize: 16, marginBottom: 5, marginTop:10 }} >Email </Text> 
               <View style={[styles.inputView, {marginTop: 5}]} >  
                 <TextInput
                   style={ styles.inputText }
@@ -258,9 +262,10 @@ class SignUpComponent extends React.Component {
                   value = {this.state.email}
                   onChangeText={val => this.onChangeText('email', val)}
                   editable={ this.props.user ? false : true   }
+                  onFocus = { () => this.setState({ showDatePicker: false })}
                 />
               </View>
-              <Text style = {{ color: 'red', fontSize: 16, marginTop: 3 }} >{  errors && errors.email }</Text>
+              <Text style = {styles.errorText} >{  errors && !this.state.email  && errors.email }</Text>
               { this.props.user &&
                 (<View > 
                   <Text style = {{lineHeight: 14, marginTop: 10}} >This info came from {this.props.user &&  this.props.user.socialSource} and not editable.</Text>
@@ -292,7 +297,7 @@ class SignUpComponent extends React.Component {
                 />
               </View>
               <TouchableOpacity style={styles.acceptButton} onPress = { ()=>{this.signUp()} } >
-                <Text style={styles.SignUpText}>Accept and Continue</Text>
+                <Text style={styles.SignUpText}>Sign Up</Text>
               </TouchableOpacity>
             </KeyboardAwareScrollView>
            </ScrollView>     
@@ -318,7 +323,7 @@ export default connect(null, mapDispatchToProps)(SignUpComponent);
 const styles = StyleSheet.create({
   ageInfoText: {
     lineHeight: 16, 
-    marginTop: 10, 
+    marginTop: 0, 
     color: '#818282',
     fontWeight: '500',
     fontSize: 12,
@@ -329,9 +334,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'black', 
     marginTop: '10%', 
     borderRadius: 10,
-    width: "100%",
-    paddingTop: 5,
-    paddingBottom: 5
+    width: "50%",
+    paddingVertical: 0
   },
   SignUpText: {
     fontSize: 18,
@@ -390,6 +394,12 @@ const styles = StyleSheet.create({
     margin: 0,
     borderWidth: 0,
     zIndex: 1
+  },
+  errorText: {
+    color: 'red', 
+    fontSize: 14, 
+    marginTop: 3,
+    marginBottom: 10 
   }
 }) 
 

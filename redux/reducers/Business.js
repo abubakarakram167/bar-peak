@@ -8,7 +8,8 @@ const INITIAL_STATE = {
   searchResults: [],
   favouriteBusiness: [],
   selectedEstablishmentCategory: '',
-  addToFavourite: ''
+  addToFavourite: '',
+  showFavorites: false,
 };
 
 const businessReducer = (state = INITIAL_STATE, action) => {
@@ -42,7 +43,8 @@ const businessReducer = (state = INITIAL_STATE, action) => {
     case FILTERED_BUSINESS:
       return{
         ...state,
-        filterBusinesses: action.payload
+        filterBusinesses: action.payload,
+        showFavorites:action.payload.isFavorite
       }
     case Empty_Business:
       return{

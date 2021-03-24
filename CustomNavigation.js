@@ -146,7 +146,7 @@ function HomeApp() {
             return (
               <View style = {{ flex: 1, justifyContent: 'flex-end', position: 'relative', top: 12 }} >
                  <Text style = {  [focused ? styles.activeButtonText  : styles.buttonText, { width: '80%' }] } >Meal Mission</Text>
-                 <Text style = {{ fontSize: 10, textAlign: 'center',color: '#f59e07', fontWeight:'900' }} >Coming Soon</Text>
+                 <Text style = {{ fontSize: 8, textAlign: 'center',color: '#f59e07', fontWeight:'900' }} >Coming Soon</Text>
               </View>
             ) 
           }

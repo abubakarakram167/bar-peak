@@ -62,14 +62,14 @@ export const addToFavourite = (id) => async (dispatch, getState) => {
               secure_url
           }
           googleBusiness{
-              formatted_address
-              formatted_phone_number
-              name
-              place_id
-              user_ratings_total
-              rating
-              url
-              types
+            formatted_address
+            formatted_phone_number
+            name
+            place_id
+            user_ratings_total
+            rating
+            url
+            types
           }
       }
     }
@@ -234,9 +234,9 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
   let finalRadius = updatedRadius ? updatedRadius : radius
   const { token } = await getUserData();
   
-  // latitude = 32.7970465;
-  // longitude = -117.254522;
-  // finalRadius = 100000;
+  latitude = 32.7970465;
+  longitude = -117.254522;
+  finalRadius = 100000;
 
   const body = {
       query:`
@@ -307,7 +307,7 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
   const actualVibe = vibe.vibe.vibe;
   const allCategories = category.category.category;
   const favouriteEstablishmentCategory = business.business.selectedEstablishmentCategory
-
+  
   let selectedCategory = []
   if(!search){  
     if(selectedMainCategory !== null)
@@ -324,8 +324,9 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
     else if(favourite){
       let favouriteBusiness = favouriteEstablishments.filter((business)=> {
         return business.category.map(category=> category._id).includes(favouriteEstablishmentCategory)
-      }).map(business => business._id)
-      filterCategoryBusinessVibe = getSearchData(actualVibe , data, favouriteBusiness)
+      })
+      console.log("the favorite business", favouriteBusiness);
+      filterCategoryBusinessVibe = getSearchData(actualVibe , favouriteBusiness)
     }
     else
       filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, selectedCategory)
@@ -333,8 +334,8 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
     let { latitude, longitude } = user.user.location;
     
     // For User Testing
-    // latitude = 32.7970465;
-    // longitude = -117.254522;
+    latitude = 32.7970465;
+    longitude = -117.254522;
     
     var userLocation = { lat: latitude , lng: longitude }
     var destinationLocation = {};
@@ -344,7 +345,7 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
     })
   
     filterCategoryBusinessVibe.allSpots = sortSpotsByDistanceAway(markerList)
-    
+    filterCategoryBusinessVibe.isFavorite = favourite ? true : false
     dispatch({
       type: FILTERED_BUSINESS,
       payload: filterCategoryBusinessVibe,

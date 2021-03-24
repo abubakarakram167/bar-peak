@@ -26,6 +26,7 @@ import PreviousWeekDayRating from './Modals/PreviousWeekDayRating';
 import { showRatingModal, showRatingButton } from '../../redux/actions/Components';
 import { bindActionCreators } from 'redux';
 import RatingComponent from './ReUsable/ratingDisplay';
+import getDirections from 'react-native-google-maps-directions'
 import CountDown from 'react-native-countdown-component';
 const { height } = Dimensions.get("window");
 import moment from 'moment';
@@ -203,8 +204,34 @@ class ProfileModal extends Component {
     return showRatingButton
   }
 
+  navigateToMap = (business) => {
+    const { location, mapUrl } = business;
+    const [ longitude, latitude ] = location;
+    const userLocation = this.props.location;
+    
+    const data = {
+      source: {
+        longitude: userLocation.longitude,
+        latitude: userLocation.latitude
+      },
+      destination: {
+        latitude,
+        longitude
+      },
+      params: [
+        {
+          key: "dir_action",
+          value: "navigate" 
+        }
+      ]
+    }
+
+    getDirections(data)
+
+  }
+
   render() {
-    const { show, component } = this.props;
+    const { show, component, location } = this.props;
     const { showRatingModal, showRatingButton } = component.component;
     const { businessProfile, defaultRating } = this.state;
     const { businessData } = this.props;  
@@ -313,8 +340,12 @@ class ProfileModal extends Component {
                   </View>
                   <View
                     style = {{ flex: 5}}
-                  >
-                    <Text style = {{ alignSelf: 'center', fontSize: 14, textDecorationLine: 'underline' }}>{  !_.isEmpty(businessData) && businessData.address }</Text>
+                  > 
+                    <TouchableOpacity
+                      onPress = {()=>  this.navigateToMap(businessData) }
+                    >
+                      <Text style = {{ alignSelf: 'center', fontSize: 14, textDecorationLine: 'underline' }}>{  !_.isEmpty(businessData) && businessData.address }</Text>
+                    </TouchableOpacity>    
                   </View>
                   
                 </View>

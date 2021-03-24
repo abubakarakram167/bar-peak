@@ -1,6 +1,7 @@
 import React from 'react';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import { View, Text, Dimensions, Animated,Image, TouchableOpacity, TextInput, Keyboard} from 'react-native';
+import { Input, Textarea } from 'native-base';
 import CustomMapData from './CustomMapData';
 import {getfilteredBusiness, getSearchBusinesses, addToFavourite } from '../../redux/actions/Business';
 import { connect } from 'react-redux';
@@ -15,6 +16,7 @@ import CategoryAddModal from './CategoryAddOrRemoveAlert';
 import styles from './CSS/MapComponent';
 import ToggleSwitch from '../components/ReUsable/Toggle';
 import InfoModal from './Modals/infoAnimatedModal';
+import axios from '../api/axios';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 3;
@@ -49,7 +51,8 @@ class MapScreen extends React.PureComponent{
       showMarkerName: false,
       tracksViewChanges: true,
       isActiveToggle: false,
-      showInfoModal: false
+      showInfoModal: false,
+      adminSettings: null
     }
   }
 
@@ -177,27 +180,59 @@ class MapScreen extends React.PureComponent{
     })
   }
 
-  getCurrentCategorySelected = (categories) => {
+  getAdminSettings = async () => {
+    const { vibe } = this.props;
+    const getAdminData = await axios.get('/getdefaultSettings');
+    console.log("the admin data", getAdminData.data.settings.vibeCategoryPinsColor);
+    const vibeCategory = getAdminData.data.settings.vibeCategoryPinsColor.filter(category => {
+      return category.name === vibe.vibeCategory ;
+    })[0]
+    this.setState({ 
+      adminSettings: vibeCategory
+    }, ()=> {
+      console.log("the admin settings", this.state.adminSettings);
+    });
+  }
+
+  getCurrentCategorySelected = (categories, name) => {
     const { currentCategory } = this.state;
-  
     if(currentCategory){
-      if(currentCategory === "food")
-      return categories.includes("Restaurant")  ? true : false
-    else if(currentCategory === "drinks")   
-      return  categories.includes("Night Clubs") ||  categories.includes("Bar")  ? true : false     
-    else 
-      return true
+      if(currentCategory === "food"){
+        if(categories.includes("Restaurant") ){
+          if( (categories.includes("Night Clubs") || categories.includes("Bar") )  && !categories.includes("Restaurant") )
+            return false
+          return true 
+        }
+        return false;
+      }
+      else if(currentCategory === "drinks"){
+        if(categories.includes("Night Clubs") || categories.includes("Bar") ){
+          if( !(categories.includes("Night Clubs") || categories.includes("Bar") )  && categories.includes("Restaurant") )
+            return false
+          return true 
+        }
+        return false;  
+      }    
+      else{
+        if((categories.includes("Night Clubs") || categories.includes("Bar") )  && categories.includes("Restaurant") )
+          return true
+        return false 
+      } 
+        
     }
     else 
       return true
 
   }
   changedView = (view) => {
+    const { user } = this.props;
+    const { location } = user.user;
     this.setState({ currentView: view })
     if(view === 'map'){
       this.setState({ showCard: false })
       setTimeout(()=>{
-        this.makeAnimate() 
+        if(location.latitude && location.longitude)
+          this.makeAnimate() 
       }, 200)
     }
     Keyboard.dismiss()
@@ -221,18 +256,17 @@ class MapScreen extends React.PureComponent{
 
   componentDidMount(){
     const vibe = this.props.vibe;
+    this.getAdminSettings()
     setTimeout(()=> {
       this.setState({tracksViewChanges: true, showVibeInfoModal: false })
       // this.makeAnimate()
     }, 2000)
-   
   }
 
   render(){
     const { filterBusinesses } = this.props.business.business;
     const { goodSpots, averageSpots, badSpots, allSpots } = filterBusinesses;
-    const vibe = this.props.vibe;
-    const {navigation, user, showVibe} = this.props;
+    const {navigation, user, vibe } = this.props;
     const { location, radius } = user.user;
  
     return(
@@ -248,7 +282,8 @@ class MapScreen extends React.PureComponent{
             name="ios-beer" 
             size={20} 
             style={{ color: 'green',flex: 1, textAlign: 'right', marginRight: 10 }} 
-          />        
+          /> 
+            <Textarea />       
             <TextInput
               underlineColorAndroid="transparent"
               placeholder="Search For a Spot?"
@@ -276,8 +311,7 @@ class MapScreen extends React.PureComponent{
                 marginRight: 10 
               }}
             />
-          </TouchableOpacity>
-          
+          </TouchableOpacity>  
         </View>
         <View
           style = {{ flex: 1, flexDirection: 'row' }}
@@ -355,8 +389,8 @@ class MapScreen extends React.PureComponent{
             provider = {PROVIDER_GOOGLE}
             style={styles.mapStyle} 
             initialRegion={{
-              latitude:  parseFloat( location.latitude ? location.latitude : 32.7970465 ),
-              longitude: parseFloat( location.longitude ? location.longitude: -117.254522 ),
+              latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
+              longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
               latitudeDelta: LATITUDE_DELTA,
               longitudeDelta: LONGITUDE_DELTA,
             }}
@@ -387,19 +421,45 @@ class MapScreen extends React.PureComponent{
             loadingEnabled = {true}
             onPress = {()=> Keyboard.dismiss()}
           > 
-           <MapView.Circle
-              center = {{
-                latitude:  parseFloat( location.latitude ? location.latitude : 32.7970465 ),
-                longitude: parseFloat( location.longitude ? location.longitude: -117.254522 ),
-              }}
-              radius = {radius}
-              zIndex = {0}
-           >
+          <MapView.Circle
+            center = {{
+              latitude:  parseFloat( location.latitude ? location.latitude : 32.7970465 ),
+              longitude: parseFloat( location.longitude ? location.longitude: -117.254522 ),
+            }}
+            radius = {radius}
+            zIndex = {0}
+          >
           </MapView.Circle>
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker, index)=> {
-                const url = this.getImagePath(marker.types, 'green')
-                if(this.getCurrentCategorySelected(marker.types) ){
+                const url = this.getImagePath(marker.types, this.state.adminSettings && this.state.adminSettings.color )
+                if(this.getCurrentCategorySelected(marker.types, marker.name) ){
+                  return(
+                    <MapView.Marker
+                      key = {index}
+                      coordinate={{ 
+                        latitude: marker.latitude,
+                        longitude: marker.longitude,
+                      }}
+                      onPress={()=>this.markerClick(marker)}
+                      title={marker.name}
+                      description = "this is marker description"
+                      // tracksViewChanges={ this.state.tracksViewChanges  }  
+                    > 
+                      <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
+                        { this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
+                      <MapView.Callout tooltip style={styles.customView}>
+                      </MapView.Callout>
+                    </MapView.Marker> 
+                  )
+                }   
+              })   
+            }
+
+            {  
+              averageSpots && averageSpots.length> 0 && averageSpots.map((marker, index)=> {
+                const url = this.getImagePath(marker.types, 'yellow')
+                if(this.getCurrentCategorySelected(marker.types, marker.name) ){
                   return(
                     <MapView.Marker
                       key = {index}
@@ -410,56 +470,29 @@ class MapScreen extends React.PureComponent{
                       onPress={()=>this.markerClick(marker)}
                       title={marker.name}
                       description = "this is marker description"
-                      // tracksViewChanges={ this.state.tracksViewChanges  }
-                      
-                    > 
-                      <Image source={url} style={{height: height * 0.09, width: width * 0.13 }} />
+                      // tracksViewChanges={ this.state.tracksViewChanges }
+                    >
+                      <Image 
+                        source={url} 
+                        style={{ 
+                          height: height * 0.09, 
+                          width: width * 0.13 
+                        }} 
+                      />
                       {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
+                      
                       <MapView.Callout tooltip style={styles.customView}>
                       </MapView.Callout>
                     </MapView.Marker> 
                   )
-                }   
+                }
               })   
-            }
-
-            {  
-                averageSpots && averageSpots.length> 0 && averageSpots.map((marker, index)=> {
-                  const url = this.getImagePath(marker.types, 'yellow')
-                  if(this.getCurrentCategorySelected(marker.types) ){
-                    return(
-                      <MapView.Marker
-                        key = {index}
-                        coordinate={{ 
-                          latitude: marker.latitude,
-                          longitude: marker.longitude,
-                          }}
-                        onPress={()=>this.markerClick(marker)}
-                        title={marker.name}
-                        description = "this is marker description"
-                        // tracksViewChanges={ this.state.tracksViewChanges }
-                      >
-                        <Image 
-                          source={url} 
-                          style={{ 
-                            height: height * 0.09, 
-                            width: width * 0.13 
-                          }} 
-                        />
-                        {  this.state.showMarkerName && (<Text style = {{ width: 100, textAlign: 'left', fontSize: 16 }} >{ marker.name }</Text>) }
-                        
-                        <MapView.Callout tooltip style={styles.customView}>
-                        </MapView.Callout>
-                      </MapView.Marker> 
-                    )
-                  }
-                })   
             }
 
             {  
               badSpots && badSpots.length> 0 &&  badSpots.map((marker, index)=> {
                 const url = this.getImagePath(marker.types, 'red')
-                if(this.getCurrentCategorySelected(marker.types) ){
+                if(this.getCurrentCategorySelected(marker.types, marker.name) ){
                   return(
                     <MapView.Marker
                       key = {index}
@@ -546,15 +579,30 @@ class MapScreen extends React.PureComponent{
           <View
             style={{
               position: 'absolute',
-              top: '20%', 
+              top: '92%', 
               right: '5%',
               alignSelf: 'flex-end' 
             }}
           >
-            {/* <TouchableOpacity
+            <TouchableOpacity
+              onPress = {()=> {
+                this.makeAnimate()} 
+              }
+            >
+              <Text style = {{ fontSize: 13, color: 'white' }} >sdfsdf</Text>
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              position: 'absolute',
+              top: '22%', 
+              right: '8%',
+              alignSelf: 'flex-end' 
+            }}
+          >
+            <TouchableOpacity
               onPress = {() => {
-                
-                this.setState({ showVibeModal: true }) 
+                navigation.navigate('Screen 4', { screen: 'radiusScreen' })
               }}
             >
               <Icon
@@ -563,7 +611,7 @@ class MapScreen extends React.PureComponent{
                 size = {40}
                 color = "black"  
               />
-            </TouchableOpacity> */}
+            </TouchableOpacity>
           </View>
         </View>
         :

@@ -46,6 +46,7 @@ class MyVibe extends React.Component{
               show = {this.state.showVibeModal}
               onClose = {() => { this.setState({ showVibeModal: false }) }}
               navigation = {navigation}
+              showButtons = {true}
             />)
           } 
           <ProgressiveBar 

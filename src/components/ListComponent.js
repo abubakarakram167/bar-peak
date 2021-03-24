@@ -72,27 +72,43 @@ class ListComponent extends React.Component{
   }
 
   getMarkerCategoryName = (category) => {
-    const {currentCategory} = this.props;
     const types = category.types;
-    if(currentCategory === "food+drinks" ){
-      if(types.includes("Restaurant") &&  (types.includes("Night Clubs") || types.includes("Bar") ) )
-        return "food+drinks";
-      else if(!types.includes("Restaurant") &&  (types.includes("Night Clubs") || types.includes("Bar") ) )
-        return "only drinks";
-      else
-        return "only food";    
-    }
-    else if( currentCategory === "drinks" )
-      return 'Only drinks';
-    else 
-      return 'Only food';
+   
+    if(types.includes("Restaurant") &&  (types.includes("Night Clubs") || types.includes("Bar") ) )
+      return "food+drinks";
+    else if(!types.includes("Restaurant") &&  (types.includes("Night Clubs") || types.includes("Bar") ) )
+      return "only drinks";
+    else
+      return "only food";   
+
   }
   getCurrentCategorySelected = (categories, markerName) => {
-    const {currentCategory} = this.props;
-    if(currentCategory === "food")
-      return categories.includes("Restaurant") 
-    else if(currentCategory === "drinks")   
-      return  categories.includes("Night Clubs") ||  categories.includes("Bar")  ? true : false     
+    const { currentCategory } = this.state;
+
+    if(currentCategory){
+      if(currentCategory === "food"){
+        if(categories.includes("Restaurant") ){
+          if( (categories.includes("Night Clubs") || categories.includes("Bar") )  && !categories.includes("Restaurant") )
+            return false
+          return true 
+        }
+        return false;
+      }
+      else if(currentCategory === "drinks"){
+        if(categories.includes("Night Clubs") || categories.includes("Bar") ){
+          if( !(categories.includes("Night Clubs") || categories.includes("Bar") )  && categories.includes("Restaurant") )
+            return false
+          return true 
+        }
+        return false;  
+      }    
+      else{
+        if((categories.includes("Night Clubs") || categories.includes("Bar") )  && categories.includes("Restaurant") )
+          return true
+        return false 
+      } 
+        
+    }
     else 
       return true
   }
@@ -119,22 +135,40 @@ class ListComponent extends React.Component{
 
     if(currentCategory){
       if(currentCategory === "food"){
-        specificSpots = allSpots.filter((spot)=> {
-          return spot.types.includes("Restaurant") 
+        specificSpots = allSpots && allSpots.filter((spot)=> {
+          let { types } = spot;
+          if(types.includes("Restaurant")) {
+            if( (types.includes("Night Clubs") || types.includes("Bar") )  && !types.includes("Restaurant") )
+              return false
+            return true 
+          }
+          else 
+           return false     
         }) 
       }   
       else if(currentCategory === "drinks"){
-        specificSpots = allSpots.filter((spot)=> {
-          return  spot.types.includes("Night Clubs") ||  spot.types.includes("Bar")  ? true : false 
+        specificSpots = allSpots && allSpots.filter((spot)=> {
+          let { types } = spot;
+          if(types.includes("Night Clubs") || types.includes("Bar") ){
+            if( !(types.includes("Night Clubs") || types.includes("Bar") )  && types.includes("Restaurant") )
+              return false
+            return true 
+          }
+          return false;     
         }) 
       }           
-      else 
-        specificSpots = allSpots
+      else{
+        specificSpots = allSpots && allSpots.filter((spot)=> {
+          let { types } = spot;
+          if((types.includes("Night Clubs") || types.includes("Bar") )  && types.includes("Restaurant") )
+            return true
+          return false 
+        })
+      } 
     }
     else 
       specificSpots = allSpots
     
-    console.log("the all spots", specificSpots)  
     return specificSpots  
   }
 
@@ -145,7 +179,8 @@ class ListComponent extends React.Component{
 
 
   render(){
-    const { allSpots } = this.props.business;
+    const { allSpots, isFavorite } = this.props.business;
+   
     const { navigation } = this.props;
     const pagesPerList = 30;
     return(
@@ -158,7 +193,7 @@ class ListComponent extends React.Component{
               <Text  
                 style = {{ fontSize: 22, fontWeight: '500' }}
               >
-                Nearby Spots
+                { isFavorite ? " Favorite Spots " : "Nearby Spots"}
               </Text> 
             </View>
             <View

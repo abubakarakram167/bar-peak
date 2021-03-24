@@ -11,6 +11,7 @@ import {getfilteredBusiness, emptyBusiness} from '../../../redux/actions/Busines
 import {submitVibe, updateVibe} from '../../../redux/actions/Vibe';
 import _, { map } from 'underscore';
 import RestartVibeModal from '../Modals/VibeRestart';
+import { showVibeInfoModal } from '../../../redux/actions/Components';
 
 class ProgressStepBar extends Component {
   static navigationOptions = {
@@ -37,13 +38,11 @@ class ProgressStepBar extends Component {
 
   onNextStep = ( ) => {
     let stepTokSkips = 0;
-    console.log("the state question 2", this.state.question2);
     if(this.state.question2 !== 'Night Clubs')
       stepTokSkips = 1;
     else
       stepTokSkips = 2
-    console.log("step to skips", stepTokSkips) 
-
+   
     setTimeout(()=>{
       this.setState({ currentStep: this.state.currentStep + stepTokSkips },
         () => {
@@ -68,12 +67,10 @@ class ProgressStepBar extends Component {
 
   onPrevStep = () => {
     let stepTokSkips = 0;
-    console.log("the state question 2", this.state.question2);
     if(this.state.question2 !== 'Night Clubs')
       stepTokSkips = 1;
     else
       stepTokSkips = 2
-    console.log("step to skips", stepTokSkips) 
 
     setTimeout(()=>{
       this.setState({ currentStep: this.state.currentStep - stepTokSkips },
@@ -93,12 +90,10 @@ class ProgressStepBar extends Component {
     }
     else{
       const barCategories = this.state.question3;
-      console.log("the bar categories", barCategories);
       selectedCategory = category.filter((category)=>  barCategories.includes(category._id))
-     
     }
     let mapData = selectedCategory.map(category => category._id)
-    console.log("after the map", mapData)
+
     return mapData;
   }
 
@@ -166,9 +161,15 @@ class ProgressStepBar extends Component {
       const updateVibe = await this.props.updateVibe(vibeData);      
       if(updateVibe){
         await this.props.emptyBusiness()
-        this.props.getfilteredBusiness(null, null, null); 
-        this.setState({ showIndicator: false }) 
-        navigation.navigate('Screen 1'); 
+        this.props.getfilteredBusiness(null, null, null);
+        this.props.showVibeInfoModal(true) 
+        setTimeout(()=> {
+          this.props.showVibeInfoModal(false) 
+        }, 2000)
+        setTimeout(()=>{
+          this.setState({ showIndicator: false }) 
+          navigation.navigate('Home', { showVibeModal: true }); 
+        }, 1000)
       }
     }
   }
@@ -207,7 +208,6 @@ class ProgressStepBar extends Component {
     else if(number === 3)
       allQuestions['question' + number] = this.getSelectedBars(choice)
 
-    console.log("the all questions", allQuestions)
     this.setState(allQuestions);  
   }
 
@@ -336,7 +336,8 @@ const mapDispatchToProps = dispatch => (
     submitVibe,
     updateVibe,
     emptyBusiness,
-    getfilteredBusiness
+    getfilteredBusiness,
+    showVibeInfoModal
   }, dispatch)
 );
 

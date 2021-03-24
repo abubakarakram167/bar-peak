@@ -68,6 +68,7 @@ export default StyleSheet.create({
     padding: 10,
     backgroundColor: 'white',
     marginHorizontal: '10%',
+    height: 40,
     shadowOffset: { width: 0, height: 0 },
     shadowColor: 'black',
     shadowOpacity: 0.2,

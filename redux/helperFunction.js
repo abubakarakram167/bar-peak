@@ -213,8 +213,8 @@ const getMapData = (filterCategoryBusinessVibe)=> {
 }
 
 const getSpotMapData = (spotsData) => {
-
   return spotsData.map((marker)=>{
+    console.log("the marker", marker)
     const {googleBusiness, customData} = marker
     const data = {
       address: googleBusiness ? googleBusiness.formatted_address : customData.address,
@@ -232,7 +232,9 @@ const getSpotMapData = (spotsData) => {
       totalUserCountRating: marker.totalUserCountRating,
       businessGoogleRating: data.rating,
       address: data.address,
-      phoneNo: data.phoneNo
+      phoneNo: data.phoneNo,
+      location: marker.location.coordinates,
+      mapUrl: googleBusiness ? googleBusiness.url : null    
     }
   });
 

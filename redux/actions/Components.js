@@ -1,4 +1,4 @@
-import { Show_Rating_modal, Show_Rating_button, Set_CountDown_timer } from '../types'; 
+import { Show_Rating_modal, Show_Rating_button, Set_CountDown_timer, Show_Vibe_Info_modal } from '../types'; 
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
 import moment from 'moment';
@@ -8,7 +8,15 @@ export const showRatingModal = (show) => async (dispatch, getState) => {
     type: Show_Rating_modal,
     payload: show
   })
-  return Promise.resolve(res.data.data.updateRadius.radius);
+  return Promise.resolve('ok');
+}
+
+export const showVibeInfoModal = (show) => async (dispatch, getState) => { 
+  dispatch({
+    type: Show_Vibe_Info_modal,
+    payload: show
+  })
+  return Promise.resolve('ok');
 }
 
 export const setCountDowntimer = (seconds) => async (dispatch, getState) => {

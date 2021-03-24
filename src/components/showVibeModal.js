@@ -9,25 +9,43 @@ import {
   Dimensions
 } from "react-native";
 import { connect } from 'react-redux';
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
+import * as Animatable from 'react-native-animatable';
 
 class showVibeModal extends Component {
   state = {
-    modalVisible: true
+    modalVisible: true,
+    showAnimatedTextFadeIn: true,
+    showAnimatedTextFadeOut: false,
   };
 
   setModalVisible = (visible) => {
     this.setState({ modalVisible: visible });
   }
+  componentDidMount(){
+    const { showButtons } = this.props;
+    if(!showButtons){
+
+      setTimeout(()=>{
+        this.setState({ showAnimatedTextFadeIn: false },()=>{
+          this.setState({ showAnimatedTextFadeOut: true }, ()=>{
+            setTimeout(()=>{
+              this.props.onClose()
+            }, 2200)
+          })
+        })
+      }, 200)
+    }
+  }
 
   render() {
-    const { vibe, navigation } = this.props;
+    const { vibe, navigation, showButtons } = this.props;
     const { barOrNightClub } = vibe;
    
     return (
       <View style={styles.centeredView}>
         <Modal
-          animationType="slide"
+          animationType= {  showButtons ? "slide" : 'fade' }
           transparent={true}
           visible={this.props.show}
           onRequestClose={() => {
@@ -37,31 +55,37 @@ class showVibeModal extends Component {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>Your Current Vibe</Text>
-              <Text style = {styles.vibeCategoryText} >{ vibe.vibeCategory }</Text>
-              <Text style={styles.modalText} >Looking For  </Text>
-              <Text style = {styles.vibeCategoryText} >{ barOrNightClub === 'nightClub' ? 'Night Clubs' : 'Bars' }</Text>
 
-              <View
-                style = {{ width: width * 0.7 }}
-              >
-                <TouchableHighlight
-                  style={styles.vibeChangeButton}
-                  onPress={() => {
-                    this.props.onClose()
-                  }}
+              { this.state.showAnimatedTextFadeIn && <Animatable.Text duration = { showButtons ? 2000 : 3000 } style = {styles.vibeCategoryText} animation="fadeInLeftBig">{ vibe.vibeCategory }</Animatable.Text> }
+              { this.state.showAnimatedTextFadeOut && <Animatable.Text duration = { showButtons ? 2000 : 3000 } style = {styles.vibeCategoryText}  animation="fadeOut">{ vibe.vibeCategory }</Animatable.Text> }
+              
+              <Text style={styles.modalText} >Looking For  </Text>
+              { this.state.showAnimatedTextFadeIn && <Animatable.Text duration = { showButtons ? 2000 : 3000 } style = {styles.vibeCategoryText} animation="fadeInLeftBig">{ barOrNightClub === 'nightClub' ? 'Night Clubs' : 'Bars' }</Animatable.Text> }
+              { this.state.showAnimatedTextFadeOut && <Animatable.Text duration = { showButtons ? 2000 : 3000 } style = {styles.vibeCategoryText}  animation="fadeOut">{ barOrNightClub === 'nightClub' ? 'Night Clubs' : 'Bars' }</Animatable.Text> }
+
+              { showButtons &&
+                <View
+                  style = {{ width: width * 0.7 }}
                 >
-                  <Text style={styles.textStyle}>Change Vibe</Text>
-                </TouchableHighlight>
-                <TouchableHighlight
-                  style={styles.vibeChangeButton}
-                  onPress={() => {
-                    this.props.onClose()
-                    navigation.navigate('Screen 1')
-                  }}
-                >
-                  <Text style={styles.textStyle}>Keep Vibe</Text>
-                </TouchableHighlight>
-              </View>
+                  <TouchableHighlight
+                    style={styles.vibeChangeButton}
+                    onPress={() => {
+                      this.props.onClose()
+                    }}
+                  >
+                    <Text style={styles.textStyle}>Change Vibe</Text>
+                  </TouchableHighlight>
+                  <TouchableHighlight
+                    style={styles.vibeChangeButton}
+                    onPress={() => {
+                      this.props.onClose()
+                      navigation.navigate('Screen 1')
+                    }}
+                  >
+                    <Text style={styles.textStyle}>Keep Vibe</Text>
+                  </TouchableHighlight>
+                </View>
+              }
             </View>
           </View>
         </Modal>
