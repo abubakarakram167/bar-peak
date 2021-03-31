@@ -17,15 +17,25 @@ import styles from './CSS/MapComponent';
 import ToggleSwitch from '../components/ReUsable/Toggle';
 import InfoModal from './Modals/infoAnimatedModal';
 import axios from '../api/axios';
+import moment from "moment";
+import { Root, Popup } from 'popup-ui'
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 3;
 const CARD_WIDTH = CARD_HEIGHT + 50;
-
-const ASPECT_RATIO = width / height
-const LATITUDE_DELTA = 0.05 //Very high zoom level
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
+const ASPECT_RATIO = width / height;
+const LATITUDE_DELTA = 0.05;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 const mapRef = React.createRef();
+const weekDays = {
+  0: "sunday",
+  1: "monday",
+  2: "tuesday",
+  3: "wednesday",
+  4: "thursday",
+  5: "friday",
+  6: "saturday",
+}
 
 class MapScreen extends React.PureComponent{
 
@@ -77,7 +87,77 @@ class MapScreen extends React.PureComponent{
     this.animation = new Animated.Value(0);
   }
 
+  getKeyByValue = (object, value) => {
+    return Object.keys(object).find(key => object[key] === value);
+  }
+  
+  showPopUp = () => {
+    Popup.show({
+      type: 'Warning',
+      title: 'Closed',
+      button: true,
+      textBody: 'Establishment close right now.Check back soon.',
+      buttonText: 'Ok',
+      width: 300,
+      callback: () => Popup.hide(),
+      autoclose: true,
+    })
+  }
+
   markerClick = (marker) => {
+    const { openingHours } = marker;
+    var defaultTime = false;
+    let restaurantOpen = true;
+    const todayDate = moment().format('dddd YYYY-MM-DD HH:mm').split(' ');
+    const todayDayName = todayDate[0].toLowerCase();
+    let myCurrentTime = parseInt(todayDate[2].toString().replaceAll(':',''));
+    
+    const specifcDayTimings = openingHours ? openingHours.periods.filter(day => {
+      if(day.open.day === this.getKeyByValue(weekDays, todayDayName))
+        return true 
+    }): null
+    let originalTimeOrDefaultTime;
+    if(specifcDayTimings && specifcDayTimings.length > 0){
+      originalTimeOrDefaultTime = specifcDayTimings[0]
+    }
+    else{
+      defaultTime = true;
+      originalTimeOrDefaultTime = {
+        close: {
+          day: parseInt(this.getKeyByValue(weekDays, todayDayName) + 1) .toString(),
+          time:  "0200"
+        },
+        open: {
+          day: this.getKeyByValue(weekDays, todayDayName).toString(),
+          time:  "1100"
+        }
+      }
+    }
+    
+    const openTime = parseInt(originalTimeOrDefaultTime.open.time);
+    const closeTime = parseInt(originalTimeOrDefaultTime.close.time);
+    const openDay = parseInt(originalTimeOrDefaultTime.open.day);
+    const closeDay = parseInt(originalTimeOrDefaultTime.close.day);
+    const myCurrentDay = parseInt(this.getKeyByValue(weekDays, todayDayName));
+  
+    // console.log(` openTime: ${openTime} , closeTime: ${closeTime} , openDay: ${openDay}, closeDay: ${closeDay}, myCurrentDay: ${myCurrentDay}, my CureentTime: ${myCurrentTime} `)
+
+    if(myCurrentDay === closeDay){
+      if(myCurrentTime>openTime && myCurrentTime < closeTime)
+        restaurantOpen = true
+      else  
+        restaurantOpen = false
+    }
+    else{
+      if(myCurrentTime <= closeTime)
+        restaurantOpen = true
+      else  
+        restaurantOpen = false
+    }
+    
+    if(restaurantOpen)
+      this.showPopUp()
+
     this.setState({ selectedMarker: marker, showCard: true })
   }
   
@@ -183,7 +263,6 @@ class MapScreen extends React.PureComponent{
   getAdminSettings = async () => {
     const { vibe } = this.props;
     const getAdminData = await axios.get('/getdefaultSettings');
-    console.log("the admin data", getAdminData.data.settings.vibeCategoryPinsColor);
     const vibeCategory = getAdminData.data.settings.vibeCategoryPinsColor.filter(category => {
       return category.name === vibe.vibeCategory ;
     })[0]
@@ -270,6 +349,7 @@ class MapScreen extends React.PureComponent{
     const { location, radius } = user.user;
  
     return(
+      <Root>
       <View style={styles.container}>
         <InfoModal 
           show = {this.state.showInfoModal}
@@ -727,6 +807,7 @@ class MapScreen extends React.PureComponent{
           ) 
         } 
       </View>
+      </Root>
     )
   }
 

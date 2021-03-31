@@ -69,7 +69,8 @@ export const addToFavourite = (id) => async (dispatch, getState) => {
             user_ratings_total
             rating
             url
-            types
+            types,
+            opening_hours
           }
       }
     }
@@ -210,6 +211,7 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
               rating
               url
               types
+              opening_hours
             }        
          }
          }
@@ -279,6 +281,18 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
           rating
           url
           types
+          opening_hours{
+            periods{
+              close{
+                day,
+                time
+              },
+              open{
+                day,
+                time
+              }
+            }
+          }
         }
         }}
       `

@@ -234,7 +234,8 @@ const getSpotMapData = (spotsData) => {
       address: data.address,
       phoneNo: data.phoneNo,
       location: marker.location.coordinates,
-      mapUrl: googleBusiness ? googleBusiness.url : null    
+      mapUrl: googleBusiness ? googleBusiness.url : null,
+      openingHours: marker.googleBusiness.opening_hours    
     }
   });
 

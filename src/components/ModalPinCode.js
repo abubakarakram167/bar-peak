@@ -115,10 +115,17 @@ class ModalPinCode extends Component {
         }
       `
     }
-    const res = await axios.post(`graphql?`,body)
-    console.log("the user data", res.data.data.getUserByPhoneNumber)
-    if(res.data.data.getUserByPhoneNumber)
-      this.setState({user: res.data.data.getUserByPhoneNumber})
+    try{
+      const res = await axios.post(`graphql?`,body)
+      console.log("theee resss");
+      console.log("the user data", res.data.data.getUserByPhoneNumber)
+      if(res.data.data.getUserByPhoneNumber)
+        this.setState({user: res.data.data.getUserByPhoneNumber})
+    }catch(err){
+      console.log("..........")
+      console.log("the error", err)
+    }
+  
   }
 
   verifyCode = async (code) => {

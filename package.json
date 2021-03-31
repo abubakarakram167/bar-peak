@@ -45,6 +45,7 @@
     "moment": "^2.29.1",
     "native-base": "^2.15.2",
     "navbar-native": "^1.6.1",
+    "popup-ui": "^1.2.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "0.63.3",

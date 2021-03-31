@@ -63,7 +63,7 @@ export const getUser = () => async (dispatch, getState) => {
     })
     return Promise.resolve('ok');
   }catch(err){
-    console.log("hte errorsss", err.response.data)
+    console.log("hte errorsss", err.response)
   }
 }
 
