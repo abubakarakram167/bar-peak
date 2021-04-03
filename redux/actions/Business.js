@@ -111,17 +111,17 @@ export const getFavouritesBusinessAction = () => async (dispatch, getState) => {
         getFavouriteEstablishments 
           {  _id
             category{
-                title
-                _id
-                type
+              title
+              _id
+              type
             }    
             name
             rating{
-                fun,
-                crowd,
-                ratioInput,
-                difficultyGettingIn,
-                difficultyGettingDrink
+              fun,
+              crowd,
+              ratioInput,
+              difficultyGettingIn,
+              difficultyGettingDrink
             }
             name
             totalUserCountRating
@@ -132,22 +132,37 @@ export const getFavouritesBusinessAction = () => async (dispatch, getState) => {
               phoneNo
               rating
             }
+            allRating{
+              creationAt
+            }
             location{
               type
               coordinates
             }
             uploadedPhotos{
-                secure_url
+              secure_url
             }
             googleBusiness{
-                formatted_address
-                formatted_phone_number
-                name
-                place_id
-                user_ratings_total
-                rating
-                url
-                types
+              formatted_address
+              formatted_phone_number
+              name
+              place_id
+              user_ratings_total
+              rating
+              url
+              types
+              opening_hours{
+                periods{
+                  close{
+                    day,
+                    time
+                  },
+                  open{
+                    day,
+                    time
+                  }
+                }
+              }
             }
           }
         }
@@ -163,7 +178,7 @@ export const getFavouritesBusinessAction = () => async (dispatch, getState) => {
       payload: res.data.data.getFavouriteEstablishments
     })
   }catch(err){
-    console.log("the err in fvrites", err)
+    console.log("the err in fvrites", err.response)
   }
 
 
@@ -195,6 +210,9 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
               phoneNo
               rating
             }
+            allRating{
+              creationAt
+            }
             uploadedPhotos{
               secure_url
             }
@@ -211,7 +229,18 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
               rating
               url
               types
-              opening_hours
+              opening_hours{
+                periods{
+                  close{
+                    day,
+                    time
+                  },
+                  open{
+                    day,
+                    time
+                  }
+                }
+              }
             }        
          }
          }
@@ -226,7 +255,7 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
       })
       return Promise.resolve(res.data.data.searchByUser);
     }catch(err){
-      console.log("the err", err)
+      console.log("the err", err.response.data)
     }
 }
 
@@ -264,6 +293,9 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
           address
           phoneNo
           rating
+        }
+        allRating{
+          creationAt
         }
         uploadedPhotos{
           secure_url

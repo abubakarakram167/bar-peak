@@ -1,3 +1,14 @@
+import moment from 'moment';
+
+const weekDays = {
+  0: "sunday",
+  1: "monday",
+  2: "tuesday",
+  3: "wednesday",
+  4: "thursday",
+  5: "friday",
+  6: "saturday",
+}
 
 export const  getSelectedCategories = (barOrNightClub) => {
   const { category } = this.props.category.category;
@@ -211,10 +222,97 @@ const getMapData = (filterCategoryBusinessVibe)=> {
     return filterBusinessData;
 
 }
+const getKeyByValue = (object, value) => {
+  return Object.keys(object).find(key => object[key] === value);
+}
+
+const getEstablishmentOpeningHours = (marker) => {
+  const openingHours  = marker.googleBusiness.opening_hours;
+  var defaultTime = false;
+  let restaurantOpen = true;
+  const todayDate = moment().format('dddd YYYY-MM-DD HH:mm').split(' ');
+  const todayDayName = todayDate[0].toLowerCase();
+  let myCurrentTime = parseInt(todayDate[2].toString().replaceAll(':',''));
+  
+  const specifcDayTimings = openingHours ? openingHours.periods.filter(day => {
+    if(day.open.day === getKeyByValue(weekDays, todayDayName))
+      return true 
+  }): null
+  let originalTimeOrDefaultTime;
+  if(specifcDayTimings && specifcDayTimings.length > 0)
+    originalTimeOrDefaultTime = specifcDayTimings[0]
+  else{
+    defaultTime = true;
+    originalTimeOrDefaultTime = {
+      close: {
+        day: parseInt(getKeyByValue(weekDays, todayDayName) + 1) .toString(),
+        time:  "0200"
+      },
+      open: {
+        day: getKeyByValue(weekDays, todayDayName).toString(),
+        time:  "1100"
+      }
+    }
+  }
+  
+  const openTime = parseInt(originalTimeOrDefaultTime.open.time);
+  const closeTime = parseInt(originalTimeOrDefaultTime.close.time);
+  const openDay = parseInt(originalTimeOrDefaultTime.open.day);
+  const closeDay = parseInt(originalTimeOrDefaultTime.close.day);
+  const myCurrentDay = parseInt(getKeyByValue(weekDays, todayDayName));
+  //console.log(` name: ${marker.name} openTime: ${openTime} , closeTime: ${closeTime} , openDay: ${openDay}, closeDay: ${closeDay}, myCurrentDay: ${myCurrentDay}, my CureentTime: ${myCurrentTime} `)
+
+  if(myCurrentDay === closeDay){
+    if(myCurrentTime>openTime && myCurrentTime < closeTime)
+      restaurantOpen = true
+    else  
+      restaurantOpen = false
+  }
+  else{
+    if(myCurrentTime <= closeTime)
+      restaurantOpen = true
+    else  
+      restaurantOpen = false
+  }
+  return { 
+    restaurantOpen, 
+    openingTime: restaurantOpen ? openTime : null 
+  }
+}
+
+const changeToDefaultEstablishment = (marker) => {
+  const getOpeningHours = getEstablishmentOpeningHours(marker);
+  const { allRating } = marker;
+  if(!allRating.length){
+    return false
+  }
+  if(allRating.length>0 ){
+    if(!getOpeningHours.restaurantOpen)
+      return false
+    else{ 
+      const openingTime = getOpeningHours.openingTime.toString()
+      let completeOpeningTime;
+      if(openingTime.length === 3){
+        completeOpeningTime = openingTime.split('')
+        completeOpeningTime.splice( 1, 0, ':' )
+      }
+      else{
+        completeOpeningTime = openingTime.split('')
+        completeOpeningTime.splice( 2, 0, ':' )
+      }
+      const restaurantOpenTime = moment().format("YYYY-MM-DD") + " " + completeOpeningTime.toString().split(',').join("")
+      const establishmentRating = allRating.map(rating => rating.creationAt);
+      const totalCounts = establishmentRating.filter(ratingTime => {
+        if(ratingTime> restaurantOpenTime)
+          return true
+      }).length
+      return totalCounts <=5 ? true : false
+    }
+  }
+}
 
 const getSpotMapData = (spotsData) => {
   return spotsData.map((marker)=>{
-    console.log("the marker", marker)
     const {googleBusiness, customData} = marker
     const data = {
       address: googleBusiness ? googleBusiness.formatted_address : customData.address,
@@ -235,7 +333,8 @@ const getSpotMapData = (spotsData) => {
       phoneNo: data.phoneNo,
       location: marker.location.coordinates,
       mapUrl: googleBusiness ? googleBusiness.url : null,
-      openingHours: marker.googleBusiness.opening_hours    
+      openingHours: marker.googleBusiness.opening_hours,
+      isDefaultEstablishment: changeToDefaultEstablishment(marker)    
     }
   });
 

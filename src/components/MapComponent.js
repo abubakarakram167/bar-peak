@@ -18,7 +18,7 @@ import ToggleSwitch from '../components/ReUsable/Toggle';
 import InfoModal from './Modals/infoAnimatedModal';
 import axios from '../api/axios';
 import moment from "moment";
-import { Root, Popup } from 'popup-ui'
+import { Root, Popup } from 'popup-ui';
 
 const { width, height } = Dimensions.get("window");
 const CARD_HEIGHT = height / 3;
@@ -78,6 +78,10 @@ class MapScreen extends React.PureComponent{
     const { filterBusinesses } = this.props.business.business;
     const { allSpots } = filterBusinesses;
     const marker = this.state.selectedMarker ? this.state.selectedMarker : allSpots[0]
+    const showClosedModal = this.isEstablishmentClosed(marker)
+
+    if(!showClosedModal)
+      this.showPopUp()
     this.setState({showProfileModal: true, selectedBusiness: marker });
   }
 
@@ -104,7 +108,7 @@ class MapScreen extends React.PureComponent{
     })
   }
 
-  markerClick = (marker) => {
+  isEstablishmentClosed = (marker) => {
     const { openingHours } = marker;
     var defaultTime = false;
     let restaurantOpen = true;
@@ -139,7 +143,6 @@ class MapScreen extends React.PureComponent{
     const openDay = parseInt(originalTimeOrDefaultTime.open.day);
     const closeDay = parseInt(originalTimeOrDefaultTime.close.day);
     const myCurrentDay = parseInt(this.getKeyByValue(weekDays, todayDayName));
-  
     // console.log(` openTime: ${openTime} , closeTime: ${closeTime} , openDay: ${openDay}, closeDay: ${closeDay}, myCurrentDay: ${myCurrentDay}, my CureentTime: ${myCurrentTime} `)
 
     if(myCurrentDay === closeDay){
@@ -154,11 +157,14 @@ class MapScreen extends React.PureComponent{
       else  
         restaurantOpen = false
     }
-    
-    if(restaurantOpen)
-      this.showPopUp()
+    return restaurantOpen
+  }
 
-    this.setState({ selectedMarker: marker, showCard: true })
+  markerClick = (marker) => {
+    const showClosedModal = this.isEstablishmentClosed(marker)
+    if(!showClosedModal)
+      this.showPopUp()
+    this.setState({ selectedMarker: marker, showCard: showClosedModal ? true : false })
   }
   
   makeAnimate = () => {
@@ -210,13 +216,17 @@ class MapScreen extends React.PureComponent{
     return; 
   }
 
-  getImagePath = (types, whichSpot) => {
+  getImagePath = (types, whichSpot, isDefaultEstablishment, marker) => {
     let fileName = '';
     if(this.state.currentCategory === "food"){
       return  require('../../assets/FoodBlackTransparent.png')
     }
     else{
       if(types.includes("Night Clubs") || types.includes("Bar")  ){
+        if(isDefaultEstablishment)
+          whichSpot = "yellow"
+        if(!this.isEstablishmentClosed(marker))
+          return require('../../assets/closedGray.png')
         if(whichSpot === 'red')
           return require('../../assets/redWhite.png')
         else if(whichSpot === 'green')
@@ -512,7 +522,7 @@ class MapScreen extends React.PureComponent{
           </MapView.Circle>
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker, index)=> {
-                const url = this.getImagePath(marker.types, this.state.adminSettings && this.state.adminSettings.color )
+                const url = this.getImagePath(marker.types, this.state.adminSettings && this.state.adminSettings.color, marker.isDefaultEstablishment, marker )
                 if(this.getCurrentCategorySelected(marker.types, marker.name) ){
                   return(
                     <MapView.Marker
@@ -538,7 +548,7 @@ class MapScreen extends React.PureComponent{
 
             {  
               averageSpots && averageSpots.length> 0 && averageSpots.map((marker, index)=> {
-                const url = this.getImagePath(marker.types, 'yellow')
+                const url = this.getImagePath(marker.types, 'yellow', marker.isDefaultEstablishment, marker)
                 if(this.getCurrentCategorySelected(marker.types, marker.name) ){
                   return(
                     <MapView.Marker
@@ -571,7 +581,7 @@ class MapScreen extends React.PureComponent{
 
             {  
               badSpots && badSpots.length> 0 &&  badSpots.map((marker, index)=> {
-                const url = this.getImagePath(marker.types, 'red')
+                const url = this.getImagePath(marker.types, 'red', marker.isDefaultEstablishment, marker)
                 if(this.getCurrentCategorySelected(marker.types, marker.name) ){
                   return(
                     <MapView.Marker

@@ -483,17 +483,16 @@ class ProfileModal extends Component {
                   { 
                     !this.getShowRatingButton() && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You already rated this spot! Come back in an hour. </Text>
                   }
-                   { 
+                  { 
                     !this.checkUserRatingAvailableDistance() && this.state.showDistanceRateText && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You must be within 80 yards of this establishment to rate it. </Text>
                   }
-                  
                     <View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
                       <TouchableOpacity
                         style = { styles.activeRateButton  }
                         activeOpactity = {0.9}
                         onPress = {() => {
                           this.setState({ showDistanceRateText: true }) 
-                          if(this.checkUserRatingAvailableDistance() && this.getShowRatingButton())
+                          // if(this.checkUserRatingAvailableDistance() && this.getShowRatingButton())
                             this.props.showRatingModal(true) 
                         }}
                       >

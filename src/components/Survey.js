@@ -324,7 +324,7 @@ export class SurveyComponent extends React.PureComponent {
         difficultyGettingADrink: FinalAnswers[4].value
       }
       console.log("....///////")
-      console.log("the rating answers", rating)
+      console.log("the rating submissionTime", moment().format())
       this.setState({ spinner: true })
       const { token } = await getUserData();
       const { data } = this.props;
@@ -340,7 +340,7 @@ export class SurveyComponent extends React.PureComponent {
             },
             businessId: "${data.markerId}",
             ratingSaveTime: "${moment.utc(moment())}"
-            performTime: "${moment().format()}"
+            performTime: "${moment().format("YYYY-MM-DD HH:mm:ss")}"
             ){
               fun,
               crowd,
