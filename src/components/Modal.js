@@ -29,6 +29,7 @@ import RatingComponent from './ReUsable/ratingDisplay';
 import getDirections from 'react-native-google-maps-directions'
 import CountDown from 'react-native-countdown-component';
 const { height } = Dimensions.get("window");
+import { getUserData } from '../../src/components/localStorage'; 
 import moment from 'moment';
 
 const iconsList = [
@@ -69,7 +70,8 @@ class ProfileModal extends Component {
     isRunning: false,
     noOfUsersUntilShowDefault: 0,
     showRateIt: true,
-    showDistanceRateText: false
+    showDistanceRateText: false,
+    isRatingAvailable: true
   };
 
   setModalVisible = (visible) => {
@@ -144,8 +146,8 @@ class ProfileModal extends Component {
       const res = await axios.post(`graphql?`,body);
       const defaultRating = await axios.get('/getdefaultSettings');
       const { isRunning, noOfUsersUntilShowDefault, rating } = defaultRating.data.settings;
-      this.props.showRatingButton(businessData.markerId)
-      
+      // this.props.showRatingButton(businessData.markerId)
+      this.getShowRatingButton()
       this.setState( { 
         getPreviousWeekDayRating: res.data.data.getCurrentDayExactTimeRating,
         defaultRating: rating,
@@ -190,18 +192,67 @@ class ProfileModal extends Component {
     return originalRating;  
   }
 
-  getShowRatingButton = () => {
-    const { component } = this.props;
-    const { showRatingButton, ratingStartTime } = component.component;
-   
-    if(!showRatingButton){
-      var now = moment(new Date()); //todays date
-      var duration = moment.duration(now.diff(ratingStartTime));
-      var days = duration.asSeconds();
-      console.log( " the total seconds",  parseInt(days))
+  // getRatingSaveTime = async() => {
+  //   const { token } = await getUserData();
+  //   const { businessData } = this.props;
+  //   console.log("the business", businessData)
+  //   const rateButtonBody = {
+  //     query: `
+  //     query{
+  //       showRateItButtonUntilNextHours(businessId: "${businessData.markerId}"){
+  //         showRateItButton
+  //         ratingSaveTime
+  //       } 
+  //     }`
+  //   }
+  //   const responseShowRate = await axios.post(`graphql?`, rateButtonBody,{ 
+  //     headers: {
+  //       'Authorization': `Bearer ${token}`
+  //     }});
+      
+  //   const dataMoment = responseShowRate.data.data.showRateItButtonUntilNextHours
+  //   console.log("the get save time", dataMoment)
+  //   return dataMoment ? dataMoment.ratingStartTime : null
+  // }
+
+  getShowRatingButton = async() => {
+    const { token } = await getUserData();
+    const { businessData } = this.props;
+    // console.log("the business", businessData)
+    const rateButtonBody = {
+      query: `
+      query{
+        showRateItButtonUntilNextHours(businessId: "${businessData.markerId}"){
+          showRateItButton
+          ratingSaveTime
+        } 
+      }`
     }
-    console.log("show rating button", showRatingButton)
-    return showRatingButton
+    const responseShowRate = await axios.post(`graphql?`, rateButtonBody,{ 
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }});
+      
+    const dataMoment = responseShowRate.data.data.showRateItButtonUntilNextHours
+    let ratingAvailable;
+    console.log("the data moment", dataMoment);
+    if(dataMoment && dataMoment.ratingSaveTime){
+      var now = moment(new Date()); //todays date
+      var duration = moment.duration(now.diff(dataMoment.ratingSaveTime));
+      var seconds = duration.asSeconds();
+      console.log("the seconds", seconds);
+      if(parseInt(seconds) >= 3600 )
+        ratingAvailable = true
+      else
+        ratingAvailable = false
+         
+    }
+    else
+      ratingAvailable = true;   
+    this.setState({ isRatingAvailable: ratingAvailable }, ()=> {
+      console.log("the rating available", this.state.isRatingAvailable)
+    }) 
+
   }
 
   navigateToMap = (business) => {
@@ -481,7 +532,7 @@ class ProfileModal extends Component {
                     </View>     
                 } */}
                   { 
-                    !this.getShowRatingButton() && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You already rated this spot! Come back in an hour. </Text>
+                    !this.state.isRatingAvailable && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You already rated this spot! Come back in an hour. </Text>
                   }
                   { 
                     !this.checkUserRatingAvailableDistance() && this.state.showDistanceRateText && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You must be within 80 yards of this establishment to rate it. </Text>
@@ -492,14 +543,14 @@ class ProfileModal extends Component {
                         activeOpactity = {0.9}
                         onPress = {() => {
                           this.setState({ showDistanceRateText: true }) 
-                          // if(this.checkUserRatingAvailableDistance() && this.getShowRatingButton())
+                          if(this.checkUserRatingAvailableDistance() && this.state.isRatingAvailable)
                             this.props.showRatingModal(true) 
                         }}
                       >
                         <Text 
                           style = {styles.activeRateButtonStyling} 
                         > 
-                          Rate It! 
+                          Rate It!
                         </Text>
                       </TouchableOpacity>
                     </View>

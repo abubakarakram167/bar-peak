@@ -7,7 +7,17 @@ import { addToFavourite, getfilteredBusiness } from '../../redux/actions/Busines
 import { bindActionCreators } from 'redux';
 import ShowVibeModal from "./showVibeModal";
 import ToggleSwitch from '../components/ReUsable/Toggle';
+import moment from 'moment';
 
+const weekDays = {
+  0: "sunday",
+  1: "monday",
+  2: "tuesday",
+  3: "wednesday",
+  4: "thursday",
+  5: "friday",
+  6: "saturday",
+}
 
 class ListComponent extends React.Component{
 
@@ -26,6 +36,10 @@ class ListComponent extends React.Component{
 
   componentDidMount(){
 
+  }
+
+  getKeyByValue = (object, value) => {
+    return Object.keys(object).find(key => object[key] === value);
   }
 
   getColor = ({ markerId, types }) => {
@@ -177,6 +191,58 @@ class ListComponent extends React.Component{
     return this.getOnlyCurrentCategoryList(allSpots) && this.getOnlyCurrentCategoryList(allSpots).length
   }
 
+  isEstablishmentClosed = (marker) => {
+    const { openingHours } = marker;
+    var defaultTime = false;
+    let restaurantOpen = true;
+    const todayDate = moment().format('dddd YYYY-MM-DD HH:mm').split(' ');
+    const todayDayName = todayDate[0].toLowerCase();
+    let myCurrentTime = parseInt(todayDate[2].toString().replaceAll(':',''));
+    
+    const specifcDayTimings = openingHours ? openingHours.periods.filter(day => {
+      if(day.open.day === this.getKeyByValue(weekDays, todayDayName))
+        return true 
+    }): null
+    let originalTimeOrDefaultTime;
+    if(specifcDayTimings && specifcDayTimings.length > 0){
+      originalTimeOrDefaultTime = specifcDayTimings[0]
+    }
+    else{
+      defaultTime = true;
+      originalTimeOrDefaultTime = {
+        close: {
+          day: parseInt(this.getKeyByValue(weekDays, todayDayName) + 1) .toString(),
+          time:  "0200"
+        },
+        open: {
+          day: this.getKeyByValue(weekDays, todayDayName).toString(),
+          time:  "1100"
+        }
+      }
+    }
+    
+    const openTime = parseInt(originalTimeOrDefaultTime.open.time);
+    const closeTime = parseInt(originalTimeOrDefaultTime.close.time);
+    const openDay = parseInt(originalTimeOrDefaultTime.open.day);
+    const closeDay = parseInt(originalTimeOrDefaultTime.close.day);
+    const myCurrentDay = parseInt(this.getKeyByValue(weekDays, todayDayName));
+    // console.log(` openTime: ${openTime} , closeTime: ${closeTime} , openDay: ${openDay}, closeDay: ${closeDay}, myCurrentDay: ${myCurrentDay}, my CureentTime: ${myCurrentTime} `)
+
+    if(myCurrentDay === closeDay){
+      if(myCurrentTime>openTime && myCurrentTime < closeTime)
+        restaurantOpen = true
+      else  
+        restaurantOpen = false
+    }
+    else{
+      if(myCurrentTime <= closeTime)
+        restaurantOpen = true
+      else  
+        restaurantOpen = false
+    }
+    return restaurantOpen
+  }
+
 
   render(){
     const { allSpots, isFavorite } = this.props.business;
@@ -250,17 +316,27 @@ class ListComponent extends React.Component{
             } 
             <View style = {{ flex:10, borderWidth: 0 }} >
               <ScrollView  >
-                {  allSpots && this.getOnlyCurrentCategoryList(allSpots).slice(this.state.currentPageNumber * pagesPerList, this.state.currentPageNumber * pagesPerList + pagesPerList).map((marker, index)=>{
-                    
+                {   allSpots && 
+                    this.getOnlyCurrentCategoryList(allSpots)
+                    .slice(this.state.currentPageNumber * pagesPerList, this.state.currentPageNumber * pagesPerList + pagesPerList)
+                    .map((marker, index)=>{
                     if( this.getCurrentCategorySelected(marker.types, marker.name) ){
                       return(
                         <TouchableOpacity
                           onPress = {()=>{ 
-                            this.selectSpecificBusiness(marker)
+                            if(!this.isEstablishmentClosed(marker))
+                              this.props.onShowClosePopUp(marker)
+                            else
+                              this.selectSpecificBusiness(marker)      
                           }}
                         >
                           <View key = {index} style = { styles.listElement } >
-                            <View style = {[styles.listIcon, this.getColor(marker)  ]} >
+                            <View 
+                              style = {[
+                                styles.listIcon, 
+                                this.isEstablishmentClosed(marker) ? this.getColor(marker) : { backgroundColor: 'gray' } 
+                              ]} 
+                            >
                             </View>
                             <View style = {{ flex:1 }}>
                               <Text
@@ -374,7 +450,7 @@ const styles = StyleSheet.create({
   listElementName:{ 
     fontSize: 13, 
     marginLeft: 20,
-    width: '80%',
+    width: '70%',
     color: 'gray',
     fontWeight: '500'
   },

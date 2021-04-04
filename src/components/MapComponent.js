@@ -62,7 +62,8 @@ class MapScreen extends React.PureComponent{
       tracksViewChanges: true,
       isActiveToggle: false,
       showInfoModal: false,
-      adminSettings: null
+      adminSettings: null,
+      grayColor:true
     }
   }
 
@@ -714,6 +715,9 @@ class MapScreen extends React.PureComponent{
           setCategory = {() => this.setState({ currentCategory: null }) }
           isActiveToggle = {this.state.isActiveToggle}
           onChangeToggle = {(toggle)=> { this.onChangeToggle(toggle) }} 
+          onShowClosePopUp = {(marker)=> {
+            this.markerClick(marker)
+          }}
         />
 
         }
@@ -793,12 +797,12 @@ class MapScreen extends React.PureComponent{
             }  
         </Animated.ScrollView>
         <OrientationLoadingOverlay
-            visible={this.state.spinner}
-            message = "Loading..."
-            color="white"
-            indicatorSize="large"
-            messageFontSize={24}
-          >
+          visible={this.state.spinner}
+          message = "Loading..."
+          color="white"
+          indicatorSize="large"
+          messageFontSize={24}
+        >
           <View>
             <Image
               source={require('../../assets/loadingIndicator.gif')}
@@ -812,7 +816,7 @@ class MapScreen extends React.PureComponent{
               currentView = {this.state.currentView} 
               show = {this.state.showProfileModal} 
               closeModal = {()=> { this.setState({ showProfileModal: false }) }}
-              addToFavourites = {()=> this.addToFavourite()} 
+              addToFavourites = { ()=> this.addToFavourite() } 
             /> 
           ) 
         } 

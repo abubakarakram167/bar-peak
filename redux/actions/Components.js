@@ -46,9 +46,11 @@ export const showRatingButton = (markerId) => async (dispatch, getState) => {
       }});
       
     const dataMoment = responseShowRate.data.data.showRateItButtonUntilNextHours
+    console.log("...............")
+    console.log("the data moment", dataMoment);
     dispatch({
       type: Show_Rating_button,
-      payload: {...dataMoment, ratingSaveTime: moment(parseInt(dataMoment.ratingSaveTime)).local()}
+      payload: {...dataMoment, ratingSaveTime: dataMoment.ratingSaveTime}
     })
     return Promise.resolve('ok');
   }catch(error){
