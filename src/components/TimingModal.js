@@ -11,10 +11,9 @@ import {
 class TimingModal extends Component {
   
   render() {
-    console.log("the schedule",this.props.timings )
     return (
       <View style={styles.centeredView}>
-        <Modal
+        <Modal  
           animationType="slide"
           transparent={true}
           visible={this.props.showTimings}
@@ -26,13 +25,13 @@ class TimingModal extends Component {
             <View style={styles.modalView}>
             { this.props.timings && this.props.timings.map((timing)=>{
                 return (
-                  <Text style={styles.modalText}>{timing}</Text>
+                  <Text style={styles.modalText}> On {timing.openName + " " + timing.open } - { timing.close }   </Text>
                 );
 
               })
             }  
               <TouchableHighlight
-                style={{ ...styles.openButton, backgroundColor: "#E56060" }}
+                style={{ ...styles.openButton, backgroundColor: "#E56060", textAlign: 'center', width: 80 }}
                 onPress={() => {
                   this.props.closeModal();
                 }}
@@ -82,7 +81,8 @@ const styles = StyleSheet.create({
   },
   modalText: {
     marginBottom: 15,
-    textAlign: "center"
+    textAlign: "center",
+    width: 200
   }
 });
 

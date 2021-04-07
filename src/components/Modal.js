@@ -31,6 +31,18 @@ import CountDown from 'react-native-countdown-component';
 const { height } = Dimensions.get("window");
 import { getUserData } from '../../src/components/localStorage'; 
 import moment from 'moment';
+import { parse } from "graphql";
+
+
+const weekDays = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+]
 
 const iconsList = [
   {
@@ -281,6 +293,38 @@ class ProfileModal extends Component {
 
   }
 
+  getDayNumber = (number) => {
+    return parseInt(number)
+  }
+
+  
+  getSpecificTimingPerWeekFormat = (marker)=> {
+    const { openingHours } = marker;
+    let schedulePerWeek = [];
+    const daysPerWeek = [0,1,2,3,4,5,6];
+    if(openingHours&& openingHours.periods.length){  
+      openingHours.periods.map(period=> {
+        let day = {};
+        day.openName = weekDays[this.getDayNumber(period.open.day)]
+        day.open = period.open.time
+        day.closeName = weekDays[ 2]
+        day.close = period.close.time
+        schedulePerWeek.push(day)
+      })
+    }
+    else {
+      let dayObject = {};
+      daysPerWeek.map( day => {
+        dayObject.openName = weekDays[day];
+        dayObject.closeName = weekDays[day];
+        dayObject.open =  "11:00"
+        dayObject.close = "22:00"
+        schedulePerWeek.push(dayObject)
+      })
+    }
+    return schedulePerWeek;
+  }
+
   render() {
     const { show, component, location } = this.props;
     const { showRatingModal, showRatingButton } = component.component;
@@ -300,8 +344,7 @@ class ProfileModal extends Component {
           onRequestClose={() => {
             Alert.alert("Modal has been closed.");
           }}
-        >
-          
+        > 
           <View style={styles.centeredView}>
             <ScrollView style={styles.container}>
               <View style = {{ top: '2%',width: '100%' ,position: 'relative',flex:1, borderWidth: 0, alignSelf: 'center', borderRadius: 10}} >
@@ -372,8 +415,15 @@ class ProfileModal extends Component {
                 closeModal = { ()=> this.setState({ showPreviousWeekDayModal: false })  }  
               />
               <View style={[styles.modalView]}>
-                
-                <Text style={styles.modalText}>{businessData.name}</Text>
+                <View style = {{ flexDirection: 'row' }} >
+                  <Text style={[styles.modalText, {flex: 3, textAlign: 'left'}]}>{businessData.name}</Text>
+                  <TouchableOpacity 
+                    onPress = {()=>  this.setState({ showTimings: true })  }
+                    style = {{ flex: 1, textAlign: 'left', marginTop: 5 }} 
+                  >
+                    <Text style = {{ textAlign: 'right', fontWeight: '600' }} >Timings</Text>
+                  </TouchableOpacity>
+                </View>
                 <View 
                   style = {styles.detailSection} 
                 >
@@ -572,7 +622,7 @@ class ProfileModal extends Component {
             
             { this.state.showTimings &&
                 (<TimingModal 
-                  timings = { !_.isEmpty(businessProfile) && businessProfile.opening_hours.weekday_text}
+                  timings = { !_.isEmpty(this.props.businessData) && this.getSpecificTimingPerWeekFormat(this.props.businessData) }
                   showTimings = { this.state.showTimings }
                   closeModal = {()=>{ this.setState({ showTimings: false }) }}
                 />)

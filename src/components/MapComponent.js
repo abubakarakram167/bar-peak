@@ -161,7 +161,9 @@ class MapScreen extends React.PureComponent{
     return restaurantOpen
   }
 
+ 
   markerClick = (marker) => {
+    console.log("the marker click", marker);
     const showClosedModal = this.isEstablishmentClosed(marker)
     if(!showClosedModal)
       this.showPopUp()
