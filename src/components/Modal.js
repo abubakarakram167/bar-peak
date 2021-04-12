@@ -247,17 +247,16 @@ class ProfileModal extends Component {
       
     const dataMoment = responseShowRate.data.data.showRateItButtonUntilNextHours
     let ratingAvailable;
-    console.log("the data moment", dataMoment);
+    // console.log("the data moment", dataMoment);
     if(dataMoment && dataMoment.ratingSaveTime){
       var now = moment(new Date()); //todays date
       var duration = moment.duration(now.diff(dataMoment.ratingSaveTime));
       var seconds = duration.asSeconds();
-      console.log("the seconds", seconds);
+      // console.log("the seconds", seconds);
       if(parseInt(seconds) >= 3600 )
         ratingAvailable = true
       else
-        ratingAvailable = false
-         
+        ratingAvailable = false   
     }
     else
       ratingAvailable = true;   
@@ -421,7 +420,7 @@ class ProfileModal extends Component {
                     onPress = {()=>  this.setState({ showTimings: true })  }
                     style = {{ flex: 1, textAlign: 'left', marginTop: 5 }} 
                   >
-                    <Text style = {{ textAlign: 'right', fontWeight: '600' }} >Timings</Text>
+                    <Text style = {{ textAlign: 'right', fontWeight: '600' }} >Hours</Text>
                   </TouchableOpacity>
                 </View>
                 <View 
