@@ -12,9 +12,7 @@ import moment from 'moment';
 class TimingModal extends Component {
   
   render() {
-
-  
-
+    console.log("the timings...", this.props.timings)
     return (
       <View style={styles.centeredView}>
         <Modal  
@@ -27,8 +25,7 @@ class TimingModal extends Component {
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-            { this.props.timings && this.props.timings.map((timing)=>{
-                
+            { this.props.timings && this.props.timings.map((timing)=>{    
                 var openTime = timing.open.substr(0,2)+":"+timing.open.substr(2);
                 var closeTime = timing.close.substr(0,2)+":"+timing.close.substr(2);
                 console.log(`the timing open is ${openTime } and close: ${timing.close}`)

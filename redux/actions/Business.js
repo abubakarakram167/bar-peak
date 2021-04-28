@@ -1,4 +1,13 @@
-import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments , Update_Rating} from '../types'; 
+import {
+  Near_Location_Business, 
+  FILTERED_BUSINESS, 
+  Empty_Business, 
+  ADD_Rating, 
+  Search_Results, 
+  getFavouritesBusiness, 
+  selectSpecifcCategoryEstablishments, 
+  Update_Rating, 
+  GET_ADMIN_SETTINGS } from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
@@ -296,6 +305,11 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
         }
         allRating{
           creationAt
+          fun
+          crowd
+          ratioInput
+          difficultyGettingIn
+          difficultyGettingDrink
         }
         uploadedPhotos{
           secure_url
@@ -344,6 +358,14 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
   }
 };
 
+export const getAdminSettings = () => async (dispatch, getState) => {
+  const getAdminData = await axios.get('/getdefaultSettings');
+  dispatch({
+    type: GET_ADMIN_SETTINGS,
+    payload: getAdminData.data.settings,
+  })
+}
+
 export const getfilteredBusiness = ( selectedMainCategory, search, favourite) => async (dispatch, getState) => {
 
   const { vibe, business, category, user } = getState();
@@ -362,20 +384,18 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
       selectedCategory = allCategories.filter((category)=> actualVibe.selectedCategories.includes(category._id)).map((specificCategory)=> specificCategory._id)
     }
   }
-
   try{ 
     let filterCategoryBusinessVibe; 
     if(search)
-      filterCategoryBusinessVibe = getSearchData(actualVibe , searchData)
+      filterCategoryBusinessVibe = getSearchData(actualVibe, searchData, business.business.adminSettings)
     else if(favourite){
       let favouriteBusiness = favouriteEstablishments.filter((business)=> {
         return business.category.map(category=> category._id).includes(favouriteEstablishmentCategory)
       })
-      console.log("the favorite business", favouriteBusiness);
-      filterCategoryBusinessVibe = getSearchData(actualVibe , favouriteBusiness)
+      filterCategoryBusinessVibe = getSearchData(actualVibe , favouriteBusiness, business.business.adminSettings)
     }
     else
-      filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, selectedCategory)
+      filterCategoryBusinessVibe = getAllCaseData(actualVibe , data, selectedCategory, business.business.adminSettings)
     const { allSpots } = filterCategoryBusinessVibe;
     let { latitude, longitude } = user.user.location;
     

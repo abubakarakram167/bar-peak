@@ -6,7 +6,7 @@ const hotSpot = 'http://172.20.10.4:3000/'
 const environment = process.env.NODE_ENV || 'development';
 var url = '';
 if(environment === "development"){
-  url = hotSpot
+  url = optix
 }
 else
   url = 'https://counterflowbarpeak-backend-app.herokuapp.com/'

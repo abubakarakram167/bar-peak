@@ -19,3 +19,4 @@ export const Show_Rating_button = "show_Rating_button";
 export const Set_CountDown_timer = "Set_CountDown_timer"
 export const Update_Rating = "Update_Rating";
 export const Show_Vibe_Info_modal = "Show_Vibe_Info_modal";
+export const GET_ADMIN_SETTINGS = "GET_ADMIN_SETTINGS"

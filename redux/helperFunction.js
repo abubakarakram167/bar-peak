@@ -24,13 +24,14 @@ export const  getSelectedCategories = (barOrNightClub) => {
   return selectedCategory.map(category => category._id)
 }
 
-
-export const getAllCaseData = (userVibeData, data, selectedCategory) => {
+export const getAllCaseData = (userVibeData, data, selectedCategory, settings) => {
   let filterVibeCategoryData = {
     goodSpots: [],
     averageSpots: [],
-    badSpots: []
+    badSpots: [],
+    settings: {}
   };
+  filterVibeCategoryData.settings = settings;
   let { vibeCategory } = userVibeData; 
   if(vibeCategory === "Professional Party Time"){
     data.map(business => {    
@@ -49,7 +50,6 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
       }
     })
     return getMapData(filterVibeCategoryData);
-
   }
   else if(vibeCategory === "Moderate Party Time"){
     data.map(business => {
@@ -118,14 +118,15 @@ export const getAllCaseData = (userVibeData, data, selectedCategory) => {
 
 }
 
-export const getSearchData = (userVibeData, searchData) => {
+export const getSearchData = (userVibeData, searchData, settings) => {
   let filterVibeCategoryData = {
     goodSpots: [],
     averageSpots: [],
-    badSpots: []
+    badSpots: [],
+    settings: {}
   };
   let { vibeCategory } = userVibeData; 
-
+  filterVibeCategoryData.settings = settings;
   if( vibeCategory === "Professional Party Time" ){
     searchData.map(business => {
       if( business.category.length !== 0 ){
@@ -206,11 +207,11 @@ export const getSearchData = (userVibeData, searchData) => {
 
 const getMapData = (filterCategoryBusinessVibe)=> {
 
-  const { goodSpots, badSpots, averageSpots } = filterCategoryBusinessVibe;
+  const { goodSpots, badSpots, averageSpots, settings } = filterCategoryBusinessVibe;
 
-    const goodSpotMarkers = getSpotMapData(goodSpots);
-    const badSpotMarkers = getSpotMapData(badSpots);
-    const averageSpotMarkers = getSpotMapData(averageSpots);
+    const goodSpotMarkers = getSpotMapData(goodSpots, settings);
+    const badSpotMarkers = getSpotMapData(badSpots, settings);
+    const averageSpotMarkers = getSpotMapData(averageSpots, settings);
     
     const filterBusinessData =  {
       goodSpots: goodSpotMarkers,
@@ -280,12 +281,15 @@ const getEstablishmentOpeningHours = (marker) => {
   }
 }
 
-const changeToDefaultEstablishment = (marker) => {
+const changeToDefaultEstablishment = (marker, settings) => {
   const getOpeningHours = getEstablishmentOpeningHours(marker);
   const { allRating } = marker;
-  if(!allRating.length){
-    return false
-  }
+
+  // console.log("the marker.......", marker)
+  // console.log("the rating", allRating)
+  // console.log("the closedd", getOpeningHours.restaurantOpen)
+  // console.log("the setting final", settings)
+
   if(allRating.length>0 ){
     if(!getOpeningHours.restaurantOpen)
       return false
@@ -301,17 +305,72 @@ const changeToDefaultEstablishment = (marker) => {
         completeOpeningTime.splice( 2, 0, ':' )
       }
       const restaurantOpenTime = moment().format("YYYY-MM-DD") + " " + completeOpeningTime.toString().split(',').join("")
-      const establishmentRating = allRating.map(rating => rating.creationAt);
+      console.log("the all Rating", allRating)
+      const establishmentRating = allRating.map(rating => {
+        return {
+          creationAt: rating.creationAt,
+          
+        }
+      });
       const totalCounts = establishmentRating.filter(ratingTime => {
-        if(ratingTime> restaurantOpenTime)
+        console.log(`the rating time ${moment(ratingTime).format("YYYY-MM-DD HH:mm").toString()} and restaurantOpenTime ${restaurantOpenTime} `)
+        if(moment(ratingTime).format("YYYY-MM-DD HH:mm").toString()  > restaurantOpenTime)
           return true
       }).length
-      return totalCounts <=5 ? true : false
+
+      console.log("the total counts", totalCounts)
+      const isDefault = totalCounts <= settings.noOfUsersUntilShowDefault ? true : false
+      let accumulatedAverageRatingPerDay = {
+        fun: 0,
+        crowd: 0,
+        genderBreakdown: 0,
+        difficultyGettingIn: 0,
+        difficultyGettingDrink: 0,
+        totalRatings: 0
+      }
+      if(isDefault){
+        const establishmentRating = allRating.map(rating => {
+          return {
+            ratingTime: rating.creationAt,
+            fun: rating.fun,
+            crowd: rating.crowd,
+            genderBreakdown: rating.ratioInput,
+            difficultyGettingIn: rating.difficultyGettingIn,
+            difficultyGettingDrink: rating.difficultyGettingDrink,
+          }
+        });
+        const totalEstablishments = establishmentRating.filter(rating => {
+          console.log(`the rating time ${moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString()} and restaurantOpenTime ${restaurantOpenTime} `)
+          if(moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString()  > restaurantOpenTime)
+            return true
+        })
+        var totalEstablishmentsCount = totalEstablishments.length;
+        for (let rating of establishmentRating){
+          accumulatedAverageRatingPerDay.fun = rating.fun + accumulatedAverageRatingPerDay.fun
+          accumulatedAverageRatingPerDay.difficultyGettingIn = rating.difficultyGettingIn + accumulatedAverageRatingPerDay.difficultyGettingIn
+          accumulatedAverageRatingPerDay.difficultyGettingDrink = rating.difficultyGettingDrink + accumulatedAverageRatingPerDay.difficultyGettingDrink
+          accumulatedAverageRatingPerDay.genderBreakdown = rating.genderBreakdown + accumulatedAverageRatingPerDay.genderBreakdown
+          accumulatedAverageRatingPerDay.crowd = rating.crowd + accumulatedAverageRatingPerDay.crowd
+        }
+      }
+
+      return {
+        isDefault,
+        accumulatedAverageRatingPerDay: {
+          fun : accumulatedAverageRatingPerDay.fun/totalEstablishmentsCount,
+          difficultyGettingIn : accumulatedAverageRatingPerDay.difficultyGettingIn/totalEstablishmentsCount,
+          difficultyGettingDrink : accumulatedAverageRatingPerDay.difficultyGettingDrink/totalEstablishmentsCount,
+          genderBreakdown : accumulatedAverageRatingPerDay.genderBreakdown/totalEstablishmentsCount,
+          crowd : accumulatedAverageRatingPerDay.crowd/totalEstablishmentsCount
+        }
+      }
     }
   }
+  else 
+    return true
 }
 
-const getSpotMapData = (spotsData) => {
+const getSpotMapData = (spotsData, settings) => {
   return spotsData.map((marker)=>{
     const {googleBusiness, customData} = marker
     const data = {
@@ -319,6 +378,9 @@ const getSpotMapData = (spotsData) => {
       phoneNo: googleBusiness ? googleBusiness.formatted_phone_number : customData.phoneNo,
       rating: googleBusiness ? googleBusiness.rating : customData.rating
     }
+
+    const getDefaultSettings = changeToDefaultEstablishment(marker, settings); 
+
     return {
       markerId: marker._id,
       longitude: marker.location.coordinates[0],
@@ -334,8 +396,7 @@ const getSpotMapData = (spotsData) => {
       location: marker.location.coordinates,
       mapUrl: googleBusiness ? googleBusiness.url : null,
       openingHours: marker.googleBusiness.opening_hours,
-      isDefaultEstablishment: changeToDefaultEstablishment(marker)    
+      isDefaultEstablishment: getDefaultSettings.isDefault   
     }
   });
-
 }

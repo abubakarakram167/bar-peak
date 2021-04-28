@@ -1,5 +1,16 @@
 import { combineReducers } from 'redux';
-import {Near_Location_Business, FILTERED_BUSINESS, Empty_Business, ADD_Rating, Search_Results, getFavouritesBusiness, selectSpecifcCategoryEstablishments, add_Favourite, Update_Rating } from '../types'; 
+import { 
+  GET_ADMIN_SETTINGS,
+  Near_Location_Business, 
+  FILTERED_BUSINESS, 
+  Empty_Business, 
+  ADD_Rating, 
+  Search_Results, 
+  getFavouritesBusiness, 
+  selectSpecifcCategoryEstablishments, 
+  add_Favourite, 
+  Update_Rating 
+} from '../types'; 
 
 const INITIAL_STATE = {
   businesses: [],
@@ -10,6 +21,7 @@ const INITIAL_STATE = {
   selectedEstablishmentCategory: '',
   addToFavourite: '',
   showFavorites: false,
+  adminSettings: {}
 };
 
 const businessReducer = (state = INITIAL_STATE, action) => {
@@ -19,6 +31,11 @@ const businessReducer = (state = INITIAL_STATE, action) => {
       return{
         ...state,
         businesses: action.payload
+      }
+    case GET_ADMIN_SETTINGS: 
+      return {
+        ...state,
+        adminSettings: action.payload
       }
     case add_Favourite:
       return {

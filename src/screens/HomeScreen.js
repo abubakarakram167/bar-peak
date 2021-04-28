@@ -11,7 +11,7 @@ import {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import MapComponent from '../components/MapComponent';
-import {getfilteredBusiness, getFavouritesBusinessAction, getNearLocationBusiness, emptyBusiness} from '../../redux/actions/Business';
+import {getfilteredBusiness, getFavouritesBusinessAction, getNearLocationBusiness, emptyBusiness, getAdminSettings} from '../../redux/actions/Business';
 import {getVibe} from '../../redux/actions/Vibe';
 import { getAllCategories } from '../../redux/actions/Category';
 import { setUserLocation } from '../../redux/actions/User';
@@ -54,9 +54,16 @@ class HomeScreen extends Component {
       await this.props.emptyBusiness()
       this.setState({ spinner: true })
       const location = await this.getCurrentLocation()
-      await this.getNewChangedLocation(); 
+      await this.getNewChangedLocation();
+
       const { coords } = location;
-      const [getVibe] = await Promise.all([ this.props.getVibe(), this.props.getNearLocationBusiness(coords, null), this.props.setUserLocation(coords)]) 
+      const [getVibe] = await Promise.all([ 
+        this.props.getVibe(), 
+        this.props.getNearLocationBusiness(coords, null), 
+        this.props.setUserLocation(coords)],
+        this.props.getAdminSettings()
+      )
+
       this.setState({ spinner: false })
       await this.props.getAllCategories();
       if(!getVibe){
@@ -126,9 +133,8 @@ class HomeScreen extends Component {
   }
     
   render() {  
-    const {navigation, route, component } = this.props;
+    const {navigation, component } = this.props;
     const showVibeInfoAfterVibe = component && component.component.showVibeInfoModalAfterVibe
-    console.log("hehehehehe", showVibeInfoAfterVibe)
 
     return (
       <DismissKeyboard> 
@@ -202,7 +208,8 @@ const mapDispatchToProps = dispatch => (
     emptyBusiness,
     getAllCategories,
     setUserLocation,
-    getFavouritesBusinessAction
+    getFavouritesBusinessAction,
+    getAdminSettings
   }, dispatch)
 );
 

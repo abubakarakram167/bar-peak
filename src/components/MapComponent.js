@@ -219,17 +219,17 @@ class MapScreen extends React.PureComponent{
     return; 
   }
 
-  getImagePath = (types, whichSpot, isDefaultEstablishment, marker) => {
+  getImagePath = (types,whichSpot ,settings, marker) => {
     let fileName = '';
-    if(this.state.currentCategory === "food"){
+    // console.log("in map component", marker.isDefaultEstablishment )
+    if(this.state.currentCategory === "food")
       return  require('../../assets/FoodBlackTransparent.png')
-    }
     else{
       if(types.includes("Night Clubs") || types.includes("Bar")  ){
-        if(isDefaultEstablishment)
-          whichSpot = "yellow"
         if(!this.isEstablishmentClosed(marker))
           return require('../../assets/closedGray.png')
+        if(marker.isDefaultEstablishment)
+          whichSpot = "yellow"  
         if(whichSpot === 'red')
           return require('../../assets/redWhite.png')
         else if(whichSpot === 'green')
@@ -244,7 +244,7 @@ class MapScreen extends React.PureComponent{
           return  require('../../assets/greenTransparent.png')
         else
           return  require('../../assets/yellowTransparent.png')
-      } 
+      }
     }
   }
 
@@ -525,7 +525,7 @@ class MapScreen extends React.PureComponent{
           </MapView.Circle>
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker, index)=> {
-                const url = this.getImagePath(marker.types, this.state.adminSettings && this.state.adminSettings.color, marker.isDefaultEstablishment, marker )
+                const url = this.getImagePath( marker.types,'green',this.state.adminSettings, marker )
                 if(this.getCurrentCategorySelected(marker.types, marker.name) ){
                   return(
                     <MapView.Marker
@@ -551,7 +551,7 @@ class MapScreen extends React.PureComponent{
 
             {  
               averageSpots && averageSpots.length> 0 && averageSpots.map((marker, index)=> {
-                const url = this.getImagePath(marker.types, 'yellow', marker.isDefaultEstablishment, marker)
+                const url = this.getImagePath(marker.types, 'yellow', this.state.adminSettings, marker)
                 if(this.getCurrentCategorySelected(marker.types, marker.name) ){
                   return(
                     <MapView.Marker
@@ -584,7 +584,7 @@ class MapScreen extends React.PureComponent{
 
             {  
               badSpots && badSpots.length> 0 &&  badSpots.map((marker, index)=> {
-                const url = this.getImagePath(marker.types, 'red', marker.isDefaultEstablishment, marker)
+                const url = this.getImagePath(marker.types, 'red', this.state.adminSettings, marker)
                 if(this.getCurrentCategorySelected(marker.types, marker.name) ){
                   return(
                     <MapView.Marker
