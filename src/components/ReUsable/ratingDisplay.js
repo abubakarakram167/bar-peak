@@ -12,15 +12,6 @@ const Pink = '#eb3498';
 
 export default (props) => {
 
-
-  const getOriginalOrDefaultRating = (defaultRating, originalRating) => {
-    const { businessData } = props;
-    const { noOfUsersUntilShowDefault: defaultRatingUsers , isRunning} = props;
-    if(businessData.totalUserCountRating >= defaultRatingUsers && isRunning )
-      return defaultRating
-    return originalRating;  
-  }
-
   const getRatingCase = (ratingCase, value) => {
     if(ratingCase === "crowd"){
       if(value >= 0 && value <= 1)
@@ -81,7 +72,7 @@ export default (props) => {
   
   const getVibeBaseColor = () => {
     const ratingCase = props.ratingCase
-    const ratingOptions = getRatingCase(props.ratingCase, getOriginalOrDefaultRating(props.defaultRating, props.rating))
+    const ratingOptions = getRatingCase(props.ratingCase, props.defaultRating);
     let currentColor = ''
     let currentVibe = props.currentVibe.vibeCategory;
 
@@ -243,13 +234,13 @@ export default (props) => {
         style = { styles.testing }
       >
         <LinearGradient
-            colors={getVibeBaseColor()|| ['#eb3498', '#eb3498','#eb3498']}
-            style={styles.ratingCircle}
-          >
+          colors={getVibeBaseColor() || ['#eb3498', '#eb3498','#eb3498']}
+          style={styles.ratingCircle}
+        >
           <Text 
             style={styles.ratingCaseText}
           >
-            {getRatingCase(props.ratingCase, getOriginalOrDefaultRating(props.defaultRating, props.rating))   }
+            {getRatingCase(props.ratingCase, props.defaultRating)   }
           </Text> 
         </LinearGradient>
       </View>   

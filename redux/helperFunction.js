@@ -37,14 +37,17 @@ export const getAllCaseData = (userVibeData, data, selectedCategory, settings) =
     data.map(business => {    
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id) ) ){
         const { rating } = business;
-        const {difficultyGettingIn, fun, crowd } = rating;
+        
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, fun, crowd } = defaultOrAccumulatedRating;
        
         if( crowd >= 4 && crowd <= 5 && difficultyGettingIn>=4 && fun>=3)
           filterVibeCategoryData.goodSpots.push(business)
       
         else if( crowd <= 2 &&  difficultyGettingIn<=2 && fun <= 2)
           filterVibeCategoryData.badSpots.push(business)
-        
         else 
           filterVibeCategoryData.averageSpots.push(business)  
       }
@@ -55,7 +58,10 @@ export const getAllCaseData = (userVibeData, data, selectedCategory, settings) =
     data.map(business => {
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){  
         const { rating} = business;
-        const {difficultyGettingIn, fun, crowd } = rating
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, fun, crowd } = defaultOrAccumulatedRating;
         
         if(crowd >= 4 && crowd <= 5 && difficultyGettingIn>=3 && fun>=3)
           filterVibeCategoryData.goodSpots.push(business)
@@ -72,7 +78,10 @@ export const getAllCaseData = (userVibeData, data, selectedCategory, settings) =
     data.map(business => {
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
         const { rating} = business;
-        const {difficultyGettingIn, fun, crowd } = rating
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, fun, crowd } = defaultOrAccumulatedRating;
         
         if(crowd >= 3 && crowd <= 4 && difficultyGettingIn <= 2 && fun>=3 )
           filterVibeCategoryData.goodSpots.push(business)
@@ -88,7 +97,11 @@ export const getAllCaseData = (userVibeData, data, selectedCategory, settings) =
     data.map(business => {
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
         const { rating } = business;
-        const {difficultyGettingIn, crowd} = rating
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, crowd } = defaultOrAccumulatedRating;
+
         if(crowd <=2 && difficultyGettingIn<=2)
           filterVibeCategoryData.goodSpots.push(business)
         else if(crowd >= 3 && difficultyGettingIn>=3 )
@@ -103,7 +116,10 @@ export const getAllCaseData = (userVibeData, data, selectedCategory, settings) =
     data.map(business => {
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id)  ) ){
         const { rating } = business;
-        const { crowd, difficultyGettingIn } = rating;
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, crowd } = defaultOrAccumulatedRating;
 
         if(crowd <=1 && difficultyGettingIn <= 1 )
           filterVibeCategoryData.goodSpots.push(business)
@@ -131,7 +147,11 @@ export const getSearchData = (userVibeData, searchData, settings) => {
     searchData.map(business => {
       if( business.category.length !== 0 ){
         const { rating } = business;
-        const {difficultyGettingIn, fun, crowd } = rating
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, fun, crowd } = defaultOrAccumulatedRating;
+        
         if( crowd >= 4 && crowd <= 5 && difficultyGettingIn>=4 && fun>=3)
           filterVibeCategoryData.goodSpots.push(business)
         else if( crowd <= 2 &&  difficultyGettingIn<=2 && fun <= 2)
@@ -146,7 +166,11 @@ export const getSearchData = (userVibeData, searchData, settings) => {
     searchData.map(business => {
       if(business.category.length !== 0 ){
         const { rating } = business;
-        const {difficultyGettingIn, fun, crowd } = rating
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, fun, crowd } = defaultOrAccumulatedRating;
+
         if(crowd >= 4 && crowd <= 5 && difficultyGettingIn>=3 && fun>=3)
           filterVibeCategoryData.goodSpots.push(business)
         else if(crowd <= 2 && difficultyGettingIn<=2 && fun <= 2)
@@ -162,7 +186,11 @@ export const getSearchData = (userVibeData, searchData, settings) => {
     searchData.map(business => {
       if(business.category.length !== 0 ){
         const { rating } = business;
-        const {difficultyGettingIn, fun, crowd } = rating
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, fun, crowd } = defaultOrAccumulatedRating;
+
         if(crowd >= 3 && crowd <= 4 && difficultyGettingIn <= 2 && fun>=3 )
           filterVibeCategoryData.goodSpots.push(business)
         else if(crowd <= 2 && difficultyGettingIn>=4 && fun <3)
@@ -176,8 +204,11 @@ export const getSearchData = (userVibeData, searchData, settings) => {
   else if(vibeCategory === "Baby Party Time"){
     searchData.map(business => {
       if(business.category.length !== 0 ){
-        const { rating } = business;
-        const { difficultyGettingIn, crowd } = rating
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, fun, crowd } = defaultOrAccumulatedRating;
+
         if(crowd <=2 && difficultyGettingIn<=2)
           filterVibeCategoryData.goodSpots.push(business)
         else if(crowd >= 3 && difficultyGettingIn>=3 )
@@ -191,8 +222,11 @@ export const getSearchData = (userVibeData, searchData, settings) => {
   else{
     searchData.map(business => {
       if(business.category.length !== 0 ){
-        const { rating } = business;
-        const { crowd, difficultyGettingIn } = rating;
+        let defaultOrAccumulatedRating;
+        const getDefaultSettings = changeToDefaultEstablishment(business, settings); 
+        defaultOrAccumulatedRating= getDefaultSettings.defaultOrAccumulatedRating
+        const {difficultyGettingIn, fun, crowd } = defaultOrAccumulatedRating;
+
         if(crowd <=1 && difficultyGettingIn <= 1 )
           filterVibeCategoryData.goodSpots.push(business)
         else if(crowd >=3 && difficultyGettingIn >= 4 )
@@ -284,15 +318,16 @@ const getEstablishmentOpeningHours = (marker) => {
 const changeToDefaultEstablishment = (marker, settings) => {
   const getOpeningHours = getEstablishmentOpeningHours(marker);
   const { allRating } = marker;
-
-  // console.log("the marker.......", marker)
-  // console.log("the rating", allRating)
-  // console.log("the closedd", getOpeningHours.restaurantOpen)
-  // console.log("the setting final", settings)
-
+  let finalBusinessRating = {
+    isClosed: false,
+    isDefault: true,
+    defaultOrAccumulatedRating : {}
+  }
   if(allRating.length>0 ){
-    if(!getOpeningHours.restaurantOpen)
-      return false
+    if(!getOpeningHours.restaurantOpen){
+      finalBusinessRating.isClosed = true;
+    }
+      
     else{ 
       const openingTime = getOpeningHours.openingTime.toString()
       let completeOpeningTime;
@@ -305,7 +340,7 @@ const changeToDefaultEstablishment = (marker, settings) => {
         completeOpeningTime.splice( 2, 0, ':' )
       }
       const restaurantOpenTime = moment().format("YYYY-MM-DD") + " " + completeOpeningTime.toString().split(',').join("")
-      console.log("the all Rating", allRating)
+      // console.log("the all Rating", allRating)
       const establishmentRating = allRating.map(rating => {
         return {
           creationAt: rating.creationAt,
@@ -313,12 +348,11 @@ const changeToDefaultEstablishment = (marker, settings) => {
         }
       });
       const totalCounts = establishmentRating.filter(ratingTime => {
-        console.log(`the rating time ${moment(ratingTime).format("YYYY-MM-DD HH:mm").toString()} and restaurantOpenTime ${restaurantOpenTime} `)
         if(moment(ratingTime).format("YYYY-MM-DD HH:mm").toString()  > restaurantOpenTime)
           return true
       }).length
 
-      console.log("the total counts", totalCounts)
+      // console.log("the total counts", totalCounts)
       const isDefault = totalCounts <= settings.noOfUsersUntilShowDefault ? true : false
       let accumulatedAverageRatingPerDay = {
         fun: 0,
@@ -328,7 +362,13 @@ const changeToDefaultEstablishment = (marker, settings) => {
         difficultyGettingDrink: 0,
         totalRatings: 0
       }
+      let defaultOrAccumulatedRating = {};
       if(isDefault){
+        finalBusinessRating.isClosed = false;
+        finalBusinessRating.defaultOrAccumulatedRating = settings.rating;
+        finalBusinessRating.isDefault = true
+      }
+      else{
         const establishmentRating = allRating.map(rating => {
           return {
             ratingTime: rating.creationAt,
@@ -339,35 +379,44 @@ const changeToDefaultEstablishment = (marker, settings) => {
             difficultyGettingDrink: rating.difficultyGettingDrink,
           }
         });
+        
         const totalEstablishments = establishmentRating.filter(rating => {
-          console.log(`the rating time ${moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString()} and restaurantOpenTime ${restaurantOpenTime} `)
-          if(moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString()  > restaurantOpenTime)
+          if(moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString() > restaurantOpenTime)
             return true
         })
+        // console.log("the all rating", totalEstablishments);
+        // console.log("the total establishment count", totalEstablishments.length);
         var totalEstablishmentsCount = totalEstablishments.length;
-        for (let rating of establishmentRating){
+        for (let rating of totalEstablishments){
           accumulatedAverageRatingPerDay.fun = rating.fun + accumulatedAverageRatingPerDay.fun
           accumulatedAverageRatingPerDay.difficultyGettingIn = rating.difficultyGettingIn + accumulatedAverageRatingPerDay.difficultyGettingIn
           accumulatedAverageRatingPerDay.difficultyGettingDrink = rating.difficultyGettingDrink + accumulatedAverageRatingPerDay.difficultyGettingDrink
           accumulatedAverageRatingPerDay.genderBreakdown = rating.genderBreakdown + accumulatedAverageRatingPerDay.genderBreakdown
           accumulatedAverageRatingPerDay.crowd = rating.crowd + accumulatedAverageRatingPerDay.crowd
         }
-      }
+        accumulatedAverageRatingPerDay.fun = (accumulatedAverageRatingPerDay.fun/totalEstablishmentsCount).toFixed(1),
+        accumulatedAverageRatingPerDay.difficultyGettingIn = (accumulatedAverageRatingPerDay.difficultyGettingIn/totalEstablishmentsCount).toFixed(1),
+        accumulatedAverageRatingPerDay.difficultyGettingDrink = (accumulatedAverageRatingPerDay.difficultyGettingDrink/totalEstablishmentsCount).toFixed(1),
+        accumulatedAverageRatingPerDay.genderBreakdown = (accumulatedAverageRatingPerDay.genderBreakdown/totalEstablishmentsCount).toFixed(1),
+        accumulatedAverageRatingPerDay.crowd = (accumulatedAverageRatingPerDay.crowd/totalEstablishmentsCount).toFixed(1)
 
-      return {
-        isDefault,
-        accumulatedAverageRatingPerDay: {
-          fun : accumulatedAverageRatingPerDay.fun/totalEstablishmentsCount,
-          difficultyGettingIn : accumulatedAverageRatingPerDay.difficultyGettingIn/totalEstablishmentsCount,
-          difficultyGettingDrink : accumulatedAverageRatingPerDay.difficultyGettingDrink/totalEstablishmentsCount,
-          genderBreakdown : accumulatedAverageRatingPerDay.genderBreakdown/totalEstablishmentsCount,
-          crowd : accumulatedAverageRatingPerDay.crowd/totalEstablishmentsCount
-        }
+        defaultOrAccumulatedRating = accumulatedAverageRatingPerDay;
+        finalBusinessRating.isClosed = false;
+        finalBusinessRating.defaultOrAccumulatedRating = accumulatedAverageRatingPerDay;
+        finalBusinessRating.isDefault = true
       }
     }
   }
-  else 
-    return true
+  else {
+    if(!getOpeningHours.restaurantOpen){
+      finalBusinessRating.isClosed = true;
+    }
+    else
+      finalBusinessRating.isClosed = false;
+    finalBusinessRating.defaultOrAccumulatedRating = settings.rating;
+    finalBusinessRating.isDefault = true
+  }
+  return finalBusinessRating;
 }
 
 const getSpotMapData = (spotsData, settings) => {
@@ -380,7 +429,7 @@ const getSpotMapData = (spotsData, settings) => {
     }
 
     const getDefaultSettings = changeToDefaultEstablishment(marker, settings); 
-
+    
     return {
       markerId: marker._id,
       longitude: marker.location.coordinates[0],
@@ -396,6 +445,7 @@ const getSpotMapData = (spotsData, settings) => {
       location: marker.location.coordinates,
       mapUrl: googleBusiness ? googleBusiness.url : null,
       openingHours: marker.googleBusiness.opening_hours,
+      defaultOrAccumulatedRating: getDefaultSettings.defaultOrAccumulatedRating,
       isDefaultEstablishment: getDefaultSettings.isDefault   
     }
   });

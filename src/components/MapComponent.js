@@ -310,12 +310,11 @@ class MapScreen extends React.PureComponent{
           return true
         return false 
       } 
-        
     }
     else 
       return true
-
   }
+
   changedView = (view) => {
     const { user } = this.props;
     const { location } = user.user;
@@ -351,7 +350,6 @@ class MapScreen extends React.PureComponent{
     this.getAdminSettings()
     setTimeout(()=> {
       this.setState({tracksViewChanges: true, showVibeInfoModal: false })
-      // this.makeAnimate()
     }, 2000)
   }
 

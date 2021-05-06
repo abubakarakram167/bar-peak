@@ -156,15 +156,9 @@ class ProfileModal extends Component {
     }
     try{
       const res = await axios.post(`graphql?`,body);
-      const defaultRating = await axios.get('/getdefaultSettings');
-      const { isRunning, noOfUsersUntilShowDefault, rating } = defaultRating.data.settings;
-      // this.props.showRatingButton(businessData.markerId)
       this.getShowRatingButton()
       this.setState( { 
         getPreviousWeekDayRating: res.data.data.getCurrentDayExactTimeRating,
-        defaultRating: rating,
-        isRunning,
-        noOfUsersUntilShowDefault
       })
     }catch(err){
       console.log("hte errorsss", err)
@@ -195,37 +189,6 @@ class ProfileModal extends Component {
     else
       return "gray";
   }
-
-  getOriginalOrDefaultRating = (defaultRating, originalRating) => {
-    const { businessData } = this.props;
-    const { noOfUsersUntilShowDefault: defaultRatingUsers , isRunning} = this.state;
-    if(businessData.totalUserCountRating >= defaultRatingUsers && isRunning )
-      return defaultRating
-    return originalRating;  
-  }
-
-  // getRatingSaveTime = async() => {
-  //   const { token } = await getUserData();
-  //   const { businessData } = this.props;
-  //   console.log("the business", businessData)
-  //   const rateButtonBody = {
-  //     query: `
-  //     query{
-  //       showRateItButtonUntilNextHours(businessId: "${businessData.markerId}"){
-  //         showRateItButton
-  //         ratingSaveTime
-  //       } 
-  //     }`
-  //   }
-  //   const responseShowRate = await axios.post(`graphql?`, rateButtonBody,{ 
-  //     headers: {
-  //       'Authorization': `Bearer ${token}`
-  //     }});
-      
-  //   const dataMoment = responseShowRate.data.data.showRateItButtonUntilNextHours
-  //   console.log("the get save time", dataMoment)
-  //   return dataMoment ? dataMoment.ratingStartTime : null
-  // }
 
   getShowRatingButton = async() => {
     const { token } = await getUserData();
@@ -327,12 +290,16 @@ class ProfileModal extends Component {
   render() {
     const { show, component, location } = this.props;
     const { showRatingModal, showRatingButton } = component.component;
-    const { businessProfile, defaultRating } = this.state;
-    const { businessData } = this.props;  
+    const { businessProfile } = this.state;
+    const { businessData, business } = this.props;  
     const { vibe } = this.props.vibe.vibe;
-    const { rating } = businessData
+    // const { rating } = businessData
     const allPhotos = businessData && businessData.images.map((photo)=> photo.secure_url);
-
+    // console.log("the business", business)
+    const { rating } = business.business.adminSettings;
+    
+    const defaultOrAccumulatedRating = businessData && businessData.defaultOrAccumulatedRating
+    console.log("the ratingss", defaultOrAccumulatedRating);
     return (
       <View style={styles.centeredView}>
         <Modal
@@ -503,52 +470,37 @@ class ProfileModal extends Component {
                   </View>
 
                   <RatingComponent 
-                    defaultRating = {defaultRating.crowd}
-                    rating = {rating.crowd}
+                    defaultRating = {defaultOrAccumulatedRating.crowd}
                     ratingHeading = "Crowd Factor"
                     ratingCase = "crowd"
-                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
-                    isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
                     currentVibe = {vibe}
                   /> 
                   <RatingComponent 
-                    defaultRating = {defaultRating.fun}
-                    rating = {rating.fun}
+                    defaultRating = {defaultOrAccumulatedRating.fun}
                     ratingHeading = "Fun Factor"
                     ratingCase = "fun"
-                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
-                    isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
                     currentVibe = {vibe}
                   /> 
                   <RatingComponent 
-                    defaultRating = {defaultRating.difficultyGettingIn}
-                    rating = {rating.difficultyGettingIn}
+                    defaultRating = {defaultOrAccumulatedRating.difficultyGettingIn}
                     ratingHeading = "Difficulty Getting In"
                     ratingCase = "difficultyGettingIn"
-                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
-                    isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
                     currentVibe = {vibe}
                   /> 
                    <RatingComponent 
-                    defaultRating = {defaultRating.genderBreakdown}
-                    rating = {rating.genderBreakdown}
+                    defaultRating = {defaultOrAccumulatedRating.ratioInput}
                     ratingHeading = "Gender Breakdown"
                     ratingCase = "genderBreakdown"
-                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
-                    isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
                     currentVibe = {vibe}
                   /> 
                    <RatingComponent 
-                    defaultRating = {defaultRating.difficultyGettingIn}
-                    rating = {rating.difficultyGettingIn}
+                    defaultRating = {defaultOrAccumulatedRating.difficultyGettingIn}
                     ratingHeading = "Difficulty Getting a Drink"
                     ratingCase = "difficultyGettingADrink"
-                    noOfUsersUntilShowDefault = {this.state.noOfUsersUntilShowDefault}
-                    isRunning = {this.state.isRunning}
                     businessData = {this.props.businessData}
                     currentVibe = {vibe}
                   /> 
