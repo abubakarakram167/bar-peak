@@ -7,12 +7,13 @@ import {
     Image,
     TouchableWithoutFeedback,
     Keyboard,
+    Text
 } from "react-native";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import MapComponent from '../components/MapComponent';
 import {getfilteredBusiness, getFavouritesBusinessAction, getNearLocationBusiness, emptyBusiness, getAdminSettings} from '../../redux/actions/Business';
-import {getVibe} from '../../redux/actions/Vibe';
+import {getVibe, showVibeModals} from '../../redux/actions/Vibe';
 import { getAllCategories } from '../../redux/actions/Category';
 import { setUserLocation } from '../../redux/actions/User';
 import * as Location from 'expo-location';
@@ -22,6 +23,8 @@ import _, { map } from 'underscore';
 import Modal from '../components/Modal';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
 import ShowVibeModal from "../components/showVibeModal";
+import { useNavigationState } from '@react-navigation/native';
+
 
 const DismissKeyboard = ({ children }) => (
   <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -63,14 +66,10 @@ class HomeScreen extends Component {
         this.props.setUserLocation(coords)],
         this.props.getAdminSettings()
       )
-
+      this.showModals(getVibe)
       this.setState({ spinner: false })
       await this.props.getAllCategories();
-      if(!getVibe){
-        setTimeout(()=> { this.setState({ showModal: true }) }, 200)      
-      }
-      else
-        this.setState({ isVibeEmpty: false, showVibeModal: true })
+     
       await this.props.getfilteredBusiness(null, null, null);
       await this.props.getFavouritesBusinessAction();
       this.setState({ spinner: false , makeAnimate: true})
@@ -81,7 +80,24 @@ class HomeScreen extends Component {
     }
   }
 
+  showModals=(getVibe)=> {
+    if(!getVibe)
+      setTimeout(()=> { this.setState({ showModal: true }) }, 200)      
+    else
+      this.setState({ isVibeEmpty: false, showVibeModal: true })
+  }
+
+  onScreenFocus = async() => {
+    const { vibe } = this.props;
+    
+    if(vibe.vibe.showVibeModal){
+      const getVibe = await this.props.getVibe() 
+      this.showModals(getVibe)
+    }
+  }
+
   async componentDidMount(){
+    this.props.navigation.addListener('focus', this.onScreenFocus)
     this.makeCalls()
   }
 
@@ -133,15 +149,15 @@ class HomeScreen extends Component {
   }
     
   render() {  
-    const {navigation, component } = this.props;
+    const {navigation, component, vibe } = this.props;
     const showVibeInfoAfterVibe = component && component.component.showVibeInfoModalAfterVibe
-
+    
     return (
       <DismissKeyboard> 
         <SafeAreaView style = {{ flex: 1 }} >
           <View style={{ flex: 1 }}>
             <MapComponent  navigation = {navigation}/>
-            { (this.state.showVibeModal && !this.state.isVibeEmpty || showVibeInfoAfterVibe ) &&
+            { (this.state.showVibeModal && !this.state.isVibeEmpty ) &&
               (<ShowVibeModal 
                 show = {this.state.showVibeModal}
                 onClose = {() => { this.setState({ showVibeModal: false }) }}
@@ -209,7 +225,8 @@ const mapDispatchToProps = dispatch => (
     getAllCategories,
     setUserLocation,
     getFavouritesBusinessAction,
-    getAdminSettings
+    getAdminSettings,
+    showVibeModals
   }, dispatch)
 );
 
@@ -287,3 +304,4 @@ const styles = StyleSheet.create({
     zIndex: 3 
   }
 });
+

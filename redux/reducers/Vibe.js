@@ -1,8 +1,9 @@
 import { combineReducers } from 'redux';
-import {Set_Vibe, Update_Vibe, Empty_Vibe} from '../types'; 
+import {Set_Vibe, Update_Vibe, Empty_Vibe, showVibeModal} from '../types'; 
 
 const INITIAL_STATE = {
-  vibe:{}
+  vibe:{},
+  showVibeModal: false
 };
 
 const vibeReducer = (state = INITIAL_STATE, action) => {
@@ -17,7 +18,7 @@ const vibeReducer = (state = INITIAL_STATE, action) => {
     case Empty_Vibe:
       if (action.payload === null)
         action.payload = {};
-      return{
+      return {
         ...state,
         vibe: {}
       }  
@@ -25,6 +26,11 @@ const vibeReducer = (state = INITIAL_STATE, action) => {
       return{
         ...state,
         vibe: action.payload
+      }
+    case showVibeModal: 
+      return{
+        ...state,
+        showVibeModal: action.payload
       }
     default:
       return state

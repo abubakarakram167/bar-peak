@@ -1,7 +1,16 @@
-import {Set_Vibe, Update_Vibe} from '../types'; 
+import {Set_Vibe, Update_Vibe, showVibeModal} from '../types'; 
 import { graphql } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
+
+export const showVibeModals = (show) => async (dispatch, getState) => { 
+  dispatch({
+    type: showVibeModal,
+    payload: show
+  })
+  return Promise.resolve(show)
+}
+
 
 export const submitVibe = (vibeInput) => async (dispatch, getState) => {
   

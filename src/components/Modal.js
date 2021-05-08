@@ -210,12 +210,12 @@ class ProfileModal extends Component {
       
     const dataMoment = responseShowRate.data.data.showRateItButtonUntilNextHours
     let ratingAvailable;
-    // console.log("the data moment", dataMoment);
+    console.log("the data moment", dataMoment);
     if(dataMoment && dataMoment.ratingSaveTime){
       var now = moment(new Date()); //todays date
       var duration = moment.duration(now.diff(dataMoment.ratingSaveTime));
       var seconds = duration.asSeconds();
-      // console.log("the seconds", seconds);
+      console.log("the seconds", seconds);
       if(parseInt(seconds) >= 3600 )
         ratingAvailable = true
       else
@@ -533,7 +533,7 @@ class ProfileModal extends Component {
                     </View>     
                 } */}
                   { 
-                    !this.state.isRatingAvailable && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You already rated this spot! Come back in an hour. </Text>
+                    !this.state.isRatingAvailable && this.state.showDistanceRateText  && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You already rated this spot! Come back in an hour. </Text>
                   }
                   { 
                     !this.checkUserRatingAvailableDistance() && this.state.showDistanceRateText && <Text style = {{ color: 'red',textAlign: 'center' ,fontSize: 16, marginTop: 10 }} > You must be within 80 yards of this establishment to rate it. </Text>
@@ -541,10 +541,10 @@ class ProfileModal extends Component {
                     <View style = {{ flex:2,justifyContent: 'center',alignItems: 'center' ,borderWidth: 0, width: '100%', marginTop: 20}} >
                       <TouchableOpacity
                         style = { styles.activeRateButton  }
-                        activeOpactity = {0.9}
+                        activeOpactity = {0.7}
                         onPress = {() => {
                           this.setState({ showDistanceRateText: true }) 
-                          if(true || this.checkUserRatingAvailableDistance() && this.state.isRatingAvailable)
+                          if( true || this.checkUserRatingAvailableDistance() && this.state.isRatingAvailable)
                             this.props.showRatingModal(true) 
                         }}
                       >

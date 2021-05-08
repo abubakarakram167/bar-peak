@@ -172,7 +172,6 @@ export class SurveyComponent extends React.PureComponent {
     }
 
     onSurveyFinished(answers) {
-      console.log("the propertyyy")
       const infoQuestionsRemoved = [...answers];
       const answersAsObj = {};
       for (const elem of infoQuestionsRemoved) { answersAsObj[elem.questionId] = elem.value; }
@@ -306,15 +305,14 @@ export class SurveyComponent extends React.PureComponent {
     }
 
     renderInfoText(infoText) {
-        return (
-            <View style={{ marginLeft: 10, marginRight: 10 }}>
-                <Text style={styles.infoText}>{infoText}</Text>
-            </View>
-        );
+      return (
+        <View style={{ marginLeft: 10, marginRight: 10 }}>
+          <Text style={styles.infoText}>{infoText}</Text>
+        </View>
+      );
     }
 
     saveRating = async(answers) => {
-      console.log("this.props.data", this.props.data);
       let FinalAnswers = answers.map((answer)=> answer.value )
       const rating = {
         fun: FinalAnswers[0].value,
@@ -323,8 +321,7 @@ export class SurveyComponent extends React.PureComponent {
         ratioInput: FinalAnswers[3].value,
         difficultyGettingADrink: FinalAnswers[4].value
       }
-      console.log("....///////")
-      console.log("the rating submissionTime", moment().format())
+      
       this.setState({ spinner: true })
       const { token } = await getUserData();
       const { data } = this.props;
@@ -336,7 +333,8 @@ export class SurveyComponent extends React.PureComponent {
               crowd: ${rating.crowd.toFixed(2)},
               ratioInput: ${rating.ratioInput.toFixed(2)},
               difficultyGettingIn: ${rating.difficultyGettingIn.toFixed(2)},
-              difficultyGettingDrink: ${rating.difficultyGettingADrink.toFixed(2)}    
+              difficultyGettingDrink: ${rating.difficultyGettingADrink.toFixed(2)},
+              creationAt: "${moment().format("YYYY-MM-DD HH:mm:ss")}"   
             },
             businessId: "${data.markerId}",
             ratingSaveTime: "${moment.utc(moment())}"
@@ -369,7 +367,7 @@ export class SurveyComponent extends React.PureComponent {
           }, 2000)
         })
       }catch(err){
-        console.log("the error in survey", err)
+        console.log("the error in survey", err.response)
       }
   
     }
@@ -390,7 +388,9 @@ export class SurveyComponent extends React.PureComponent {
               renderFinished={this.renderFinishedButton.bind(this)}
               renderQuestionText={ (question)=> this.renderQuestionText(question)}
               onSurveyFinished={(answers) => this.onSurveyFinished(answers)}
-              onAnswerSubmitted={(answer) => this.onAnswerSubmitted(answer)}
+              onAnswerSubmitted={(answer) => {
+                this.onAnswerSubmitted(answer)}
+              }
               renderTextInput={this.renderTextBox}
               renderNumericInput={this.renderNumericInput}
               renderInfo={this.renderInfoText}

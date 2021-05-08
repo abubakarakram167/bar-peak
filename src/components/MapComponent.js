@@ -61,6 +61,7 @@ class MapScreen extends React.PureComponent{
       showMarkerName: false,
       tracksViewChanges: true,
       isActiveToggle: false,
+      openToggle: true,
       showInfoModal: false,
       adminSettings: null,
       grayColor:true
@@ -185,7 +186,7 @@ class MapScreen extends React.PureComponent{
   }
 
   showSpecificCategoryMarkers = (category) => {
-    this.setState({ currentCategory: category, isActiveToggle: true }, ()=>{
+    this.setState({ currentCategory: category }, ()=>{
     if(this.state.currentCategory){  
       let categories  = [];
       let allCategories = this.props.category;
@@ -204,6 +205,11 @@ class MapScreen extends React.PureComponent{
           return category.type === "main_category"
         }).map((category) => category._id)
       }
+      else if( category === 'all'){
+        categories = allCategories.map((category) => category._id)
+      }
+       
+
       this.props.getfilteredBusiness(categories, null, null);
     }
     else
@@ -221,15 +227,21 @@ class MapScreen extends React.PureComponent{
 
   getImagePath = (types,whichSpot ,settings, marker) => {
     let fileName = '';
-    // console.log("in map component", marker.isDefaultEstablishment )
-    if(this.state.currentCategory === "food")
+    // console.log("the marker name", marker.name)
+    // console.log("in map component....", types )
+    if(this.state.currentCategory === "food" )
       return  require('../../assets/FoodBlackTransparent.png')
     else{
+
+      if(this.state.currentCategory === "all"){
+        if(types.includes("Restaurant") && !types.includes('Night Clubs') &&  !types.includes("Bar") ){
+          return  require('../../assets/FoodBlackTransparent.png')
+        }
+      }
+
+      if(!this.isEstablishmentClosed(marker))
+        return require('../../assets/closedGray.png')
       if(types.includes("Night Clubs") || types.includes("Bar")  ){
-        if(!this.isEstablishmentClosed(marker))
-          return require('../../assets/closedGray.png')
-        if(marker.isDefaultEstablishment)
-          whichSpot = "yellow"  
         if(whichSpot === 'red')
           return require('../../assets/redWhite.png')
         else if(whichSpot === 'green')
@@ -332,8 +344,9 @@ class MapScreen extends React.PureComponent{
   onChangeToggle = (toggle) => {
     this.setState({ isActiveToggle: toggle},()=> {
       if(toggle){
+        console.log("thee current stat", this.state.currentCategory)
         if(this.state.currentCategory === null)
-          this.showSpecificCategoryMarkers('food')
+          this.showSpecificCategoryMarkers('all')
         else
           this.showSpecificCategoryMarkers(this.state.currentCategory)
       }
@@ -351,6 +364,16 @@ class MapScreen extends React.PureComponent{
     setTimeout(()=> {
       this.setState({tracksViewChanges: true, showVibeInfoModal: false })
     }, 2000)
+  }
+
+  showClosedEstablishments = (marker) => {
+    if(!this.state.openToggle)
+      return true
+    else{
+      if(!marker.isClosed)
+        return true
+      return false;  
+    }  
   }
 
   render(){
@@ -437,10 +460,10 @@ class MapScreen extends React.PureComponent{
             <View style = {{ flex:1 }} >
               <TouchableOpacity
                 onPress = {()=>{ this.showSpecificCategoryMarkers("food") }}
-                style = { this.state.currentCategory === 'food' ? styles.categoryButtons : styles.nonActiveCategory}
+                style = { ['food', 'all'].includes(this.state.currentCategory)  ? styles.categoryButtons : styles.nonActiveCategory}
               >
                 <Text
-                  style = {  this.state.currentCategory === 'food' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor  }
+                  style = {  ['food', 'all'].includes(this.state.currentCategory) ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor  }
                 >
                   FOOD
                 </Text>
@@ -449,10 +472,10 @@ class MapScreen extends React.PureComponent{
             <View style = {{ flex:1 }} >
               <TouchableOpacity
                 onPress = {()=>{ this.showSpecificCategoryMarkers("drinks") }}
-                style = { this.state.currentCategory === 'drinks' ? styles.categoryButtons : styles.nonActiveCategory}
+                style = { ['drinks', 'all'].includes(this.state.currentCategory) ? styles.categoryButtons : styles.nonActiveCategory}
               >
                 <Text
-                   style = {  this.state.currentCategory === 'drinks' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor  }
+                   style = {  ['drinks', 'all'].includes(this.state.currentCategory) ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor  }
                 >
                   DRINKS
                 </Text>       
@@ -461,10 +484,10 @@ class MapScreen extends React.PureComponent{
             <View style = {{ flex: 2 }} >
               <TouchableOpacity
                 onPress = {()=>{ this.showSpecificCategoryMarkers("food+drinks") }}
-                style = { this.state.currentCategory === 'food+drinks' ? styles.categoryButtons : styles.nonActiveCategory}
+                style = { ['food+drinks', 'all'].includes(this.state.currentCategory) ? styles.categoryButtons : styles.nonActiveCategory}
               >
                 <Text
-                  style = {  this.state.currentCategory === 'food+drinks' ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor   }
+                  style = {  ['food+drinks', 'all'].includes(this.state.currentCategory) ? styles.activeCategoryButtonTextColor : styles.categoryButtonTextColor   }
                 >
                   FOOD + DRINKS
                 </Text>       
@@ -480,8 +503,8 @@ class MapScreen extends React.PureComponent{
             provider = {PROVIDER_GOOGLE}
             style={styles.mapStyle} 
             initialRegion={{
-              latitude:  parseFloat( !location.latitude ? location.latitude : 32.7970465 ),
-              longitude: parseFloat( !location.longitude ? location.longitude: -117.254522 ),
+              latitude:  parseFloat( location.latitude ? location.latitude : 32.7970465 ),
+              longitude: parseFloat( location.longitude ? location.longitude: -117.254522 ),
               latitudeDelta: LATITUDE_DELTA,
               longitudeDelta: LONGITUDE_DELTA,
             }}
@@ -524,7 +547,7 @@ class MapScreen extends React.PureComponent{
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker, index)=> {
                 const url = this.getImagePath( marker.types,'green',this.state.adminSettings, marker )
-                if(this.getCurrentCategorySelected(marker.types, marker.name) ){
+                if(this.getCurrentCategorySelected(marker.types, marker.name) && this.showClosedEstablishments(marker) ){
                   return(
                     <MapView.Marker
                       key = {index}
@@ -550,7 +573,7 @@ class MapScreen extends React.PureComponent{
             {  
               averageSpots && averageSpots.length> 0 && averageSpots.map((marker, index)=> {
                 const url = this.getImagePath(marker.types, 'yellow', this.state.adminSettings, marker)
-                if(this.getCurrentCategorySelected(marker.types, marker.name) ){
+                if( this.getCurrentCategorySelected(marker.types, marker.name)  && this.showClosedEstablishments(marker) ){
                   return(
                     <MapView.Marker
                       key = {index}
@@ -583,7 +606,7 @@ class MapScreen extends React.PureComponent{
             {  
               badSpots && badSpots.length> 0 &&  badSpots.map((marker, index)=> {
                 const url = this.getImagePath(marker.types, 'red', this.state.adminSettings, marker)
-                if(this.getCurrentCategorySelected(marker.types, marker.name) ){
+                if( this.getCurrentCategorySelected(marker.types, marker.name)  && this.showClosedEstablishments(marker) ){
                   return(
                     <MapView.Marker
                       key = {index}
@@ -610,6 +633,26 @@ class MapScreen extends React.PureComponent{
           </MapView>
           <View
             style={{
+              position: 'absolute',
+              left: '1%',
+              top: '9%',
+              alignSelf: 'flex-end', //for align to right
+            }}
+          >        
+            <ToggleSwitch
+              isActiveToggle = {this.state.openToggle} 
+              onChange = {(toggle)=> {
+                this.setState({ openToggle: !this.state.openToggle })
+              }}
+            />
+            <Text 
+              style = {{ fontSize: 12, fontWeight: '600',width: '80%',alignSelf: 'center', textAlign: 'center' }} 
+            >
+              { this.state.openToggle ? "Open Only" : "All" } 
+            </Text>
+          </View>
+          <View
+            style={{
               position: 'absolute',//use absolute position to show button on top of the map
               top: '5%', //for center align
               right: '1%',
@@ -628,9 +671,10 @@ class MapScreen extends React.PureComponent{
               isActiveToggle = {this.state.isActiveToggle} 
               onChange = {(toggle)=> {
                 this.setState({ isActiveToggle: toggle},()=> {
+                  console.log("the current state", this.state.currentCategory)
                   if(toggle){
                     if(this.state.currentCategory === null)
-                      this.showSpecificCategoryMarkers('food')
+                      this.showSpecificCategoryMarkers('all')
                     else
                       this.showSpecificCategoryMarkers(this.state.currentCategory)
                   }

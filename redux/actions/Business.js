@@ -7,7 +7,8 @@ import {
   getFavouritesBusiness, 
   selectSpecifcCategoryEstablishments, 
   Update_Rating, 
-  GET_ADMIN_SETTINGS } from '../types'; 
+  GET_ADMIN_SETTINGS,
+} from '../types'; 
 import { graphql, stripIgnoredCharacters } from 'graphql';
 import axios from '../../src/api/axios';
 import { getUserData } from '../../src/components/localStorage'; 
@@ -25,6 +26,8 @@ let sortSpotsByDistanceAway = (markerList) => {
     return parseFloat(a.distanceAway) - parseFloat(b.distanceAway);
   });
 }
+
+
 
 export const addToFavourite = (id) => async (dispatch, getState) => {
   const { business } = getState();
@@ -48,11 +51,11 @@ export const addToFavourite = (id) => async (dispatch, getState) => {
           }    
           name
           rating{
-              fun,
-              crowd,
-              ratioInput,
-              difficultyGettingIn,
-              difficultyGettingDrink
+            fun,
+            crowd,
+            ratioInput,
+            difficultyGettingIn,
+            difficultyGettingDrink
           }
           name
           totalUserCountRating
@@ -274,9 +277,10 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
   let finalRadius = updatedRadius ? updatedRadius : radius
   const { token } = await getUserData();
   
-  latitude = 32.7970465;
-  longitude = -117.254522;
-  finalRadius = 100000;
+  // latitude = 32.7970465;
+  // longitude = -117.254522;
+  // finalRadius = 100000;
+  console.log("the data", latitude, longitude, finalRadius)
 
   const body = {
       query:`
@@ -294,7 +298,8 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
           crowd,
           ratioInput,
           difficultyGettingIn,
-          difficultyGettingDrink
+          difficultyGettingDrink,
+          creationAt
         }
         totalUserCountRating
         ageInterval
@@ -347,7 +352,7 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-  
+    console.log("the data",  res.data.data.getNearByLocationBusiness)
     dispatch({
       type: Near_Location_Business,
       payload: res.data.data.getNearByLocationBusiness,
@@ -400,8 +405,8 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
     let { latitude, longitude } = user.user.location;
     
     // For User Testing
-    latitude = 32.7970465;
-    longitude = -117.254522;
+    // latitude = 32.7970465;
+    // longitude = -117.254522;
     
     var userLocation = { lat: latitude , lng: longitude }
     var destinationLocation = {};

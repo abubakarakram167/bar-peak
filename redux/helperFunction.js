@@ -34,7 +34,7 @@ export const getAllCaseData = (userVibeData, data, selectedCategory, settings) =
   filterVibeCategoryData.settings = settings;
   let { vibeCategory } = userVibeData; 
   if(vibeCategory === "Professional Party Time"){
-    data.map(business => {    
+    data.map(business => {  
       if(business.category.length !== 0 && business.category.some(category =>  selectedCategory.includes(category._id) ) ){
         const { rating } = business;
         
@@ -316,18 +316,21 @@ const getEstablishmentOpeningHours = (marker) => {
 }
 
 const changeToDefaultEstablishment = (marker, settings) => {
+  console.log("the settings", settings)
   const getOpeningHours = getEstablishmentOpeningHours(marker);
-  const { allRating } = marker;
+  const { allRating, rating} = marker;
   let finalBusinessRating = {
     isClosed: false,
     isDefault: true,
     defaultOrAccumulatedRating : {}
   }
-  if(allRating.length>0 ){
+  const {creationAt} = marker.rating;
+
+  if(creationAt && moment(creationAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD') ){
     if(!getOpeningHours.restaurantOpen){
       finalBusinessRating.isClosed = true;
+      finalBusinessRating.defaultOrAccumulatedRating = rating
     }
-      
     else{ 
       const openingTime = getOpeningHours.openingTime.toString()
       let completeOpeningTime;
@@ -340,20 +343,23 @@ const changeToDefaultEstablishment = (marker, settings) => {
         completeOpeningTime.splice( 2, 0, ':' )
       }
       const restaurantOpenTime = moment().format("YYYY-MM-DD") + " " + completeOpeningTime.toString().split(',').join("")
-      // console.log("the all Rating", allRating)
+     
       const establishmentRating = allRating.map(rating => {
         return {
           creationAt: rating.creationAt,
-          
         }
       });
-      const totalCounts = establishmentRating.filter(ratingTime => {
-        if(moment(ratingTime).format("YYYY-MM-DD HH:mm").toString()  > restaurantOpenTime)
+    
+      const totalCounts = establishmentRating.filter(rating => {
+        if(moment(rating.creationAt).format("YYYY-MM-DD HH:mm").toString() > restaurantOpenTime && 
+          moment(rating.creationAt).format("YYYY-MM-DD HH:mm").toString() > moment(creationAt).format("YYYY-MM-DD HH:mm").toString()
+        )
           return true
       }).length
 
-      // console.log("the total counts", totalCounts)
+      
       const isDefault = totalCounts <= settings.noOfUsersUntilShowDefault ? true : false
+    
       let accumulatedAverageRatingPerDay = {
         fun: 0,
         crowd: 0,
@@ -365,7 +371,7 @@ const changeToDefaultEstablishment = (marker, settings) => {
       let defaultOrAccumulatedRating = {};
       if(isDefault){
         finalBusinessRating.isClosed = false;
-        finalBusinessRating.defaultOrAccumulatedRating = settings.rating;
+        finalBusinessRating.defaultOrAccumulatedRating = marker.rating;
         finalBusinessRating.isDefault = true
       }
       else{
@@ -381,11 +387,11 @@ const changeToDefaultEstablishment = (marker, settings) => {
         });
         
         const totalEstablishments = establishmentRating.filter(rating => {
-          if(moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString() > restaurantOpenTime)
+          if(moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString() > restaurantOpenTime && 
+            moment(creationAt).format("YYYY-MM-DD HH:mm").toString() > moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString() 
+          )
             return true
         })
-        // console.log("the all rating", totalEstablishments);
-        // console.log("the total establishment count", totalEstablishments.length);
         var totalEstablishmentsCount = totalEstablishments.length;
         for (let rating of totalEstablishments){
           accumulatedAverageRatingPerDay.fun = rating.fun + accumulatedAverageRatingPerDay.fun
@@ -403,18 +409,135 @@ const changeToDefaultEstablishment = (marker, settings) => {
         defaultOrAccumulatedRating = accumulatedAverageRatingPerDay;
         finalBusinessRating.isClosed = false;
         finalBusinessRating.defaultOrAccumulatedRating = accumulatedAverageRatingPerDay;
-        finalBusinessRating.isDefault = true
+        finalBusinessRating.isDefault = false
       }
     }
   }
-  else {
-    if(!getOpeningHours.restaurantOpen){
-      finalBusinessRating.isClosed = true;
+  else{
+    if(allRating.length>0 ){
+      if(!getOpeningHours.restaurantOpen){
+        finalBusinessRating.isClosed = true;
+      }
+      else{ 
+        const openingTime = getOpeningHours.openingTime.toString()
+        let completeOpeningTime;
+        if(openingTime.length === 3){
+          completeOpeningTime = openingTime.split('')
+          completeOpeningTime.splice( 1, 0, ':' )
+        }
+        else{
+          completeOpeningTime = openingTime.split('')
+          completeOpeningTime.splice( 2, 0, ':' )
+        }
+        const restaurantOpenTime = moment().format("YYYY-MM-DD") + " " + completeOpeningTime.toString().split(',').join("")
+        const establishmentRating = allRating.map(rating => {
+          return {
+            creationAt: rating.creationAt,
+          }
+        });
+        const totalCounts = establishmentRating.filter(ratingTime => {
+          if(moment(ratingTime.creationAt).format("YYYY-MM-DD HH:mm").toString()  > restaurantOpenTime)
+            return true
+        }).length
+  
+        const isDefault = totalCounts <= settings.noOfUsersUntilShowDefault ? true : false
+        let accumulatedAverageRatingPerDay = {
+          fun: 0,
+          crowd: 0,
+          genderBreakdown: 0,
+          difficultyGettingIn: 0,
+          difficultyGettingDrink: 0,
+          totalRatings: 0
+        }
+        let defaultOrAccumulatedRating = {};
+        if(isDefault){
+          finalBusinessRating.isClosed = false;
+          finalBusinessRating.defaultOrAccumulatedRating = settings.rating;
+          finalBusinessRating.isDefault = true
+        }
+        // else if(settings.isCurrentDefault){
+        //   const establishmentRating = allRating.map(rating => {
+        //     return {
+        //       ratingTime: rating.creationAt,
+        //       fun: rating.fun,
+        //       crowd: rating.crowd,
+        //       genderBreakdown: rating.ratioInput,
+        //       difficultyGettingIn: rating.difficultyGettingIn,
+        //       difficultyGettingDrink: rating.difficultyGettingDrink,
+        //     }
+        //   });
+          
+        //   const totalEstablishments = establishmentRating.filter(rating => {
+        //     if(moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString() > restaurantOpenTime)
+        //       return true
+        //   })
+    
+        //   var totalEstablishmentsCount = totalEstablishments.length;
+        //   for (let rating of totalEstablishments){
+        //     accumulatedAverageRatingPerDay.fun = rating.fun + accumulatedAverageRatingPerDay.fun
+        //     accumulatedAverageRatingPerDay.difficultyGettingIn = rating.difficultyGettingIn + accumulatedAverageRatingPerDay.difficultyGettingIn
+        //     accumulatedAverageRatingPerDay.difficultyGettingDrink = rating.difficultyGettingDrink + accumulatedAverageRatingPerDay.difficultyGettingDrink
+        //     accumulatedAverageRatingPerDay.genderBreakdown = rating.genderBreakdown + accumulatedAverageRatingPerDay.genderBreakdown
+        //     accumulatedAverageRatingPerDay.crowd = rating.crowd + accumulatedAverageRatingPerDay.crowd
+        //   }
+        //   accumulatedAverageRatingPerDay.fun = (accumulatedAverageRatingPerDay.fun/totalEstablishmentsCount).toFixed(1),
+        //   accumulatedAverageRatingPerDay.difficultyGettingIn = (accumulatedAverageRatingPerDay.difficultyGettingIn/totalEstablishmentsCount).toFixed(1),
+        //   accumulatedAverageRatingPerDay.difficultyGettingDrink = (accumulatedAverageRatingPerDay.difficultyGettingDrink/totalEstablishmentsCount).toFixed(1),
+        //   accumulatedAverageRatingPerDay.genderBreakdown = (accumulatedAverageRatingPerDay.genderBreakdown/totalEstablishmentsCount).toFixed(1),
+        //   accumulatedAverageRatingPerDay.crowd = (accumulatedAverageRatingPerDay.crowd/totalEstablishmentsCount).toFixed(1)
+  
+        //   defaultOrAccumulatedRating = accumulatedAverageRatingPerDay;
+        //   finalBusinessRating.isClosed = false;
+        //   finalBusinessRating.defaultOrAccumulatedRating = accumulatedAverageRatingPerDay;
+        //   finalBusinessRating.isDefault = true
+        // }
+        else{
+          const establishmentRating = allRating.map(rating => {
+            return {
+              ratingTime: rating.creationAt,
+              fun: rating.fun,
+              crowd: rating.crowd,
+              genderBreakdown: rating.ratioInput,
+              difficultyGettingIn: rating.difficultyGettingIn,
+              difficultyGettingDrink: rating.difficultyGettingDrink,
+            }
+          });
+          
+          const totalEstablishments = establishmentRating.filter(rating => {
+            if(moment(rating.ratingTime).format("YYYY-MM-DD HH:mm").toString() > restaurantOpenTime)
+              return true
+          })
+    
+          var totalEstablishmentsCount = totalEstablishments.length;
+          for (let rating of totalEstablishments){
+            accumulatedAverageRatingPerDay.fun = rating.fun + accumulatedAverageRatingPerDay.fun
+            accumulatedAverageRatingPerDay.difficultyGettingIn = rating.difficultyGettingIn + accumulatedAverageRatingPerDay.difficultyGettingIn
+            accumulatedAverageRatingPerDay.difficultyGettingDrink = rating.difficultyGettingDrink + accumulatedAverageRatingPerDay.difficultyGettingDrink
+            accumulatedAverageRatingPerDay.genderBreakdown = rating.genderBreakdown + accumulatedAverageRatingPerDay.genderBreakdown
+            accumulatedAverageRatingPerDay.crowd = rating.crowd + accumulatedAverageRatingPerDay.crowd
+          }
+          accumulatedAverageRatingPerDay.fun = (accumulatedAverageRatingPerDay.fun/totalEstablishmentsCount).toFixed(1),
+          accumulatedAverageRatingPerDay.difficultyGettingIn = (accumulatedAverageRatingPerDay.difficultyGettingIn/totalEstablishmentsCount).toFixed(1),
+          accumulatedAverageRatingPerDay.difficultyGettingDrink = (accumulatedAverageRatingPerDay.difficultyGettingDrink/totalEstablishmentsCount).toFixed(1),
+          accumulatedAverageRatingPerDay.genderBreakdown = (accumulatedAverageRatingPerDay.genderBreakdown/totalEstablishmentsCount).toFixed(1),
+          accumulatedAverageRatingPerDay.crowd = (accumulatedAverageRatingPerDay.crowd/totalEstablishmentsCount).toFixed(1)
+  
+          defaultOrAccumulatedRating = accumulatedAverageRatingPerDay;
+          finalBusinessRating.isClosed = false;
+          finalBusinessRating.defaultOrAccumulatedRating = accumulatedAverageRatingPerDay;
+          finalBusinessRating.isDefault = true
+        }
+      }
     }
-    else
-      finalBusinessRating.isClosed = false;
-    finalBusinessRating.defaultOrAccumulatedRating = settings.rating;
-    finalBusinessRating.isDefault = true
+    else {
+      if(!getOpeningHours.restaurantOpen){
+        finalBusinessRating.isClosed = true;
+      }
+      else
+        finalBusinessRating.isClosed = false;
+      finalBusinessRating.defaultOrAccumulatedRating = settings.rating;
+      finalBusinessRating.isDefault = true
+    }
   }
   return finalBusinessRating;
 }
@@ -446,7 +569,8 @@ const getSpotMapData = (spotsData, settings) => {
       mapUrl: googleBusiness ? googleBusiness.url : null,
       openingHours: marker.googleBusiness.opening_hours,
       defaultOrAccumulatedRating: getDefaultSettings.defaultOrAccumulatedRating,
-      isDefaultEstablishment: getDefaultSettings.isDefault   
+      isDefaultEstablishment: getDefaultSettings.isDefault,
+      isClosed: getDefaultSettings.isClosed   
     }
   });
 }

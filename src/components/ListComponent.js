@@ -31,6 +31,7 @@ class ListComponent extends React.Component{
       message: '',
       totalCategoriesName: '',
       showVibeModal: false,
+      openToggle: true
     }
   }
 
@@ -243,6 +244,19 @@ class ListComponent extends React.Component{
     return restaurantOpen
   }
 
+  showClosedEstablishments = (marker) => {
+    console.log("the marker", marker.name, marker.isClosed)
+
+    if(!this.state.openToggle)
+      return true
+    else{
+      if(!marker.isClosed)
+        return true
+      return false;  
+    }  
+  }
+
+
 
   render(){
     const { allSpots, isFavorite } = this.props.business;
@@ -261,6 +275,21 @@ class ListComponent extends React.Component{
               >
                 { isFavorite ? " Favorite Spots " : "Nearby Spots"}
               </Text> 
+            </View>
+            <View
+              style={{flex: 2,}}
+            >        
+              <ToggleSwitch
+                isActiveToggle = {this.state.openToggle} 
+                onChange = {(toggle)=> {
+                  this.setState({ openToggle: !this.state.openToggle })
+                }}
+              />
+              <Text 
+                style = {{ fontSize: 10, fontWeight: '600',width: '60%',alignSelf: 'center', textAlign: 'center' }} 
+              >
+                { this.state.openToggle ? "Open Only" : "All" } 
+              </Text>
             </View>
             <View
               style = {{ flex: 2 }}
@@ -320,7 +349,7 @@ class ListComponent extends React.Component{
                     this.getOnlyCurrentCategoryList(allSpots)
                     .slice(this.state.currentPageNumber * pagesPerList, this.state.currentPageNumber * pagesPerList + pagesPerList)
                     .map((marker, index)=>{
-                    if( this.getCurrentCategorySelected(marker.types, marker.name) ){
+                    if( this.getCurrentCategorySelected(marker.types, marker.name) && this.showClosedEstablishments(marker) ){
                       return(
                         <TouchableOpacity
                           onPress = {()=>{ 

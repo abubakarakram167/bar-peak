@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
 import { bindActionCreators } from 'redux';
 import {getfilteredBusiness, emptyBusiness} from '../../../redux/actions/Business';
-import {submitVibe, updateVibe} from '../../../redux/actions/Vibe';
+import {submitVibe, updateVibe, showVibeModals} from '../../../redux/actions/Vibe';
 import _, { map } from 'underscore';
 import RestartVibeModal from '../Modals/VibeRestart';
 import { showVibeInfoModal } from '../../../redux/actions/Components';
@@ -162,10 +162,14 @@ class ProgressStepBar extends Component {
       if(updateVibe){
         await this.props.emptyBusiness()
         this.props.getfilteredBusiness(null, null, null);
-        this.props.showVibeInfoModal(true) 
+        this.props.showVibeInfoModal(true)
+        this.props.showVibeModals(true) 
         setTimeout(()=> {
           this.props.showVibeInfoModal(false) 
         }, 2000)
+        setTimeout(()=> {
+          this.props.showVibeModals(false) 
+        }, 10000)
         setTimeout(()=>{
           this.setState({ showIndicator: false }) 
           navigation.navigate('Home', { showVibeModal: true }); 
@@ -337,7 +341,8 @@ const mapDispatchToProps = dispatch => (
     updateVibe,
     emptyBusiness,
     getfilteredBusiness,
-    showVibeInfoModal
+    showVibeInfoModal,
+    showVibeModals
   }, dispatch)
 );
 
