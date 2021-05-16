@@ -245,8 +245,6 @@ class ListComponent extends React.Component{
   }
 
   showClosedEstablishments = (marker) => {
-    console.log("the marker", marker.name, marker.isClosed)
-
     if(!this.state.openToggle)
       return true
     else{

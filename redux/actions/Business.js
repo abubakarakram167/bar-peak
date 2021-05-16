@@ -146,6 +146,11 @@ export const getFavouritesBusinessAction = () => async (dispatch, getState) => {
             }
             allRating{
               creationAt
+              fun
+              crowd
+              ratioInput
+              difficultyGettingIn
+              difficultyGettingDrink
             }
             location{
               type
@@ -224,6 +229,11 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
             }
             allRating{
               creationAt
+              fun
+              crowd
+              ratioInput
+              difficultyGettingIn
+              difficultyGettingDrink
             }
             uploadedPhotos{
               secure_url

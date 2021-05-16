@@ -102,7 +102,7 @@ class MapScreen extends React.PureComponent{
       type: 'Warning',
       title: 'Closed',
       button: true,
-      textBody: 'Establishment close right now.Check back soon.',
+      textBody: 'Establishment is closed right now.Please check back soon.',
       buttonText: 'Ok',
       width: 300,
       callback: () => Popup.hide(),
