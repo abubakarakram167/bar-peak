@@ -145,7 +145,6 @@ class MapScreen extends React.PureComponent{
     const openDay = parseInt(originalTimeOrDefaultTime.open.day);
     const closeDay = parseInt(originalTimeOrDefaultTime.close.day);
     const myCurrentDay = parseInt(this.getKeyByValue(weekDays, todayDayName));
-    // console.log(` openTime: ${openTime} , closeTime: ${closeTime} , openDay: ${openDay}, closeDay: ${closeDay}, myCurrentDay: ${myCurrentDay}, my CureentTime: ${myCurrentTime} `)
 
     if(myCurrentDay === closeDay){
       if(myCurrentTime>openTime && myCurrentTime < closeTime)
@@ -164,7 +163,6 @@ class MapScreen extends React.PureComponent{
 
  
   markerClick = (marker) => {
-    console.log("the marker click", marker);
     const showClosedModal = this.isEstablishmentClosed(marker)
     if(!showClosedModal)
       this.showPopUp()
@@ -227,8 +225,7 @@ class MapScreen extends React.PureComponent{
 
   getImagePath = (types,whichSpot ,settings, marker) => {
     let fileName = '';
-    // console.log("the marker name", marker.name)
-    // console.log("in map component....", types )
+  
     if(this.state.currentCategory === "food" )
       return  require('../../assets/FoodBlackTransparent.png')
     else{
@@ -299,7 +296,13 @@ class MapScreen extends React.PureComponent{
   }
 
   getCurrentCategorySelected = (categories, name) => {
+    
     const { currentCategory } = this.state;
+    if(name === "Mavericks Beach Club"){
+      console.log("the marker name", name, categories);
+      console.log("the current catgory ", currentCategory, categories)
+    }
+
     if(currentCategory){
       if(currentCategory === "food"){
         if(categories.includes("Restaurant") ){
@@ -344,7 +347,6 @@ class MapScreen extends React.PureComponent{
   onChangeToggle = (toggle) => {
     this.setState({ isActiveToggle: toggle},()=> {
       if(toggle){
-        console.log("thee current stat", this.state.currentCategory)
         if(this.state.currentCategory === null)
           this.showSpecificCategoryMarkers('all')
         else
@@ -367,6 +369,12 @@ class MapScreen extends React.PureComponent{
   }
 
   showClosedEstablishments = (marker) => {
+    if(marker.name === "Mavericks Beach Club"){
+      console.log("the statsas", marker.name);
+      console.log("the markerrr", marker)
+      console.log("the state", this.state.openToggle)
+    }
+
     if(!this.state.openToggle)
       return true
     else{
@@ -547,7 +555,7 @@ class MapScreen extends React.PureComponent{
             {  
               goodSpots && goodSpots.length> 0 && goodSpots.map((marker, index)=> {
                 const url = this.getImagePath( marker.types,'green',this.state.adminSettings, marker )
-                if(this.getCurrentCategorySelected(marker.types, marker.name) && this.showClosedEstablishments(marker) ){
+                if( this.getCurrentCategorySelected(marker.types, marker.name) && this.showClosedEstablishments(marker) ){
                   return(
                     <MapView.Marker
                       key = {index}
@@ -671,7 +679,6 @@ class MapScreen extends React.PureComponent{
               isActiveToggle = {this.state.isActiveToggle} 
               onChange = {(toggle)=> {
                 this.setState({ isActiveToggle: toggle},()=> {
-                  console.log("the current state", this.state.currentCategory)
                   if(toggle){
                     if(this.state.currentCategory === null)
                       this.showSpecificCategoryMarkers('all')

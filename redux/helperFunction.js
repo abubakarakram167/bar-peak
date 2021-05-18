@@ -262,7 +262,7 @@ const getKeyByValue = (object, value) => {
 }
 
 const getEstablishmentOpeningHours = (marker) => {
-  const openingHours  = marker.googleBusiness.opening_hours;
+  const openingHours  = marker.googleBusiness ? marker.googleBusiness.opening_hours : marker.customData.opening_hours;
   var defaultTime = false;
   let restaurantOpen = true;
   const todayDate = moment().format('dddd YYYY-MM-DD HH:mm').split(' ');
@@ -273,6 +273,7 @@ const getEstablishmentOpeningHours = (marker) => {
     if(day.open.day === getKeyByValue(weekDays, todayDayName))
       return true 
   }): null
+ 
   let originalTimeOrDefaultTime;
   if(specifcDayTimings && specifcDayTimings.length > 0)
     originalTimeOrDefaultTime = specifcDayTimings[0]
@@ -316,8 +317,8 @@ const getEstablishmentOpeningHours = (marker) => {
 }
 
 const changeToDefaultEstablishment = (marker, settings) => {
-  console.log("the settings", settings)
   const getOpeningHours = getEstablishmentOpeningHours(marker);
+
   const { allRating, rating} = marker;
   let finalBusinessRating = {
     isClosed: false,
@@ -357,8 +358,7 @@ const changeToDefaultEstablishment = (marker, settings) => {
         )
           return true
       }).length
-
-      console.log("the total counts", totalCounts);      
+      
       const isDefault = totalCounts <= settings.noOfUsersUntilShowDefault ? true : false
     
       let accumulatedAverageRatingPerDay = {
@@ -445,14 +445,10 @@ const changeToDefaultEstablishment = (marker, settings) => {
           }
         });
         
-        console.log("the restaurant open", restaurantOpenTime)
-        console.log("the establishment rating", establishmentRating);
         const totalCounts = establishmentRating.filter(ratingTime => {
           if(moment(ratingTime.ratingTime).format("YYYY-MM-DD HH:mm").toString()  > restaurantOpenTime)
             return true
         }).length
-
-        console.log("the total counts......", totalCounts)
 
         const isDefault = totalCounts <= settings.noOfUsersUntilShowDefault ? true : false
         let accumulatedAverageRatingPerDay = {
@@ -479,8 +475,6 @@ const changeToDefaultEstablishment = (marker, settings) => {
               return true
           })
 
-          console.log("after adminn set itss", totalEstablishments)
-          console.log("the totallll blinkers after set", totalEstablishments.length)
           var totalEstablishmentsCount = totalEstablishments.length;
           const isDefault = totalEstablishments.length <= settings.noOfUsersUntilShowDefault ? true : false
           let accumulatedAverageRatingPerDay = {
@@ -574,12 +568,16 @@ const getSpotMapData = (spotsData, settings) => {
     const data = {
       address: googleBusiness ? googleBusiness.formatted_address : customData.address,
       phoneNo: googleBusiness ? googleBusiness.formatted_phone_number : customData.phoneNo,
-      rating: googleBusiness ? googleBusiness.rating : customData.rating
+      rating: googleBusiness ? googleBusiness.rating : customData.rating, 
+      openingHours: googleBusiness ? googleBusiness.opening_hours : customData.opening_hours
     }
 
-    const getDefaultSettings = changeToDefaultEstablishment(marker, settings); 
-    console.log("the default settings", getDefaultSettings);
+    
+    // if(marker.name === "Mavericks Beach Club"){
+    //   console.log("the marker name", marker);
+    // }
 
+    const getDefaultSettings = changeToDefaultEstablishment(marker, settings); 
     return {
       markerId: marker._id,
       longitude: marker.location.coordinates[0],
@@ -594,7 +592,7 @@ const getSpotMapData = (spotsData, settings) => {
       phoneNo: data.phoneNo,
       location: marker.location.coordinates,
       mapUrl: googleBusiness ? googleBusiness.url : null,
-      openingHours: marker.googleBusiness.opening_hours,
+      openingHours: data.openingHours,
       defaultOrAccumulatedRating: getDefaultSettings.defaultOrAccumulatedRating,
       isDefaultEstablishment: getDefaultSettings.isDefault,
       isClosed: getDefaultSettings.isClosed   

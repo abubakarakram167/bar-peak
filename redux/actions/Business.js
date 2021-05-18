@@ -65,6 +65,18 @@ export const addToFavourite = (id) => async (dispatch, getState) => {
             address
             phoneNo
             rating
+            opening_hours{
+              periods{
+                close{
+                  day,
+                  time
+                },
+                open{
+                  day,
+                  time
+                }
+              }
+            }
           }
           location{
             type
@@ -82,7 +94,18 @@ export const addToFavourite = (id) => async (dispatch, getState) => {
             rating
             url
             types,
-            opening_hours
+            opening_hours{
+              periods{
+                close{
+                  day,
+                  time
+                },
+                open{
+                  day,
+                  time
+                }
+              }
+            }
           }
       }
     }
@@ -143,6 +166,18 @@ export const getFavouritesBusinessAction = () => async (dispatch, getState) => {
               address
               phoneNo
               rating
+              opening_hours{
+                periods{
+                  close{
+                    day,
+                    time
+                  },
+                  open{
+                    day,
+                    time
+                  }
+                }
+              }
             }
             allRating{
               creationAt
@@ -226,6 +261,18 @@ export const getSearchBusinesses = (searchValue) => async (dispatch, getState) =
               address
               phoneNo
               rating
+              opening_hours{
+                periods{
+                  close{
+                    day,
+                    time
+                  },
+                  open{
+                    day,
+                    time
+                  }
+                }
+              }
             }
             allRating{
               creationAt
@@ -290,8 +337,7 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
   // latitude = 32.7970465;
   // longitude = -117.254522;
   // finalRadius = 100000;
-  console.log("the data", latitude, longitude, finalRadius)
-
+  
   const body = {
       query:`
       query{
@@ -317,6 +363,18 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
           address
           phoneNo
           rating
+          opening_hours{
+            periods{
+              close{
+                day,
+                time
+              },
+              open{
+                day,
+                time
+              }
+            }
+          }
         }
         allRating{
           creationAt
@@ -362,14 +420,14 @@ export const getNearLocationBusiness = ({ latitude, longitude }, updatedRadius) 
     const res = await axios.post(`graphql?`,body,{ headers: {
       'Authorization': `Bearer ${token}`
     } });
-    console.log("the data",  res.data.data.getNearByLocationBusiness)
     dispatch({
       type: Near_Location_Business,
       payload: res.data.data.getNearByLocationBusiness,
     })
+  
     return Promise.resolve(res.data.data.getNearByLocationBusiness);
   }catch(err){
-    console.log("hte errorsss", err.response.data)
+    console.log("fetch...", err.response)
   }
 };
 
@@ -433,7 +491,7 @@ export const getfilteredBusiness = ( selectedMainCategory, search, favourite) =>
     })
   
   }catch(err){
-    console.log("hte errorsss", err)
+    console.log("in filtered", err)
   }
 };
 

@@ -544,7 +544,7 @@ class ProfileModal extends Component {
                         activeOpactity = {0.7}
                         onPress = {() => {
                           this.setState({ showDistanceRateText: true }) 
-                          if( true || this.checkUserRatingAvailableDistance() && this.state.isRatingAvailable)
+                          if( this.checkUserRatingAvailableDistance() && this.state.isRatingAvailable)
                             this.props.showRatingModal(true) 
                         }}
                       >
